@@ -1,0 +1,15 @@
+#surfaces p { font-size: 12px; line-height: 1.4; }
+#surface-scope { width: 100%; }
+#surface-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 1000; font: 13px var(--app-font); color: #fff; }
+.surface-card, .surface-controls { position: absolute; background: #292853ee; border: 2px solid #8cefff; border-radius: 20px 26px 19px 24px; padding: 8px; pointer-events: auto; }
+.surface-card { top: max(10px, env(safe-area-inset-top)); left: 12px; right: 12px; display: flex; gap: 8px; align-items: center; max-width: 520px; margin-inline: auto; }
+.surface-card p { flex: 1; margin: 0; line-height: 1.35; }
+.surface-controls { bottom: max(12px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: min(310px, calc(100vw - 24px)); text-align: center; }
+.surface-placement, .surface-transform { display: flex; gap: 7px; justify-content: center; }
+.surface-placement > button { flex: 1; }
+#surface-size { display: block; margin: 4px; }
+body.surface-active { background: transparent; }
+body.surface-active > :not(#surface-overlay):not(#workspace) { visibility: hidden !important; }
+body.surface-active #workspace { visibility: visible; }
+body.surface-active #surface-overlay { visibility: visible; }
+#surface-overlay .round-button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; flex: 0 0 44px; padding: 7px; }

@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "modelos": {
+    "sensor-pir": [
+      {
+        "id": "lente",
+        "nombre": "Lente de Fresnel",
+        "nodo": "Polygonal Fresnel lens shell",
+        "descripcion": "Ayuda a dirigir la radiación infrarroja hacia el elemento sensible."
+      },
+      {
+        "id": "ajuste",
+        "nombre": "Ajustes",
+        "nodo": "Trimmer 0 slotted rotor",
+        "descripcion": "Los ajustes del módulo permiten modificar su funcionamiento. No son botones de encendido."
+      }
+    ],
+    "sensor-ultrasonico": [
+      {
+        "id": "emisor",
+        "nombre": "Emisor",
+        "nodo": "Transmitter hollow rolled shell",
+        "descripcion": "Emite el pulso ultrasónico que viaja hacia un objeto."
+      },
+      {
+        "id": "receptor",
+        "nombre": "Receptor",
+        "nodo": "Receiver hollow rolled shell",
+        "descripcion": "Recibe el eco. El tiempo de ida y vuelta permite estimar la distancia."
+      },
+      {
+        "id": "conexion",
+        "nombre": "Conector",
+        "nodo": "Four-pin header housing",
+        "descripcion": "Conecta alimentación y señales con el circuito que controla el módulo."
+      }
+    ],
+    "sensor-temperatura": [
+      {
+        "id": "ventana",
+        "nombre": "Ventana óptica",
+        "nodo": "Recessed optical window",
+        "descripcion": "Permite que la radiación infrarroja llegue al elemento de detección."
+      },
+      {
+        "id": "placa",
+        "nombre": "Placa",
+        "nodo": "PCB substrate",
+        "descripcion": "Sostiene y conecta los componentes del módulo."
+      }
+    ],
+    "sensor-luz-ldr": [
+      {
+        "id": "pista",
+        "nombre": "Pista sensible",
+        "nodo": "Continuous serpentine sensing ribbon",
+        "descripcion": "La resistencia de este material disminuye cuando recibe más luz."
+      },
+      {
+        "id": "terminal",
+        "nombre": "Terminal",
+        "nodo": "Wire lead 1",
+        "descripcion": "Este terminal y el otro permiten conectar la LDR a un circuito."
+      }
+    ],
+    "sensor-color-rgb": [
+      {
+        "id": "ventana",
+        "nombre": "Ventana del sensor",
+        "nodo": "U1 color sensing window",
+        "descripcion": "La luz llega al sensor por esta zona para obtener información de color."
+      },
+      {
+        "id": "led",
+        "nombre": "LED",
+        "nodo": "LED phosphor window",
+        "descripcion": "Proporciona iluminación para observar una superficie."
+      }
+    ],
+    "sensor-lluvia": [
+      {
+        "id": "placa",
+        "nombre": "Placa de detección",
+        "nodo": "Sensor board substrate",
+        "descripcion": "El agua sobre las pistas conductoras cambia la señal que recibe el módulo."
+      },
+      {
+        "id": "ajuste",
+        "nombre": "Ajuste de sensibilidad",
+        "nodo": "Trimmer adjustment screw",
+        "descripcion": "Permite ajustar la respuesta del módulo de control."
+      }
+    ]
+  }
+}

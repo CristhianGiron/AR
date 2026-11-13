@@ -1,0 +1,68 @@
+/* Pages are explicit views, never scroll containers with a concealed scrollbar. */
+.paged-surface, .hud-dialog.paged-surface, .hud-dialog.paged-surface#inspector,
+.hud-dialog.paged-surface#collection-controls, .hud-dialog.paged-surface.floating-panel {
+  overflow: clip;
+}
+.hud-dialog.paged-surface[open] { display: flex; flex-direction: column; }
+.page-body { position: relative; flex: 0 0 auto; min-height: 0; overflow: clip; }
+.page-clip { overflow: clip; }
+.page-content { display: flow-root; transform-origin: top left; }
+.page-content > :first-child { margin-top: 0; }
+.page-content > :last-child { margin-bottom: 0; }
+.page-navigation {
+  flex: 0 0 52px; display: flex; align-items: center; justify-content: center;
+  gap: 18px; margin-top: 8px; border-top: 1px solid #a68cea60; padding-top: 7px;
+}
+.page-navigation .page-arrow {
+  display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px;
+  padding: 8px; margin: 0; border: 2px solid #b9dfff; border-radius: 50%;
+  color: #fff; background: linear-gradient(145deg, #7546c6, #302464);
+  box-shadow: inset 0 2px 6px #fff3, 0 2px 7px #080c3433;
+}
+.page-arrow svg { width: 26px; height: 26px; stroke-width: 2.5; }
+.page-arrow:hover:not(:disabled) { border-color: #6affff; background: #61399d; }
+.page-navigation .page-arrow:disabled { opacity: .45; cursor: default; }
+.page-number { min-width: 50px; text-align: center; color: #f4eeff; font-size: 13px; font-variant-numeric: tabular-nums; }
+.paged-surface .dialog-heading, .paged-surface .panel-heading,
+.hud-dialog#inspector.paged-surface .inspector-head { position: static; flex-shrink: 0; }
+.paged-surface #library-grid, .paged-surface #scene-list { max-height: none; overflow: visible; }
+.paged-surface textarea { resize: none; overflow: clip; }
+#workspace-panel { overflow: clip; }
+#workspace-panel #navigation { gap: var(--navigation-gap, 10px); }
+#navigation .nav-button { min-height: var(--navigation-height, 64px); }
+#navigation .nav-caption { display: none; }
+#tools { overflow: visible; }
+@media (max-width: 700px) {
+  #navigation .nav-button { min-height: 58px; }
+  #workspace-panel #navigation { gap: 7px; }
+  #workspace-panel .page-navigation { gap: 4px; }
+  #workspace-panel .page-number { min-width: 0; font-size: 10px; }
+  #workspace-panel .page-arrow { width: 44px; padding: 5px; }
+  #workspace-panel:has(.page-navigation:not([hidden])) { width: 120px; }
+}
+@media (max-height: 550px) and (min-width: 701px) {
+  #navigation .nav-button { min-height: 48px; }
+  #workspace-panel #navigation { gap: 6px; }
+}
+.hud-dialog.paged-surface { max-width: calc(100vw - 16px); }
+@media (max-height: 550px) {
+  .hud-dialog.paged-surface, .hud-dialog.paged-surface#inspector,
+  .hud-dialog.paged-surface#collection-controls, .hud-dialog.paged-surface.floating-panel {
+    inset-block-start: 8px; max-height: calc(100dvh - 16px);
+  }
+  .paged-surface .model-card { display: grid; grid-template-columns: 28px 1fr; gap: 5px 8px; padding: 10px; text-align: left; }
+  .paged-surface .model-card svg { grid-row: span 2; width: 28px; height: 28px; }
+  .paged-surface .model-card span { font-size: 12px; }
+  .paged-surface .model-card small { font-size: 10px; }
+}
+.page-indicator { display: grid; justify-items: center; gap: 2px; min-width: 0; max-width: 200px; }
+.page-context { max-width: 100%; color: #eee7ff; font-size: 11px; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
+.page-number { font-size: 12px; }
+.page-navigation { gap: 12px; }
+#workspace-panel .page-context { display: none; }
+
+/* Insets belong outside the translated viewport, so every page retains them. */
+.hud-dialog.paged-surface > .page-body { padding-block: 10px 6px; }
+.hud-dialog.paged-surface > .dialog-heading,
+.hud-dialog.paged-surface > .panel-heading,
+.hud-dialog#inspector.paged-surface > .inspector-head { margin-bottom: 0; }

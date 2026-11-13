@@ -1,0 +1,22 @@
+process.env.QA_FINE_POINTER = '1';
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const {run}=require('./harness.cjs');
+run(async({page,artifacts,load,select,click,frame})=>{
+ await page.setViewport({width:1280,height:900,isMobile:false,hasTouch:false,deviceScaleFactor:1}); await load();
+ await select('sensor-luz-ldr');await click('#object-inspect');await frame();
+ const before=await page.evaluate(()=>({position:__app.engine.camera.position.toArray(),projection:__app.engine.camera.projectionMatrix.toArray()}));
+ await page.mouse.move(850,680);await frame();
+ assert.notEqual(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--hud-yaw').trim()),'0deg');
+ assert.deepEqual(await page.evaluate(()=>({position:__app.engine.camera.position.toArray(),projection:__app.engine.camera.projectionMatrix.toArray()})),before);
+ await page.screenshot({path:path.join(artifacts,'perspective-canvas.png')});
+ await page.hover('#help');
+ assert.equal(await page.$eval('#help',e=>getComputedStyle(e).animationName),'explorar-gelatina');
+ await click('#help');assert.equal(await page.evaluate(()=>__app.state.hudSurface),'help-panel');
+ await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
+ await page.mouse.move(850,680);
+ assert.equal(await page.$eval('#help',e=>getComputedStyle(e).animationName),'none');
+ assert.equal(await page.$eval('#help',e=>getComputedStyle(e).transform),'none');
+ assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--hud-yaw')),'');
+ console.log('PASS: perspectiva decorativa al mover el lienzo sin cambiar el encuadre, hover de gelatina en ratón, botones operativos y movimiento reducido sin animación.');
+}).catch(e=>{console.error(e);process.exitCode=1});

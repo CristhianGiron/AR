@@ -1,0 +1,65 @@
+/* Shared spacing budget: content gets the room; touch targets retain 44px. */
+:root { --panel-inset: 14px; --panel-gap: 8px; --navigation-gap: 10px; --navigation-height: clamp(58px, 5vw, 80px); }
+.hud-dialog, .hud-dialog#inspector, .hud-dialog#collection-controls, .hud-dialog.floating-panel { padding: var(--panel-inset); }
+.hud-dialog > .dialog-heading, .hud-dialog > .panel-heading,
+.hud-dialog#inspector > .inspector-head {
+  margin: calc(-1 * var(--panel-inset)) calc(-1 * var(--panel-inset)) 0;
+  padding: 8px var(--panel-inset); gap: 8px;
+}
+.hud-dialog#inspector > .inspector-head { padding-right: 66px; }
+.hud-dialog#inspector #close-inspector { top: 9px; right: 12px; }
+.hud-dialog p { margin-block: 7px; }
+.hud-dialog label, .floating-panel label { margin-block: 7px 3px; }
+.hud-dialog details { margin-top: 8px; }
+.hud-dialog summary { padding-block: 6px; }
+.hud-dialog input:not([type='range']):not([type='checkbox']):not([type='color']),
+.hud-dialog select { padding: 7px 9px; }
+.hud-dialog .primary-button { margin-top: 8px; padding: 8px 12px; min-height: 44px; }
+.hud-dialog .secondary-actions { gap: 6px; margin: 8px 0; }
+#panel .secondary-action, #panel #mobile-inspect, #panel .secondary-color { min-height: 46px; padding: 7px 9px; }
+.hud-dialog .numeric-pair { gap: 8px; }
+.hud-dialog .model-card { padding: 12px 8px; gap: 6px; }
+.hud-dialog .model-card svg { width: 30px; height: 30px; }
+.hud-dialog .scene-item { padding: 8px 10px; margin-top: 6px; min-height: 44px; }
+.hud-dialog #upload-form { padding: 0 8px 8px; }
+.hud-dialog #model-data { gap: 6px; margin-block: 8px; }
+.hud-dialog #model-data > div { padding: 7px 9px; }
+.hud-dialog .stat { padding: 8px 10px; }
+.hud-dialog .learning-steps { margin: 2px 0 8px; gap: 6px; }
+.hud-dialog #learning-goal, .hud-dialog #learning-observe { margin-block: 6px; }
+.hud-dialog #learning-deeper { margin-top: 8px; }
+.hud-dialog > .page-body { padding-block: 10px 4px; }
+.hud-dialog > .page-navigation { margin-top: 6px; padding-top: 5px; flex-basis: 50px; gap: 10px; }
+#navigation .nav-button { gap: 10px; padding: 8px 12px; }
+#header { padding-inline: 22px; }
+.brand { padding: 10px 18px 12px 12px; gap: 8px; }
+.mode-badge { padding: 9px 18px; gap: 10px; }
+.header-actions { gap: 12px; }
+#bar { gap: 8px; }
+#inspector #object-description { padding: 9px 10px; margin: 7px 0; }
+#inspector .reference-fact { padding: 7px 9px; }
+#inspector #object-facts { gap: 5px; margin-bottom: 6px; }
+#inspector #focus-component.reference-cta { margin: 4px 0 6px; }
+#inspector .card-destinations { gap: 6px; margin-top: 6px; }
+/* The same family shares positioning, capacity and docking in the controller. */
+@media (min-width: 1100px) and (min-height: 650px) {
+  .hud-dialog#inspector, .hud-dialog#technical, .hud-dialog#challenge {
+    z-index: 5; inset: clamp(116px, 15vh, 150px) 22px auto auto;
+    width: clamp(320px, 25vw, 420px);
+    max-height: calc(100dvh - clamp(116px, 15vh, 150px) - 82px);
+  }
+}
+@media (max-width: 700px) {
+  :root { --panel-inset: 12px; --navigation-gap: 6px; --navigation-height: 56px; }
+  #header { padding: 10px 12px; }
+  .header-actions { gap: 8px; }
+  .brand { padding: 7px 10px 8px 8px; gap: 4px; }
+  #navigation .nav-button { padding: 7px 5px; gap: 4px; min-height: 56px; }
+  #workspace-panel #navigation { gap: 6px; }
+  .hud-dialog, .hud-dialog#inspector, .hud-dialog#collection-controls, .hud-dialog.floating-panel { max-height: calc(100dvh - 16px); }
+}
+@media (max-height: 550px) and (min-width: 701px) {
+  #navigation .nav-button { min-height: 48px; padding: 6px 9px; }
+}
+/* Names take precedence over the decorative mode banner at intersecting views. */
+.mode-badge[data-label-overlap] { visibility: hidden; pointer-events: none; }

@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ExplorAR · Tu laboratorio de ideas</title>
+    <link rel="stylesheet" href="./styles/base.css" />
+    <link rel="stylesheet" href="./styles/components.css" />
+    <link rel="stylesheet" href="./styles/responsive.css" />
+    <link rel="stylesheet" href="./styles/education.css" />
+    <link rel="stylesheet" href="./styles/hud.css" />
+    <link rel="stylesheet" href="./styles/identity.css" />
+    <link rel="stylesheet" href="./styles/cards.css" />
+    <link rel="stylesheet" href="./styles/pagination.css" />
+    <link rel="stylesheet" href="./styles/density.css" />
+    <link rel="stylesheet" href="./styles/effects.css" />
+    <link rel="stylesheet" href="./styles/laboratory.css" />
+    <link rel="stylesheet" href="./styles/surfaces.css" />
+  </head>
+  <body>
+    <svg class="frame-filters" aria-hidden="true" focusable="false" width="0" height="0"><defs><filter id="comic-outline" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.014 0.025" numOctaves="2" seed="7" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+    <video id="video" autoplay muted playsinline></video>
+    <main id="workspace" aria-label="Escena de exploración">
+      <div id="stage"></div>
+      <p id="scene-text-alternative" class="sr-only">Puedes elegir los componentes desde Mi escena y usar sus opciones sin arrastrar.</p>
+    </main>
+    <div class="decoration ribbon top" aria-hidden="true"></div>
+    <div class="decoration ribbon bottom" aria-hidden="true"></div>
+    <div class="decoration ribbon lower-left" aria-hidden="true"></div>
+    <img class="decoration explorer" src="./assets/explorador.png" alt="" aria-hidden="true" draggable="false" />
+    <div class="decoration spark one" aria-hidden="true">☆</div>
+    <div class="decoration spark two" aria-hidden="true">✦</div>
+    <header id="header">
+      <div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true" class="brand-mark"><path d="m25 5 21 12v24L25 53 4 41V17L25 5Z"/><path d="m4 17 21 12 21-12M25 29v24"/><g class="brand-rocket"><path class="rocket-fin" d="m36 38-10 3 5-12M44 46l-3 11 12-12"/><path class="rocket-body" d="M31 41c2-15 12-25 28-26 0 16-9 26-23 31l-5-5Z"/><circle class="rocket-window" cx="47" cy="28" r="4"/><path class="rocket-flame" d="m30 45-5 12 12-6"/></g></svg><h1 class="brand-name">Explor<b>AR</b></h1></div>
+      <div class="mode-badge"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M8 3H4a1 1 0 0 0-1 1v4M16 3h4a1 1 0 0 1 1 1v4M3 16v4a1 1 0 0 0 1 1h4M21 16v4a1 1 0 0 1-1 1h-4"/><path d="m12 7 5 3v5l-5 3-5-3v-5l5-3ZM7 10l5 3 5-3M12 13v5"/></svg><span id="mode-title">Exploración 3D</span></div>
+      <div class="header-actions">
+        <button id="help" class="round-button" title="Guía de exploración" aria-label="Guía de exploración" aria-expanded="false" aria-controls="help-panel"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5a2.6 2.6 0 0 1 5 1c0 2-2.5 2-2.5 4M12 17h.01"/></svg></button>
+        <button id="workspace-toggle" class="round-button" title="Abrir herramientas" aria-label="Abrir herramientas" aria-expanded="false" aria-controls="workspace-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.5 3-2 1-2.5-1-2 4 2.5 2v2L2 16l2 4 3-1 2 1 1 2h4l1-2 2-1 3 1 2-4-2.5-2v-2L22 10l-2-4-2.5 1-2-1L15 3H9Z"/><circle cx="12" cy="12" r="3"/></svg><span>Herramientas</span></button>
+<button id="hud-toggle" class="round-button" title="Despejar la vista" aria-label="Despejar la vista" aria-pressed="false">
+      <svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+      <svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+      <span>Despejar vista</span>
+    </button>
+      </div>
+    </header>
+    <aside id="workspace-panel" aria-label="Herramientas de exploración">
+    <nav id="navigation" aria-label="Explorar el laboratorio">
+      <button id="explore" class="nav-button nav-yellow" aria-expanded="false" aria-controls="library"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Z"/><path d="m3 8 9 5 9-5M12 13v9"/></svg><span>Explorar<br />modelos</span></button>
+      <button id="my-scene" class="nav-button nav-violet" aria-expanded="false" aria-controls="scene-panel"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg><span>Mi escena</span></button>
+      <button id="toggle" class="nav-button nav-teal" title="Ajustes y objetos" aria-label="Ajustes y objetos" aria-expanded="false" aria-controls="panel"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m9 3-.5 3-2 1-2.5-1-2 4 2.5 2v2L2 16l2 4 3-1 2 1 1 2h4l1-2 2-1 3 1 2-4-2.5-2v-2L22 10l-2-4-2.5 1-2-1L15 3H9Z"/><circle cx="12" cy="12" r="3"/></svg><span>Ajustes</span></button>
+      <button id="add-shortcut" class="nav-button nav-pink" aria-expanded="false" aria-controls="library"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Cargar modelo</span></button>
+      
+      <p class="nav-caption">Imagina · toca · descubre</p>
+    </nav>
+    </aside>
+    <dialog id="collection-controls" hidden class="hud-dialog" aria-labelledby="view-dialog-title">
+      <div class="dialog-heading"><h2 id="view-dialog-title" tabindex="-1">Vista del conjunto</h2><button class="round-button" data-close-surface="collection-controls" aria-label="Cerrar controles de vista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <div class="collection-row">
+        <button id="collection-mode" title="Controlar todo el conjunto" aria-label="Controlar todo el conjunto" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3H3v4M17 3h4v4M3 17v4h4M21 17v4h-4M12 6l6 3v6l-6 3-6-3V9l6-3ZM6 9l6 3 6-3M12 12v6"/></svg><span>Conjunto</span></button>
+        <button id="collection-out" title="Alejar todos los componentes" aria-label="Alejar todos los componentes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6M7 10h6"/></svg></button>
+        <output id="collection-zoom" aria-label="Zoom del conjunto">100%</output>
+        <button id="collection-in" title="Acercar todos los componentes" aria-label="Acercar todos los componentes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6M7 10h6M10 7v6"/></svg></button>
+        <button id="collection-rotate" title="Girar la vista del conjunto en X e Y" aria-label="Girar la vista del conjunto en X e Y" aria-expanded="false" aria-controls="collection-rotation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg></button>
+        <button id="collection-reset" title="Restablecer solo la vista del conjunto" aria-label="Restablecer solo la vista del conjunto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4v6h6M3 10a9 9 0 1 1 2 8"/></svg></button>
+      </div>
+      <button id="open-surfaces" class="study-button" aria-controls="surfaces" aria-expanded="false">Colocar sobre una superficie · AR</button>
+      <p id="scope-status" role="status" aria-live="polite">Ahora controlas: un componente</p>
+      <div id="collection-rotation" hidden>
+        <div class="collection-angles">
+          <label>Giro X · grados<input id="collection-x" type="number" step="0.1" value="0" aria-label="Giro X del conjunto en grados" /></label>
+          <label>Giro Y · grados<input id="collection-y" type="number" step="0.1" value="0" aria-label="Giro Y del conjunto en grados" /></label>
+          <label>Ejes al arrastrar<select id="collection-axis"><option value="xy">X e Y</option><option value="x">Solo X</option><option value="y">Solo Y</option></select></label>
+        </div>
+        <p>Arrastra para girar. Pellizca o usa la rueda para acercar y alejar. Desactiva Conjunto para editar un componente.</p>
+      </div>
+    </dialog>
+    <dialog id="surfaces" class="hud-dialog" aria-labelledby="surfaces-title" hidden>
+      <div class="dialog-heading"><h2 id="surfaces-title">Superficies reales</h2><button class="round-button" data-close="surfaces" aria-label="Cerrar superficies">×</button></div>
+      <p>Coloca tus modelos sobre una mesa o el suelo. Mueve el dispositivo despacio hasta encontrar una superficie horizontal y confirma la posición.</p>
+      <label for="surface-scope">Qué quieres colocar</label><select id="surface-scope"><option value="selected">Componente seleccionado</option><option value="visible">Conjunto visible</option></select>
+      <p>El conjunto comienza con unos 50 cm en su dimensión mayor. Puedes ajustar su tamaño y girarlo. Es una representación ampliada, sin escala física del sensor.</p>
+      <p id="surface-message" role="status">Comprueba la compatibilidad antes de entrar.</p>
+      <div class="project-actions" data-page-group><button id="surface-start" class="study-button">Entrar en AR</button><button id="surface-cancel" class="study-button" hidden>Cancelar entrada</button></div>
+      <p>Requiere HTTPS y un dispositivo con WebXR AR y detección de superficies. La posición dura esta sesión; el archivo de escena conserva el trabajo del laboratorio, sin mapas del entorno.</p>
+    </dialog>
+    <div id="surface-overlay" hidden>
+      <div class="surface-card"><p id="surface-live" role="status">Busca una superficie horizontal.</p><button id="surface-exit" class="round-button" aria-label="Salir de AR">×</button></div>
+      <div class="surface-controls" role="group" aria-label="Colocación sobre superficies">
+        <div class="surface-placement"><button id="surface-place" class="study-button" disabled>Colocar aquí</button><button id="surface-reposition" class="study-button" disabled>Otro lugar</button></div>
+        <span id="surface-size">100% · 0°</span>
+        <div class="surface-transform"><button id="surface-smaller" class="round-button" aria-label="Reducir tamaño en AR" disabled>−</button><button id="surface-larger" class="round-button" aria-label="Aumentar tamaño en AR" disabled>+</button><button id="surface-left" class="round-button" aria-label="Girar 15 grados a la izquierda en AR" disabled>↶</button><button id="surface-right" class="round-button" aria-label="Girar 15 grados a la derecha en AR" disabled>↷</button></div>
+      </div>
+    </div>
+    <dialog id="inspector" class="hud-dialog" aria-labelledby="object-title" hidden>
+
+      <div class="inspector-head"><button id="close-inspector" data-close-surface="inspector" class="round-button" aria-label="Cerrar ficha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button><div class="object-thumb" id="object-icon"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Z"/><path d="m3 8 9 5 9-5M12 13v9"/></svg></div><div><span class="eyebrow" id="object-kind">Tu espacio creativo</span><h2 id="object-title" tabindex="-1">¡A explorar!</h2></div></div>
+      <p id="object-description">Un pequeño laboratorio, infinitas ideas. Toca un objeto y descubre todo lo que puedes hacer con él.</p>
+      <div id="object-facts" role="group" aria-label="Datos principales"></div>
+      <button id="focus-component" data-keep-previous class="study-button reference-cta">Explorar en 3D</button>
+      <div class="card-destinations" role="group" aria-label="Explorar más">
+        <button id="open-challenge" class="study-button" aria-controls="challenge" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 5 4M16 5h4v3a4 4 0 0 1-5 4M12 13v5M8 21h8M9 18h6"/></svg>Reto</button>
+        <button id="open-technical" class="study-button" aria-controls="technical" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>Más datos</button>
+        <button id="open-parts" class="study-button" aria-controls="parts" aria-expanded="false" hidden>◎ Partes</button>
+        <button id="open-experiment" class="study-button" aria-controls="experiment" aria-expanded="false" hidden>☀ Experimentar</button>
+      </div>
+    </dialog>
+    <dialog id="challenge" class="hud-dialog" aria-labelledby="challenge-title" hidden>
+      <div class="dialog-heading"><h2 id="challenge-title" tabindex="-1">Reto de exploración</h2><button class="round-button" data-return-card aria-label="Volver a la ficha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button></div>
+      <section id="learning-card" data-page-title="Observar y responder" aria-label="Reto de exploración" hidden>
+        <span class="eyebrow">Observa y descubre</span>
+        <div class="learning-steps" role="group" aria-label="Pasos del reto">
+          <button id="learning-observe-tab" aria-pressed="true" aria-controls="learning-observation">1. Observar</button>
+          <button id="learning-experiment-tab" aria-controls="experiment" hidden>2. Experimentar</button>
+          <button id="learning-quiz-tab" aria-pressed="false" aria-controls="learning-check">2. Responder</button>
+        </div>
+        <div id="learning-observation">
+        <p id="learning-goal"></p>
+        <p id="learning-observe"></p>
+        </div>
+        <div id="learning-check" hidden>
+        <h3 id="learning-question"></h3>
+        <div id="learning-choices" role="group" aria-labelledby="learning-question"></div>
+        <p id="learning-feedback" role="status" aria-live="polite" tabindex="-1" hidden></p>
+        <button id="retry-lesson" data-keep-previous class="study-button" hidden>Volver a practicar</button>
+        </div>
+        <details id="learning-deeper"><summary data-keep-previous>Para ir más allá</summary><p id="learning-extension"></p></details>
+      </section>
+    </dialog>
+    <dialog id="technical" class="hud-dialog" aria-labelledby="technical-title" hidden>
+      <div class="dialog-heading"><h2 id="technical-title" tabindex="-1">Datos del componente</h2><button class="round-button" data-return-card aria-label="Volver a la ficha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button></div>
+      <details id="technical-details" open><summary>Datos del componente y ajustes</summary>
+      <p id="full-description" hidden></p>
+      <dl id="model-data" hidden></dl>
+      <div id="object-stats" hidden>
+        <div class="stat"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M14 3h7v7M21 3l-8 8M10 21H3v-7M3 21l8-8"/></svg><span>Tamaño</span><strong id="stat-size">1.00×</strong></div>
+        <div class="stat"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg><span>Giro X / Y / Z</span><strong id="stat-rotation">0° / 0° / 0°</strong></div>
+        <div class="stat"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>Posición X / Z</span><strong id="stat-position">0 / 0</strong></div>
+      </div>
+      <button id="inspect-action" data-keep-previous class="primary-button"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M8 13V6a2 2 0 0 1 4 0v6M12 10a2 2 0 0 1 4 0v3M16 11a2 2 0 0 1 4 0v5c0 4-3 6-6 6-2 0-4-1-5-3l-5-6a2 2 0 0 1 3-2l1 2Z"/></svg><span id="inspect-action-text">Empezar a explorar</span></button>
+      </details>
+    </dialog>
+    <dialog id="parts" class="hud-dialog" aria-labelledby="parts-title" hidden>
+      <div class="dialog-heading"><h2 id="parts-title">Descubre sus partes</h2><button class="round-button" data-return-card aria-label="Volver a la ficha">←</button></div>
+      <p>Elige una parte aquí o busca su número en la escena. Gira el componente para descubrir las que quedan detrás.</p>
+      <div id="parts-list" data-page-group role="group" aria-label="Partes del componente"></div>
+      <div data-page-group><h3 id="part-title"></h3><p id="part-description"></p><p id="parts-progress"></p></div>
+      <button id="parts-explore" class="study-button" data-keep-previous>Ver puntos en la escena</button>
+    </dialog>
+    <dialog id="experiment" class="hud-dialog" aria-labelledby="experiment-title" hidden>
+      <div class="dialog-heading"><h2 id="experiment-title">Laboratorio de luz</h2><button class="round-button" data-return-card aria-label="Volver a la ficha">←</button></div>
+      <p>¿Qué crees que ocurrirá con la resistencia de la LDR al acercar la luz? Pruébalo y compara.</p>
+      <div data-page-group>
+        <p class="simulation-note">Simulación didáctica · valores relativos, sin unidades. No mide luz real ni representa un circuito concreto.</p>
+        <p id="experiment-reading" role="status"></p>
+        <label for="experiment-light">Iluminación relativa</label><meter id="experiment-light" min="0" max="100" value="50">50</meter>
+        <label for="experiment-resistance">Resistencia relativa</label><meter id="experiment-resistance" min="0" max="100" value="50">50</meter>
+        <div class="project-actions"><button id="less-light" class="study-button">− Luz</button><button id="more-light" class="study-button">+ Luz</button></div>
+      </div>
+      <button id="experiment-explore" class="study-button" data-keep-previous>☀ Mover la luz en la escena</button>
+      <div data-page-group><div class="project-actions"><button id="record-observation" class="study-button">Anotar resultado</button><button id="clear-observations" class="study-button">Limpiar notas</button></div><p id="observation-count" role="status"></p></div>
+      <ol id="observation-list" aria-label="Observaciones del experimento"></ol>
+      <label for="experiment-explanation">Explica qué cambió y por qué</label>
+      <textarea id="experiment-explanation" rows="3" maxlength="600" placeholder="Con más luz observé…"></textarea>
+      <button id="experiment-respond" class="study-button" data-keep-previous>Continuar al reto →</button>
+      <p>Guarda la escena para conservar tus notas y tu explicación.</p>
+      <button id="experiment-save" class="study-button" data-keep-previous aria-controls="projects" aria-expanded="false">Guardar mi experimento</button>
+    </dialog>
+    <dialog id="echo-experiment" class="hud-dialog" aria-labelledby="echo-title" hidden>
+      <div class="dialog-heading"><h2 id="echo-title">Laboratorio del eco</h2><button class="round-button" data-return-card aria-label="Volver a la ficha">←</button></div>
+      <p>Predice: si el obstáculo se aleja, ¿el eco tarda más o menos en regresar?</p>
+      <p class="simulation-note">Simulación ideal, sin lecturas del entorno. Los centímetros son valores de la actividad; el dibujo tiene escala ilustrativa.</p>
+      <div data-page-group><p id="echo-reading" role="status"></p><p id="echo-time"></p></div>
+      <div data-page-group><label class="echo-presence" for="echo-present"><input id="echo-present" type="checkbox" checked />Obstáculo presente</label><div class="project-actions"><button id="echo-nearer" class="study-button">Acercar</button><button id="echo-farther" class="study-button">Alejar</button></div></div>
+      <button id="echo-explore" class="study-button" data-keep-previous>▣ Mover el obstáculo en la escena</button>
+      <div data-page-group><div class="project-actions"><button id="echo-record" class="study-button">Anotar resultado</button><button id="echo-clear" class="study-button">Limpiar notas</button></div><p id="echo-count" role="status"></p></div>
+      <ol id="echo-observations" aria-label="Observaciones del eco"></ol>
+      <label for="echo-explanation">Explica la ida y vuelta del sonido y tu regla para el robot</label>
+      <textarea id="echo-explanation" rows="3" maxlength="600" placeholder="Si el obstáculo está cerca, el robot debería…"></textarea>
+      <button id="echo-respond" class="study-button" data-keep-previous>Continuar al reto →</button>
+      <details id="echo-precision"><summary>Distancia precisa y cómo se calcula</summary><label for="echo-distance">Distancia simulada (20–200 cm)</label><input id="echo-distance" type="number" min="20" max="200" step="1" value="100" /><p>El sonido recorre la distancia dos veces: tiempo = 2 × distancia / velocidad. Aquí elegimos 343 m/s. El esquema omite temperatura, forma y absorción del obstáculo.</p></details>
+      <p>Guarda la escena para conservar tus resultados y tu explicación.</p><button id="echo-save" class="study-button" data-keep-previous>Guardar mi experimento</button>
+    </dialog>
+    <div id="echo-lab" hidden>
+      <button id="echo-obstacle-handle" role="slider" aria-label="Distancia del obstáculo virtual; arrastra siguiendo el recorrido" aria-orientation="horizontal" aria-valuemin="20" aria-valuemax="200" aria-valuenow="100">▣</button>
+      <div class="echo-toolbar" role="group" aria-label="Controles del eco"><span id="echo-scene-reading"></span><div><button id="echo-scene-nearer" aria-label="Acercar obstáculo">−</button><button id="echo-scene-farther" aria-label="Alejar obstáculo">+</button><button id="echo-scene-present" aria-label="Quitar obstáculo virtual" aria-pressed="true">▣</button><button id="echo-scene-details" aria-label="Abrir resultados del eco">▤</button><button id="echo-scene-stop" aria-label="Cerrar esquema del eco">×</button></div></div>
+    </div>
+    <div id="part-markers" aria-label="Puntos del componente" hidden></div>
+    <button id="parts-stop" class="study-button exploration-stop" hidden>Cerrar puntos ×</button>
+    <div id="light-lab" hidden>
+      <svg aria-hidden="true"><line id="light-ray"/><circle id="light-source-dot" r="4"/><circle id="light-target-dot" r="4"/></svg>
+      <button id="virtual-lamp" role="slider" aria-label="Distancia de la luz virtual; arrastra a la izquierda para acercar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-orientation="horizontal">☀</button>
+      <div class="lamp-toolbar" role="group" aria-label="Experimento de luz"><span id="lamp-reading"></span><div><button id="lamp-more" aria-label="Acercar luz">+ ☀</button><button id="lamp-less" aria-label="Alejar luz">− ☀</button><button id="lamp-details" aria-label="Abrir resultados del experimento">▤</button><button id="lamp-stop" aria-label="Cerrar luz virtual">×</button></div></div>
+    </div>
+    <div id="scene-guide" role="status"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M8 13V6a2 2 0 0 1 4 0v6M12 10a2 2 0 0 1 4 0v3M16 11a2 2 0 0 1 4 0v5c0 4-3 6-6 6-2 0-4-1-5-3l-5-6a2 2 0 0 1 3-2l1 2Z"/></svg><span id="guide-text"><b>Toca un objeto</b> y dale vida a tu idea</span></div>
+    <footer id="bar" aria-label="Controles de la vista"><button id="quick-camera" class="round-button" title="Activar o desactivar cámara" aria-label="Activar cámara" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 1-2h6l1 2h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4Z"/><circle cx="12" cy="12" r="4"/></svg></button><button id="view-controls-toggle" class="round-button" title="Controles de vista y conjunto" aria-label="Controles de vista y conjunto" aria-controls="collection-controls" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg></button><button id="mission-resume" class="round-button" title="Volver a mi misión" aria-label="Volver a mi misión" aria-controls="missions" hidden>⚑</button><span id="scene-count">0 objetos</span><button id="view" aria-label="Volver a la vista 3D" title="Desactivar cámara y volver a la vista 3D"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Z"/><path d="m3 8 9 5 9-5M12 13v9"/></svg><span>Vista 3D</span></button><button id="undo-remove" class="primary-button" title="Recuperar el último componente eliminado" aria-label="Deshacer la eliminación del componente" hidden>Deshacer</button></footer>
+    <div id="notice" role="status" hidden></div>
+    <div id="loading-indicator" role="status">Cargando catálogo de modelos…</div>
+    <dialog id="library" class="hud-dialog floating-panel hidden" hidden aria-label="Explorar modelos">
+      <div class="panel-heading"><h2 id="library-title" tabindex="-1">Modelos para explorar</h2><button class="round-button" data-close="library" aria-label="Cerrar modelos"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <p>Elige un modelo de la colección para añadirlo a tu escena y explorarlo.</p>
+      <details id="manual-upload">
+        <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3M7 8l5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>Cargar desde mi equipo</summary>
+        <form id="upload-form">
+          <label for="local-file">Modelo GLB con sus recursos integrados</label>
+          <input id="local-file" type="file" accept=".glb,model/gltf-binary" required />
+          <label for="local-name">Nombre del objeto</label>
+          <input id="local-name" maxlength="35" required placeholder="Ej.: Mi sensor" />
+          <label for="local-description">Descripción (opcional)</label>
+          <textarea id="local-description" maxlength="600" rows="3" placeholder="¿Qué quieres contar sobre este modelo?"></textarea>
+          <div id="local-error" role="alert" hidden></div>
+          <button id="import-local" type="submit" class="primary-button">Añadir a la escena</button>
+          <p class="local-note">El archivo se abre en tu navegador, sin subirlo al servidor. Guarda o exporta la escena desde Mi escena para conservarlo antes de recargar.</p>
+        </form>
+      </details>
+      <div id="library-grid"><p class="catalog-message">Cargando modelos disponibles…</p></div>
+    </dialog>
+    <dialog id="scene-panel" class="hud-dialog floating-panel hidden" hidden aria-label="Objetos de mi escena">
+      <div class="panel-heading"><h2 id="scene-panel-title" tabindex="-1">Mi escena</h2><button class="round-button" data-close="scene-panel" aria-label="Cerrar mi escena"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <button id="open-missions" class="study-button" aria-controls="missions" disabled>Misiones de exploración</button>
+      <button id="open-projects" class="study-button" aria-controls="projects" aria-expanded="false">Guardar o recuperar escenas</button>
+      <p>Tu colección de ideas en este espacio. Elige un objeto para seguir creando.</p><div id="scene-list"></div>
+    </dialog>
+    <dialog id="missions" class="hud-dialog" aria-labelledby="missions-title" hidden>
+      <div class="dialog-heading"><h2 id="missions-title">Mi misión</h2><button class="round-button" data-close="missions" aria-label="Cerrar misión">×</button></div>
+      <p id="mission-empty">Elige una misión desde Mi escena.</p>
+      <section id="mission-content" hidden>
+        <label for="mission-select">Recorrido</label><select id="mission-select"></select>
+        <p id="mission-summary"></p><p id="mission-progress" role="status"></p>
+        <div class="mission-step" data-page-group><p id="mission-step-number"></p><h3 id="mission-step-title"></h3><p id="mission-step-instruction"></p><p id="mission-step-status" role="status"></p></div>
+        <button id="mission-go" class="study-button" data-keep-previous>Realizar este paso →</button>
+        <div id="mission-reflection-group"><label for="mission-reflection">Tu justificación</label><textarea id="mission-reflection" rows="3" maxlength="600"></textarea><p>Se registra la escritura; tu docente revisará la explicación.</p></div>
+        <div class="mission-navigation" data-page-group role="group" aria-label="Pasos de la misión"><button id="mission-previous" class="round-button" aria-label="Paso anterior">←</button><span>Explora a tu ritmo</span><button id="mission-next" class="round-button" aria-label="Paso siguiente">→</button></div>
+        <p id="mission-finished" hidden>¡Recorrido con evidencias! Comparte tu explicación con tu docente y guarda tu trabajo.</p>
+        <div class="project-actions" data-page-group><button id="mission-save" class="study-button">Guardar avance</button><button id="mission-evidence" class="study-button">Descargar evidencias</button></div>
+        <p>El archivo incluye tus explicaciones. Evita escribir datos personales.</p>
+        <button id="mission-end" class="study-button" data-keep-previous>Continuar exploración libre</button>
+      </section>
+    </dialog>
+    <dialog id="projects" class="hud-dialog" aria-labelledby="projects-title" hidden>
+      <div class="dialog-heading"><h2 id="projects-title" tabindex="-1">Mis escenas</h2><button class="round-button" data-close="projects" aria-label="Cerrar escenas">×</button></div>
+      <p>Guarda aquí para continuar en este navegador o exporta un archivo para llevarlo a otro equipo.</p>
+      <label for="project-name">Nombre de la escena<input id="project-name" maxlength="60" value="Mi exploración" /></label>
+      <div class="project-actions" data-page-group><button id="save-project" class="study-button">Guardar aquí</button><button id="export-project" class="study-button">Exportar archivo</button></div>
+      <button id="copy-project" class="study-button">Guardar como otra escena</button>
+      <label for="import-project">Abrir archivo de escena<input id="import-project" type="file" accept=".json,application/json" /></label>
+      <p>Abrir sustituye la escena actual. Guarda antes si quieres conservarla. El archivo incluye los GLB locales y tus observaciones.</p>
+      <h3>Guardadas en este navegador</h3><div id="saved-projects"></div>
+      <button id="undo-project-delete" class="study-button" hidden>Deshacer eliminación de escena</button>
+      <p id="project-message" role="status"></p>
+    </dialog>
+    <dialog id="project-progress" class="project-progress" aria-labelledby="project-progress-title">
+      <h2 id="project-progress-title">Abriendo escena…</h2><p>Se conserva la escena actual hasta terminar la carga.</p><button id="cancel-project-open" class="study-button">Cancelar apertura</button>
+    </dialog>
+    <dialog id="help-panel" class="hud-dialog floating-panel hidden" hidden aria-labelledby="help-panel-title">
+      <div class="panel-heading"><h2 id="help-panel-title" tabindex="-1">Explora en tres pasos</h2><button class="round-button" data-close="help-panel" aria-label="Cerrar ayuda"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <div class="help-step"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M8 13V6a2 2 0 0 1 4 0v6M12 10a2 2 0 0 1 4 0v3M16 11a2 2 0 0 1 4 0v5c0 4-3 6-6 6-2 0-4-1-5-3l-5-6a2 2 0 0 1 3-2l1 2Z"/></svg><p><b>1. Elige un componente.</b> Tócalo en la escena o búscalo en Mi escena. Pulsa el icono de libro para abrir su ficha y reto.</p></div>
+      <div class="help-step"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M14 3h7v7M21 3l-8 8M10 21H3v-7M3 21l8-8"/></svg><p><b>2. Observa sus partes.</b> Arrastra para girar el modelo. «Partes» muestra puntos para descubrir sus piezas. «Explorar en 3D» permite verlo solo.</p></div>
+      <div class="help-step"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><p><b>3. Piensa y responde.</b> Experimenta con luz en la LDR o con obstáculos en el ultrasónico y anota resultados. «Reto» propone una pregunta con pista. Guarda tu trabajo desde Mi escena.</p></div>
+      <div class="help-step"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m9 3-.5 3-2 1-2.5-1-2 4 2.5 2v2L2 16l2 4 3-1 2 1 1 2h4l1-2 2-1 3 1 2-4-2.5-2v-2L22 10l-2-4-2.5 1-2-1L15 3H9Z"/><circle cx="12" cy="12" r="3"/></svg><p><b>Ajusta cada detalle.</b> Más opciones (tres puntos) abre los ajustes precisos y los sliders de respaldo. Arrastra el fondo para girar la vista en X e Y. Conjunto permite girar todos los componentes y cambiar el zoom con la rueda o con dos dedos.</p></div>
+      <p>Los modelos sirven para observar las piezas: no simulan mediciones reales. La cámara necesita HTTPS o localhost. Ese botón superpone modelos al vídeo. Para detección de superficies abre los controles de vista y elige el modo AR, si tu dispositivo es compatible.</p>
+    </dialog>
+    <section id="tools" aria-label="Acciones rápidas del componente" hidden>
+      <div id="actions" role="group" aria-label="Acciones principales">
+<button data-mode="move" class="icon-button" title="Mover objeto" aria-label="Mover objeto" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M8 7l4-4 4 4M8 17l4 4 4-4M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg><span class="action-caption" aria-hidden="true">Mover</span></button>
+<button data-mode="rotate" class="icon-button" title="Girar objeto" aria-label="Rotar objeto" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 17.9 17"/></svg><span class="action-caption" aria-hidden="true">Rotar</span></button>
+
+<button data-mode="scale" class="icon-button" title="Cambiar tamaño" aria-label="Escalar objeto" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3l-8 8M10 21H3v-7M3 21l8-8"/></svg><span class="action-caption" aria-hidden="true">Escalar</span></button>
+        <button id="object-inspect" class="icon-button" title="Ficha y reto" aria-label="Abrir ficha y reto del componente" aria-expanded="false" aria-controls="inspector"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v15"/></svg><span class="action-caption" aria-hidden="true">Ficha</span></button>
+        <button id="object-more" class="icon-button" title="Más opciones del componente" aria-label="Más opciones del componente" aria-expanded="false" aria-controls="panel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span class="action-caption" aria-hidden="true">Más</span></button>
+      </div>
+      <p id="tool-description" class="sr-only" role="status">Arrastra este componente para girarlo.</p>
+    </section>
+    <dialog id="panel" class="hud-dialog floating-panel" aria-labelledby="panel-title" hidden>
+      <div class="dialog-heading"><h2 id="panel-title" tabindex="-1">Opciones avanzadas</h2><button class="round-button" data-close="panel" aria-label="Cerrar opciones avanzadas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <p id="advanced-target"></p>
+
+      <label for="select">Componente seleccionado</label><select id="select"></select>
+      <div class="secondary-actions" role="group" aria-label="Opciones del componente">
+<button id="mobile-inspect" aria-label="Abrir ficha y reto del componente" aria-controls="inspector" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v15"/></svg>Ficha y reto</button><label id="color-action" class="secondary-color" title="Cambiar color"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="17" cy="9" r="1"/><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-3.7 1.7 1.7 0 0 1 1-3.3h2a4 4 0 0 0 4-4c0-4-4-7-9-7Z"/></svg><input id="quick-color" type="color" aria-label="Cambiar color" /><span>Color</span></label>
+<button id="rename" class="secondary-action" title="Editar nombre" aria-label="Cambiar nombre" aria-expanded="false" aria-controls="rename-box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l5-1L20 8a2.8 2.8 0 0 0-4-4L5 15l-1 5Z"/></svg><span>Cambiar nombre</span></button>
+<button id="home" class="secondary-action" title="Restablecer objeto" aria-label="Restablecer objeto" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4v6h6M3 10a9 9 0 1 1 2 8"/></svg><span>Restablecer</span></button>
+<button id="delete" class="secondary-action" title="Eliminar objeto" aria-label="Eliminar objeto" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg><span>Eliminar</span></button>
+<button id="deselect" class="secondary-action" title="Cerrar selección" aria-label="Quitar selección" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg><span>Quitar selección</span></button>
+      </div>
+      <form id="rename-box" hidden>
+        <label for="quick-name" class="sr-only">Nuevo nombre</label><input id="quick-name" aria-label="Nombre del objeto" maxlength="35" autocomplete="off" />
+        <button id="confirm-name" type="submit" class="icon-button" title="Guardar nombre" aria-label="Guardar nombre" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button>
+      </form>
+      <details id="precision-details"><summary>Giro preciso y aros X/Y/Z</summary>
+      <div id="rotation-controls">
+        <div class="rotation-axes" role="group" aria-label="Eje de giro">
+          <button class="axis-choice" data-axis="free" aria-pressed="true" title="Giro libre en X e Y">Libre</button>
+          <button class="axis-choice" data-axis="x" aria-pressed="false" title="Girar solo en el eje X">X</button>
+          <button class="axis-choice" data-axis="y" aria-pressed="false" title="Girar solo en el eje Y">Y</button>
+          <button class="axis-choice" data-axis="z" aria-pressed="false" title="Girar solo en el eje Z">Z</button>
+        </div>
+        <div class="exact-angles">
+          <label>X · grados<input id="angle-x" type="number" step="0.1" aria-label="Ángulo exacto X en grados" /></label>
+          <label>Y · grados<input id="angle-y" type="number" step="0.1" aria-label="Ángulo exacto Y en grados" /></label>
+          <label>Z · grados<input id="angle-z" type="number" step="0.1" aria-label="Ángulo exacto Z en grados" /></label>
+        </div>
+        <div class="rotation-options">
+          <label><input id="fine-rotation" type="checkbox" />Giro fino</label>
+          <select id="rotation-step" aria-label="Incrementos de giro">
+            <option value="0.1">Sin saltos</option><option value="1">Saltos de 1°</option>
+            <option value="5">Saltos de 5°</option><option value="15">Saltos de 15°</option>
+          </select>
+        </div>
+        <p id="rotation-tip">Escribe un ángulo o cierra estas opciones para arrastrar los aros X, Y y Z en la escena.</p>
+      </div>
+
+        <button id="reset" class="study-button">Restablecer solo el giro</button>
+      </details>
+      <details id="numeric-controls"><summary>Posición, tamaño y etiqueta</summary>
+        <p>También puedes ajustar el componente con valores o pulsaciones, sin arrastrar.</p>
+        <div class="numeric-pair">
+          <label for="position-x">Posición X<input id="position-x" type="number" min="-5" max="5" step="0.1" /></label>
+          <label for="position-z">Posición Z<input id="position-z" type="number" min="-5" max="5" step="0.1" /></label>
+        </div>
+        <div class="position-buttons" role="group" aria-label="Mover por pasos de 0,1">
+          <button data-translate="x" data-direction="-1" aria-label="Mover hacia X negativo">X −</button><button data-translate="x" data-direction="1" aria-label="Mover hacia X positivo">X +</button>
+          <button data-translate="z" data-direction="-1" aria-label="Mover hacia Z negativo">Z −</button><button data-translate="z" data-direction="1" aria-label="Mover hacia Z positivo">Z +</button>
+        </div>
+        <div data-page-group>
+        <label for="object-size-number">Tamaño del componente<input id="object-size-number" type="number" min="0.3" max="2.5" step="0.05" /></label>
+        <label for="size">Ajuste de tamaño<input id="size" type="range" min="0.3" max="2.5" step="0.05" value="1" /></label>
+        </div>
+        <div data-page-group>
+        <label for="label-height-number">Altura de la etiqueta<input id="label-height-number" type="number" min="0.8" max="3.4" step="0.05" /></label>
+        <label for="height">Ajuste de altura<input id="height" type="range" min="0.8" max="3.4" step="0.05" value="1.85" /></label>
+        </div>
+      </details>
+      <details id="backup-controls"><summary>Controles de respaldo</summary>
+        <label for="name">Nombre del componente<input id="name" maxlength="35" /></label>
+        <label for="color">Color del componente<input id="color" type="color" value="#ffffff" /></label>
+        <label for="axis">Eje al arrastrar<select id="axis"><option value="free">Libre (X / Y)</option><option value="x">X</option><option value="y">Y</option><option value="z">Z</option></select></label>
+        <div class="axis"><label for="rx">X</label><input id="rx" type="range" min="-180" max="180" step="0.1" value="0" /><output id="ox" for="rx">0°</output></div>
+        <div class="axis"><label for="ry">Y</label><input id="ry" type="range" min="-180" max="180" step="0.1" value="0" /><output id="oy" for="ry">0°</output></div>
+        <div class="axis"><label for="rz">Z</label><input id="rz" type="range" min="-180" max="180" step="0.1" value="0" /><output id="oz" for="rz">0°</output></div>
+      </details>
+      <details id="scene-maintenance"><summary>Biblioteca y escena inicial</summary>
+        <label for="shape">Modelo para añadir<select id="shape" disabled><option value="">Cargando modelos…</option></select></label>
+        <button id="add" disabled>+ Añadir modelo</button>
+        <button id="presets" class="green" disabled>Recargar modelos iniciales</button>
+        <p>Recargar sustituye la escena actual, incluidos los modelos locales.</p>
+      </details>
+      <button id="remove" type="button" hidden>Eliminar componente</button>
+      <p id="hint" class="sr-only"></p><div id="status" class="sr-only" role="status">Cargando escena…</div>
+    </dialog>
+    <script src="./src/file-warning.js"></script>
+    <script type="importmap">
+      {"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}
+    </script>
+    <script type="module" src="./src/bootstrap.js"></script>
+  </body>
+</html>

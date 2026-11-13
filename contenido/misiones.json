@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "misiones": [
+    {
+      "id": "luz",
+      "titulo": "¿Cuándo encenderías una luz?",
+      "descripcion": "Explora una LDR, contrasta dos situaciones y explica cómo podría ayudar a una lámpara automática.",
+      "pasos": [
+        {
+          "titulo": "Descubre la LDR",
+          "instruccion": "Visita la pista sensible y un terminal. ¿Por dónde recibe luz y por dónde se conecta?",
+          "modelo": "sensor-luz-ldr",
+          "criterio": "parts",
+          "minimo": 2,
+          "destino": "parts"
+        },
+        {
+          "titulo": "Compara luz y oscuridad",
+          "instruccion": "Antes de probar, predice qué cambiará. Anota una observación con luz alta y otra con luz baja.",
+          "modelo": "sensor-luz-ldr",
+          "criterio": "observations",
+          "destino": "experiment"
+        },
+        {
+          "titulo": "Explica el resultado",
+          "instruccion": "Escribe al menos una frase de 20 caracteres que relacione iluminación y resistencia. Tu docente revisará la explicación.",
+          "modelo": "sensor-luz-ldr",
+          "criterio": "explanation",
+          "destino": "experiment"
+        },
+        {
+          "titulo": "Comprueba lo aprendido",
+          "instruccion": "Responde el reto de la LDR. Puedes utilizar la pista y volver a intentarlo. Después guarda tu escena.",
+          "modelo": "sensor-luz-ldr",
+          "criterio": "answer",
+          "destino": "challenge"
+        }
+      ]
+    },
+    {
+      "id": "infrarrojos",
+      "titulo": "Dos sensores, distintas preguntas",
+      "descripcion": "Compara el PIR y el sensor de temperatura. Ambos aprovechan infrarrojos, pero buscan información diferente.",
+      "pasos": [
+        {
+          "titulo": "Explora el PIR",
+          "instruccion": "Visita la lente y observa su forma. Piensa qué cambio detecta cuando pasa una persona.",
+          "modelo": "sensor-pir",
+          "criterio": "parts",
+          "destino": "parts"
+        },
+        {
+          "titulo": "Explora la ventana óptica",
+          "instruccion": "Visita la ventana del sensor de temperatura. Compara su forma y función con la lente del PIR.",
+          "modelo": "sensor-temperatura",
+          "criterio": "parts",
+          "destino": "parts"
+        },
+        {
+          "titulo": "Resuelve el reto del PIR",
+          "instruccion": "Relaciona la detección del PIR con los cambios infrarrojos.",
+          "modelo": "sensor-pir",
+          "criterio": "answer",
+          "destino": "challenge"
+        },
+        {
+          "titulo": "Resuelve el reto de temperatura",
+          "instruccion": "Identifica por dónde llega la radiación al sensor de temperatura.",
+          "modelo": "sensor-temperatura",
+          "criterio": "answer",
+          "destino": "challenge"
+        },
+        {
+          "titulo": "Elige y justifica",
+          "instruccion": "¿Cuál elegirías para detectar a alguien que entra en una habitación y por qué? Escribe una frase de al menos 20 caracteres. Tu docente revisará tu justificación.",
+          "criterio": "reflection",
+          "destino": "reflection"
+        }
+      ]
+    },
+    {
+      "id": "eco",
+      "titulo": "Un robot que evita obstáculos",
+      "descripcion": "Relaciona la distancia de un obstáculo con el regreso del sonido y propone una regla para un robot.",
+      "pasos": [
+        {
+          "titulo": "Localiza emisor y receptor",
+          "instruccion": "Visita los dos transductores. Imagina el recorrido de un pulso desde el emisor hasta el receptor.",
+          "modelo": "sensor-ultrasonico",
+          "criterio": "parts",
+          "minimo": 2,
+          "destino": "parts"
+        },
+        {
+          "titulo": "Cerca, lejos y sin eco",
+          "instruccion": "Predice qué ocurrirá. Anota un obstáculo cercano (20–60 cm), otro lejano (140–200 cm) y una situación sin obstáculo. Son distancias simuladas.",
+          "modelo": "sensor-ultrasonico",
+          "criterio": "echo-observations",
+          "destino": "experiment"
+        },
+        {
+          "titulo": "Propón una regla para el robot",
+          "instruccion": "Explica por qué el sonido recorre la distancia dos veces y qué debería hacer el robot si el obstáculo está cerca. Escribe al menos 20 caracteres; tu docente revisará la explicación.",
+          "modelo": "sensor-ultrasonico",
+          "criterio": "explanation",
+          "destino": "experiment"
+        },
+        {
+          "titulo": "Comprueba la función del eco",
+          "instruccion": "Resuelve el reto y comparte tus resultados. Recuerda: no recibir eco no significa una distancia de cero.",
+          "modelo": "sensor-ultrasonico",
+          "criterio": "answer",
+          "destino": "challenge"
+        }
+      ]
+    }
+  ]
+}

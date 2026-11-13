@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "modelos": [
+    {
+      "id": "sensor-pir",
+      "nombre": "Sensor PIR",
+      "archivo": "PIR.glb",
+      "categoria": "Sensores",
+      "descripcion": "Sensor de infrarrojo pasivo (PIR) utilizado para detectar movimiento a partir de cambios en la radiación infrarroja de su entorno. Explora su lente, la placa y sus componentes desde distintos ángulos.",
+      "cargarAlInicio": true,
+      "visualizacion": {
+        "tamano": 1.6,
+        "rotacion": [
+          0,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 1.85
+      },
+      "datos": [
+        {
+          "etiqueta": "Tecnología",
+          "valor": "Infrarrojo pasivo"
+        },
+        {
+          "etiqueta": "Función",
+          "valor": "Detección de movimiento"
+        }
+      ],
+      "procedencia": {
+        "tipo": "propio",
+        "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+        "licenciaPublica": null
+      },
+      "creditos": {
+        "autor": "Autor del proyecto ExplorAR",
+        "licencia": "Modelo propio. Sin licencia pública especificada."
+      }
+    },
+    {
+      "id": "sensor-ultrasonico",
+      "nombre": "Sensor ultrasónico",
+      "archivo": "ultrasonico.glb",
+      "categoria": "Distancia",
+      "descripcion": "Módulo ultrasónico para estimar la distancia a un objeto mediante la emisión de sonido y la recepción de su eco. Explora sus dos transductores, la placa y los conectores.",
+      "cargarAlInicio": true,
+      "visualizacion": {
+        "tamano": 1.6,
+        "rotacion": [
+          0,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 1.85
+      },
+      "datos": [
+        {
+          "etiqueta": "Tecnología",
+          "valor": "Ultrasonido"
+        },
+        {
+          "etiqueta": "Función",
+          "valor": "Estimación de distancia"
+        }
+      ],
+      "procedencia": {
+        "tipo": "propio",
+        "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+        "licenciaPublica": null
+      },
+      "creditos": {
+        "autor": "Autor del proyecto ExplorAR",
+        "licencia": "Modelo propio. Sin licencia pública especificada."
+      }
+    },
+    {
+      "id": "sensor-temperatura",
+      "nombre": "Sensor de temperatura",
+      "archivo": "temperatura.glb",
+      "categoria": "Temperatura",
+      "descripcion": "Módulo de temperatura con un elemento óptico infrarrojo. Explora la ventana del sensor, su encapsulado metálico y los componentes de la placa.",
+      "cargarAlInicio": true,
+      "visualizacion": {
+        "tamano": 1.5,
+        "rotacion": [
+          0,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 1.85
+      },
+      "datos": [
+        {
+          "etiqueta": "Tecnología",
+          "valor": "Detección infrarroja"
+        },
+        {
+          "etiqueta": "Magnitud",
+          "valor": "Temperatura"
+        }
+      ],
+      "procedencia": {
+        "tipo": "propio",
+        "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+        "licenciaPublica": null
+      },
+      "creditos": {
+        "autor": "Autor del proyecto ExplorAR",
+        "licencia": "Modelo propio. Sin licencia pública especificada."
+      }
+    },
+    {
+      "id": "sensor-luz-ldr",
+      "nombre": "Sensor de luz LDR",
+      "archivo": "FOTORESISTENCIA.glb",
+      "categoria": "Luz",
+      "descripcion": "Fotorresistencia (LDR) cuya resistencia eléctrica cambia con la luz que recibe. Observa la pista sensible de su cara frontal, el cuerpo y sus dos terminales.",
+      "cargarAlInicio": true,
+      "visualizacion": {
+        "tamano": 1.7,
+        "rotacion": [
+          -65,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 1.95
+      },
+      "datos": [
+        {
+          "etiqueta": "Tecnología",
+          "valor": "Resistencia sensible a la luz"
+        },
+        {
+          "etiqueta": "Función",
+          "valor": "Detección de cambios de iluminación"
+        }
+      ],
+      "procedencia": {
+        "tipo": "propio",
+        "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+        "licenciaPublica": null
+      },
+      "creditos": {
+        "autor": "Autor del proyecto ExplorAR",
+        "licencia": "Modelo propio. Sin licencia pública especificada."
+      }
+    },
+    {
+      "id": "sensor-color-rgb",
+      "nombre": "Sensor de color RGB",
+      "archivo": "rgb sensor.glb",
+      "categoria": "Color",
+      "descripcion": "Módulo óptico para detectar componentes de color rojo, verde y azul. Explora su ventana de detección, el LED y los contactos de la placa.",
+      "cargarAlInicio": true,
+      "visualizacion": {
+        "tamano": 1.5,
+        "rotacion": [
+          0,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 1.85
+      },
+      "datos": [
+        {
+          "etiqueta": "Magnitud",
+          "valor": "Componentes rojo, verde y azul"
+        },
+        {
+          "etiqueta": "Elementos",
+          "valor": "Ventana óptica, LED y placa"
+        }
+      ],
+      "procedencia": {
+        "tipo": "propio",
+        "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+        "licenciaPublica": null
+      },
+      "creditos": {
+        "autor": "Autor del proyecto ExplorAR",
+        "licencia": "Modelo propio. Sin licencia pública especificada."
+      }
+    },
+    {
+      "id": "sensor-lluvia",
+      "nombre": "Sensor de lluvia",
+      "archivo": "humedad lluvia.glb",
+      "categoria": "Agua y lluvia",
+      "descripcion": "Conjunto con una placa de electrodos y un módulo de control para detectar agua sobre su superficie. Explora las pistas conductoras, el cableado y el ajuste del módulo.",
+      "cargarAlInicio": true,
+      "visualizacion": {
+        "tamano": 1.8,
+        "rotacion": [
+          0,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 1.85
+      },
+      "datos": [
+        {
+          "etiqueta": "Detección",
+          "valor": "Presencia de agua en la placa"
+        },
+        {
+          "etiqueta": "Elementos",
+          "valor": "Electrodos y módulo de control"
+        }
+      ],
+      "procedencia": {
+        "tipo": "propio",
+        "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+        "licenciaPublica": null
+      },
+      "creditos": {
+        "autor": "Autor del proyecto ExplorAR",
+        "licencia": "Modelo propio. Sin licencia pública especificada."
+      }
+    },
+    {
+      "id": "arduino-uno",
+      "nombre": "Arduino UNO",
+      "archivo": "arduino_uno.glb",
+      "categoria": "Placas de desarrollo",
+      "descripcion": "Placa de desarrollo para conectar sensores y construir proyectos electrónicos. Explora sus conectores, puertos y componentes de control. Modelo 3D de Helindu, con licencia CC BY 4.0.",
+      "cargarAlInicio": false,
+      "visualizacion": {
+        "tamano": 2,
+        "rotacion": [
+          0,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 1.85
+      },
+      "datos": [
+        {
+          "etiqueta": "Tipo",
+          "valor": "Placa de desarrollo"
+        },
+        {
+          "etiqueta": "Uso",
+          "valor": "Conexión y control de sensores"
+        }
+      ],
+      "creditos": {
+        "autor": "Helindu",
+        "autorUrl": "https://sketchfab.com/Helindu",
+        "fuente": "https://sketchfab.com/3d-models/arduino-uno-51dd4e0cdfad4c4c95354bc5e29dcf1a",
+        "licencia": "CC BY 4.0",
+        "licenciaUrl": "https://creativecommons.org/licenses/by/4.0/"
+      }
+    }
+  ]
+}

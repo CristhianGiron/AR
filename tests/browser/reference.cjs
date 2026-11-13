@@ -1,0 +1,34 @@
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const { run } = require('./harness.cjs');
+run(async ({ page, artifacts, select, click, frame, close }) => {
+  await page.setViewport({ width: 1672, height: 940, isMobile: true, hasTouch: true, deviceScaleFactor: 1 }); await frame();
+  await select('sensor-luz-ldr'); await click('#object-inspect');
+  assert.equal(await page.$eval('#inspector', (element) => element.matches(':modal')), false);
+  assert.equal(await page.evaluate(() => __app.hud.isBlocking()), false);
+  assert.equal(await page.$eval('#tools', (element) => element.hidden), false);
+  assert.equal(await page.$eval('#object-icon img', (image) => image.src.startsWith('data:image/png')), true);
+  // Main controls remain usable while the informational card is docked.
+  await click('[data-mode="move"]'); assert.equal(await page.evaluate(() => __app.state.mode), 'move');
+  await click('[data-mode="rotate"]');
+  await click('#focus-component'); await click('#object-inspect'); await frame();
+  const zoom = await page.evaluate(() => __app.state.viewState.zoom);
+  await page.mouse.move(900, 680); await page.mouse.wheel({ deltaY: -70 });
+  await page.waitForFunction((zoom) => __app.state.viewState.zoom !== zoom, {}, zoom);
+  assert.equal(await page.evaluate(() => __app.state.hudSurface), 'inspector');
+  await page.evaluate((zoom) => __app.view.setViewZoom(zoom), zoom); await frame();
+  await page.waitForFunction(() => document.getElementById('notice').hidden, { timeout: 8000 });
+  await page.evaluate(() => Promise.all([...document.images].map((image) => image.decode().catch(() => {}))));
+  await page.screenshot({ path: path.join(artifacts, 'reference-desktop.png') });
+  await page.setViewport({ width: 1280, height: 900, isMobile: true, hasTouch: true, deviceScaleFactor: 1 }); await frame();
+  await page.screenshot({ path: path.join(artifacts, 'reference-desktop-1280.png') });
+  await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true, deviceScaleFactor: 1 }); await frame();
+  await page.waitForFunction(() => document.getElementById('inspector').matches(':modal'));
+  await page.screenshot({ path: path.join(artifacts, 'reference-mobile-card.png') });
+  await page.setViewport({ width: 1672, height: 940, isMobile: true, hasTouch: true, deviceScaleFactor: 1 }); await frame();
+  await page.waitForFunction(() => document.getElementById('inspector').open && !document.getElementById('inspector').matches(':modal'));
+  await page.keyboard.press('Escape');
+  assert.equal(await page.$eval('#inspector', (element) => element.open), false);
+  await close();
+  console.log('PASS: referencia visual, miniatura real, ficha integrada sin bloqueo en escritorio, acciones disponibles y cambio a modal móvil al redimensionar.');
+}).catch((error) => { console.error(error); process.exitCode = 1; });

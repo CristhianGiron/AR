@@ -1,0 +1,31 @@
+/* Compact educational cards: readable text, less padding and coherent action groups. */
+.hud-dialog#inspector #object-title { font-size: 21px; line-height: 1.15; }
+.hud-dialog#inspector .inspector-head { padding-top: 14px; padding-bottom: 14px; }
+.hud-dialog#inspector .object-thumb { flex-basis: 54px; height: 54px; }
+.hud-dialog#inspector #object-description { font-size: 14px; line-height: 1.45; padding: 11px 12px; margin: 10px 0; }
+#inspector #object-facts { gap: 6px; margin-bottom: 8px; }
+#inspector .reference-fact { font-size: 12px; line-height: 1.4; padding: 8px 10px; gap: 8px; }
+#inspector .reference-fact svg { width: 22px; height: 22px; }
+#inspector #focus-component.reference-cta { font-size: 14px; min-height: 44px; margin: 6px 0 8px; }
+#inspector .primary-button, #inspector .study-button { font-size: 12px; padding: 9px 12px; min-height: 44px; }
+/* The reference card is one overview; activities and specifications have direct entries. */
+#inspector .card-destinations { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+#inspector .card-destinations button { display: flex; justify-content: center; align-items: center; gap: 7px; border-radius: 18px 23px 16px 21px; background: #403474; border: 1px solid #bea1f1; }
+#inspector #open-challenge { background: linear-gradient(125deg, #6542ad, #42317d); color: #fff; }
+#inspector #open-challenge svg { color: #ffe34b; }
+#inspector #open-technical { background: #294963; border-color: #8ce2ee; }
+#challenge #learning-card { border: 0; padding-top: 0; }
+#challenge #learning-goal, #challenge #learning-question { font-size: 14px; line-height: 1.4; }
+#challenge p, #technical p { font-size: 13px; line-height: 1.45; }
+#challenge .learning-choice { font-size: 12px; line-height: 1.4; padding: 9px; }
+#technical #technical-details { margin: 0; border: 0; }
+#technical #technical-details > summary { display: none; }
+@media (max-height: 550px) and (min-width: 701px) {
+  .hud-dialog#inspector { width: min(680px, calc(100vw - 32px)); }
+  #inspector .page-content { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; align-items: start; }
+  #inspector #object-description { grid-column: 1; grid-row: 1; }
+  #inspector #object-facts { grid-column: 2; grid-row: 1 / 3; }
+  #inspector #focus-component { grid-column: 1; grid-row: 2; }
+  #inspector .card-destinations { grid-column: 1 / -1; }
+}
+#challenge.hud-dialog summary { min-height: 44px; }

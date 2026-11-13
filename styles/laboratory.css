@@ -1,0 +1,69 @@
+/* Optional learning tools keep the full-screen canvas as their reference. */
+.project-actions { display: flex; gap: 6px; margin: 6px 0; }
+.project-actions > button { flex: 1; min-width: 0; }
+.saved-project { display: flex; gap: 6px; margin: 6px 0; align-items: center; }
+.saved-project > .study-button { flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: left; }
+#project-message:empty { display: none; }
+#projects input[type='file'] { max-width: 100%; }
+#project-progress { color: white; background: #292855; border: 2px solid #86ecff; border-radius: 24px 32px 27px 34px; padding: 18px; max-width: min(420px, calc(100vw - 24px)); }
+#project-progress::backdrop { background: #11142abb; }
+#parts-list { display: grid; gap: 5px; }
+#parts-list button { text-align: left; }
+#parts p, #experiment p, #projects p { font-size: 12px; line-height: 1.4; }
+#experiment meter { display: block; width: 100%; height: 18px; accent-color: #ffe14b; }
+#experiment textarea { display: block; width: 100%; resize: none; min-height: 72px; font: inherit; font-size: 13px; padding: 8px; color: #fff; background: #24234f; border: 1px solid #a2c9ee; border-radius: 12px; }
+#observation-list { padding-left: 22px; font-size: 12px; margin: 6px 0; }
+#observation-list li { padding-block: 3px; }
+#experiment .simulation-note { color: #e1d9ff; font-size: 11px; }
+#part-markers, #light-lab { position: fixed; inset: 0; pointer-events: none; z-index: 7; }
+.part-marker, #virtual-lamp { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 48% 52% 43% 57%; border: 2px solid #aaf5ff; background: #35327a; color: #fff; font: bold 18px var(--app-font); box-shadow: 0 0 10px #43ddec88; pointer-events: auto; touch-action: none; }
+.part-marker[aria-pressed='true'] { background: #6540a1; border-color: #ffdf4d; }
+#light-lab > svg { width: 100%; height: 100%; }
+#light-ray { stroke: #ffdf57; stroke-width: 3; stroke-dasharray: 7 5; opacity: .8; }
+#virtual-lamp { width: 52px; height: 52px; color: #252051; background: #ffe467; border-color: #fff1b3; font-size: 30px; cursor: ew-resize; }
+.lamp-toolbar, .exploration-stop { position: fixed; z-index: 8; left: 50%; bottom: 146px; transform: translateX(-50%); pointer-events: auto; border: 1px solid #89e9fa; background: #28285deb; color: #fff; border-radius: 20px 26px 18px 24px; padding: 5px 9px; }
+.lamp-toolbar { text-align: center; max-width: calc(100vw - 24px); }
+.lamp-toolbar span { font-size: 11px; white-space: nowrap; }
+.lamp-toolbar > div { display: flex; gap: 6px; justify-content: center; }
+.lamp-toolbar button { min-width: 44px; min-height: 44px; color: #fff; background: #464083; border: 1px solid #adbef0; border-radius: 50%; font: bold 18px var(--app-font); }
+.lab-blocked .lamp-toolbar, .lab-blocked #virtual-lamp, .lab-blocked > svg { visibility: hidden; }
+body.experiment-active #scene-guide { visibility: hidden; }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .hud-dialog#parts, .hud-dialog#experiment { z-index: 5; inset: clamp(116px, 15vh, 150px) 22px auto auto; width: clamp(320px, 25vw, 420px); max-height: calc(100dvh - clamp(116px, 15vh, 150px) - 82px); }
+}
+@media (max-width: 700px) { .lamp-toolbar, .exploration-stop { bottom: 120px; } #challenge .learning-steps button { font-size: 11px; padding-inline: 3px; } }
+#light-lab circle { fill: #fff3a0; stroke: #ffdd58; stroke-width: 2; }
+#parts-list button[aria-pressed='true'] { border-color: #ffdc5a; background: #4d3c79; }
+#missions p { font-size: 12px; line-height: 1.4; }
+#missions h3 { font-size: 15px; margin-block: 5px; }
+#missions select { width: 100%; }
+#mission-progress { color: #fff2a0; }
+.mission-step { padding: 6px 9px; border: 1px solid #859edb; border-radius: 16px 21px 15px 19px; background: #323068; }
+.mission-navigation { display: flex; align-items: center; justify-content: space-between; gap: 7px; margin-block: 8px; }
+.mission-navigation span { font-size: 12px; }
+#mission-reflection { display: block; width: 100%; resize: none; min-height: 72px; font: inherit; font-size: 13px; padding: 8px; color: white; background: #24234f; border: 1px solid #a2c9ee; border-radius: 12px; }
+body.mission-active #scene-count { display: none; }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .hud-dialog#missions { z-index: 5; inset: clamp(116px, 15vh, 150px) 22px auto auto; width: clamp(320px, 25vw, 420px); max-height: calc(100dvh - clamp(116px, 15vh, 150px) - 82px); }
+}
+.exploration-stop { width: max-content; max-width: calc(100vw - 24px); padding-inline: 14px; }
+#echo-experiment p { font-size: 12px; line-height: 1.4; }
+#echo-experiment .simulation-note { font-size: 11px; color: #e1d9ff; }
+#echo-explanation { display: block; width: 100%; min-height: 72px; resize: none; padding: 8px; font: 13px var(--app-font); color: #fff; background: #24234f; border: 1px solid #a2c9ee; border-radius: 12px; }
+#echo-observations { padding-left: 22px; font-size: 12px; margin: 6px 0; }
+#echo-observations li { padding-block: 3px; }
+.echo-presence { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+#echo-lab { position: fixed; inset: 0; z-index: 7; pointer-events: none; }
+#echo-obstacle-handle { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; touch-action: none; width: 48px; height: 48px; border-radius: 16px 21px 15px 19px; background: #6950ad; border: 2px solid #b9f8ff; color: #fff; font: bold 25px var(--app-font); cursor: grab; }
+.echo-toolbar { position: fixed; z-index: 8; left: 50%; bottom: 146px; transform: translateX(-50%); pointer-events: auto; border: 1px solid #89e9fa; background: #28285deb; color: #fff; border-radius: 20px 26px 18px 24px; padding: 5px 9px; text-align: center; max-width: calc(100vw - 24px); }
+.echo-toolbar span { font-size: 11px; white-space: nowrap; }
+.echo-toolbar > div { display: flex; gap: 6px; justify-content: center; }
+.echo-toolbar button { min-width: 44px; min-height: 44px; border-radius: 50%; color: white; background: #464083; border: 1px solid #adbef0; font: bold 18px var(--app-font); }
+#echo-lab.lab-blocked { visibility: hidden; }
+body.echo-active #scene-guide { visibility: hidden; }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .hud-dialog#echo-experiment { z-index: 5; inset: clamp(116px, 15vh, 150px) 22px auto auto; width: clamp(320px, 25vw, 420px); max-height: calc(100dvh - clamp(116px, 15vh, 150px) - 82px); }
+}
+@media (max-width: 700px) { .echo-toolbar { bottom: 120px; } }
+.echo-presence { justify-content: flex-start; text-align: left; }
+.echo-presence input[type='checkbox'] { width: 20px; flex: 0 0 20px; margin: 0; }

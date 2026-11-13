@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "retos": [
+    {
+      "modelo": "sensor-pir",
+      "objetivo": "Relaciona movimiento e infrarrojos.",
+      "observa": "Gira el sensor y localiza la lente blanca y los dos ajustes de su placa.",
+      "pregunta": "¿Qué cambio ayuda a detectar este sensor?",
+      "opciones": [
+        "La distancia exacta a una pared",
+        "El movimiento asociado a cambios de radiación infrarroja",
+        "El color de una superficie"
+      ],
+      "correcta": 1,
+      "explicacion": "El PIR detecta cambios en la radiación infrarroja de su entorno. Esos cambios pueden indicar movimiento.",
+      "pista": "Piensa en qué cambia cuando una persona pasa frente al sensor.",
+      "profundiza": "Propón un lugar donde una señal de movimiento podría ahorrar energía.",
+      "resumen": "Detecta cambios infrarrojos que pueden indicar movimiento."
+    },
+    {
+      "modelo": "sensor-ultrasonico",
+      "objetivo": "Comprende para qué sirve un eco.",
+      "observa": "Localiza los dos transductores circulares. Piensa por qué el módulo necesita emitir y recibir sonido.",
+      "pregunta": "¿Para qué utiliza el eco?",
+      "opciones": [
+        "Para cambiar de color",
+        "Para conocer la temperatura",
+        "Para estimar la distancia a un objeto"
+      ],
+      "correcta": 2,
+      "explicacion": "El tiempo entre la emisión del sonido y la recepción de su eco permite estimar la distancia.",
+      "pista": "Un eco regresa después de que el sonido encuentra una superficie.",
+      "profundiza": "Imagina un robot que evita obstáculos. ¿Qué decisión podría tomar cuando detecta un objeto cerca?",
+      "resumen": "Estima distancias mediante la emisión de sonido y la recepción de su eco."
+    },
+    {
+      "modelo": "sensor-temperatura",
+      "objetivo": "Reconoce la ventana de un sensor infrarrojo.",
+      "observa": "Gira el módulo y busca la ventana en la parte superior del encapsulado metálico.",
+      "pregunta": "¿Qué parte permite que llegue la radiación infrarroja al sensor?",
+      "opciones": [
+        "La ventana óptica",
+        "Los orificios de fijación",
+        "Los conectores metálicos"
+      ],
+      "correcta": 0,
+      "explicacion": "La ventana óptica permite que la radiación infrarroja llegue al elemento de detección.",
+      "pista": "Observa la abertura en el centro del encapsulado.",
+      "profundiza": "Compara este sensor con el PIR. Ambos usan infrarrojos: ¿buscan el mismo tipo de información?",
+      "resumen": "Usa radiación infrarroja para obtener información sobre la temperatura."
+    },
+    {
+      "modelo": "sensor-luz-ldr",
+      "objetivo": "Relaciona iluminación y resistencia eléctrica.",
+      "observa": "Busca la pista en forma de serpiente y los dos terminales. Gira el modelo para observar ambas caras.",
+      "pregunta": "¿Qué propiedad cambia cuando recibe más o menos luz?",
+      "opciones": [
+        "La longitud de sus terminales",
+        "Su resistencia eléctrica",
+        "El color de los cables"
+      ],
+      "correcta": 1,
+      "explicacion": "La resistencia eléctrica de una LDR cambia con la iluminación que recibe. Un circuito puede aprovechar ese cambio para detectar luz.",
+      "pista": "La palabra fotorresistencia combina luz y resistencia.",
+      "profundiza": "Diseña una idea para una luz automática. ¿Qué debería ocurrir cuando oscurece?",
+      "resumen": "Su resistencia eléctrica cambia con la iluminación que recibe."
+    },
+    {
+      "modelo": "sensor-color-rgb",
+      "objetivo": "Identifica la información de un sensor de color.",
+      "observa": "Encuentra la ventana óptica y el LED. Compara su placa con la del sensor ultrasónico.",
+      "pregunta": "¿Qué información permite obtener un sensor RGB?",
+      "opciones": [
+        "La distancia a una pared",
+        "La presencia de agua",
+        "Componentes rojo, verde y azul de la luz"
+      ],
+      "correcta": 2,
+      "explicacion": "RGB corresponde a rojo, verde y azul. Sus componentes permiten describir el color de la luz recibida.",
+      "pista": "Las tres letras del nombre se refieren a colores.",
+      "profundiza": "¿Cómo podría ayudar este sensor a clasificar objetos? Piensa también en qué ocurriría con poca iluminación.",
+      "resumen": "Detecta componentes rojo, verde y azul de la luz recibida."
+    },
+    {
+      "modelo": "sensor-lluvia",
+      "objetivo": "Distingue la zona de detección y el control.",
+      "observa": "Sigue el cableado y localiza la placa con pistas conductoras y el módulo de ajuste.",
+      "pregunta": "¿Qué parte está diseñada para detectar las gotas?",
+      "opciones": [
+        "La placa con pistas conductoras",
+        "El conector de alimentación",
+        "El cuerpo del ajuste"
+      ],
+      "correcta": 0,
+      "explicacion": "La placa de electrodos permite detectar agua sobre su superficie. El otro módulo ayuda a procesar y ajustar la señal.",
+      "pista": "Busca la superficie que tiene muchas pistas expuestas.",
+      "profundiza": "Imagina un sistema que protege una ventana de la lluvia. ¿Qué otra información necesitaría para decidir si debe cerrarse?",
+      "resumen": "Detecta agua sobre una placa con pistas conductoras."
+    },
+    {
+      "modelo": "arduino-uno",
+      "objetivo": "Diferencia un sensor de una placa programable.",
+      "observa": "Localiza los conectores, los puertos y el componente principal. Piensa dónde se conectarían los sensores.",
+      "pregunta": "¿Qué papel puede tener Arduino UNO en un proyecto con sensores?",
+      "opciones": [
+        "Sustituir todos los sensores",
+        "Detectar agua directamente con su placa",
+        "Leer señales y ejecutar un programa"
+      ],
+      "correcta": 2,
+      "explicacion": "Una placa programable puede leer señales de sensores y ejecutar instrucciones para tomar decisiones o controlar otros componentes.",
+      "pista": "Los sensores aportan información y el programa indica qué hacer con ella.",
+      "profundiza": "Elige dos sensores de la colección y describe una regla del tipo: si ocurre esto, entonces haz aquello.",
+      "resumen": "Lee señales de sensores y ejecuta instrucciones de un programa."
+    }
+  ]
+}

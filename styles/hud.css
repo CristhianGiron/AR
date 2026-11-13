@@ -1,0 +1,152 @@
+/* Progressive HUD: the scene, five contextual actions and one intentional surface. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+#workspace { position: fixed; inset: 0; }
+.mode-badge, .decoration { display: none; }
+#header { height: 94px; padding: 16px 24px; }
+#header .round-button { width: 44px; height: 44px; }
+.brand { padding: 8px 18px 9px 12px; }
+.brand-name { font-size: 27px; }
+.brand-mark { width: 32px; height: 32px; }
+#bar { right: 20px; bottom: 20px; gap: 10px; }
+#bar button, #hud-toggle { width: 44px; height: 44px; min-height: 44px; padding: 10px; border-radius: 50%; }
+#view { display: grid; place-items: center; }
+#view span, #hud-toggle span { display: none; }
+#quick-camera { display: grid; }
+#hud-toggle { left: 20px; bottom: 20px; }
+#scene-count { font-size: 12px; color: #ddd8ef; }
+#scene-guide { bottom: 80px; width: max-content; max-width: calc(100vw - 32px); padding: 8px 14px; border-radius: 12px; background: #23243f; box-shadow: none; }
+#scene-guide span { font-size: 12px; line-height: 1.5; }
+#tools { width: 252px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; backdrop-filter: none; overflow: visible; }
+#actions { grid-template-columns: repeat(5, 44px); gap: 8px; }
+#tools .icon-button { width: 44px; height: 44px; background: #28294e; border: 1px solid #9cbddc; box-shadow: 0 4px 12px #070b2944; }
+#tools .icon-button[aria-pressed="true"] { background: #6543b6; color: #fff; border-color: #bff6ff; }
+#tools .icon-button:focus-visible { outline: 3px solid #ffe35d; outline-offset: 3px; }
+body.has-hud-surface #tools, body.has-hud-surface #scene-guide { visibility: hidden; }
+.hud-dialog, .hud-dialog#inspector, .hud-dialog#collection-controls, .hud-dialog.floating-panel {
+  position: fixed;
+  inset: 104px 20px auto auto;
+  margin: 0;
+  transform: none;
+  width: min(380px, calc(100vw - 40px));
+  max-height: calc(100dvh - 130px);
+  padding: 20px;
+  border: 1px solid #9b9fc9;
+  border-radius: 22px;
+  background: #25233f;
+  color: #fff;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #b3a2dd #25233f;
+  box-shadow: 0 16px 50px #090b3260;
+  backdrop-filter: none;
+}
+.hud-dialog::backdrop { background: #080b243d; }
+.hud-dialog[open], .hud-dialog#inspector[open], .hud-dialog#collection-controls[open] { display: block; }
+.hud-dialog .dialog-heading, .hud-dialog .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 16px; }
+.hud-dialog h2 { margin: 0; font-size: 20px; line-height: 1.4; }
+.hud-dialog .round-button, .hud-dialog#inspector #close-inspector { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; padding: 10px; border: 1px solid #aab9df; }
+.hud-dialog p { color: #ded9ec; font-size: 13px; line-height: 1.6; }
+.hud-dialog label { color: #e5dff4; font-size: 13px; line-height: 1.5; }
+.hud-dialog input:not([type="range"]):not([type="checkbox"]):not([type="color"]), .hud-dialog select { min-height: 44px; font-size: 14px; }
+.hud-dialog summary { display: flex; align-items: center; min-height: 44px; padding: 10px 0; font-size: 13px; font-weight: 700; cursor: pointer; }
+.hud-dialog summary::before { content: "▸"; margin-right: 8px; }
+.hud-dialog details[open] > summary::before { content: "▾"; }
+.hud-dialog summary::-webkit-details-marker { display: none; }
+.hud-dialog details { border-top: 1px solid #a69bc04d; margin-top: 14px; }
+#workspace-panel { left: 20px; right: auto; }
+#workspace-panel #navigation { position: static; display: grid; width: auto; grid-template-columns: 1fr 1fr; gap: 10px; }
+#navigation .nav-caption { display: none; }
+#navigation .nav-button { min-height: 78px; padding: 12px; gap: 8px; border-radius: 14px; background: #343151; color: #fff; font-size: 14px; line-height: 1.4; text-align: left; border: 1px solid #a3a2cb; box-shadow: none; transform: none; }
+#navigation .nav-button svg { width: 27px; height: 27px; }
+#navigation .nav-yellow { border-color: #ead879; }
+#navigation .nav-violet { border-color: #b59fe5; }
+#navigation .nav-teal { border-color: #79d7d8; }
+#navigation .nav-pink { border-color: #e8a1ce; }
+#navigation .nav-button:hover { background: #4b416b; filter: none; }
+#collection-controls .collection-row { gap: 6px; }
+#collection-controls .collection-row button { width: 44px; height: 44px; min-height: 44px; padding: 10px; background: #393758; border-color: #a9b4de; }
+#collection-controls #collection-mode { width: auto; }
+#collection-controls #collection-zoom { position: static; min-width: 38px; font-size: 12px; }
+#scope-status { font-size: 12px; padding: 0; white-space: normal; }
+#collection-rotation p { font-size: 12px; line-height: 1.5; }
+.hud-dialog#inspector .inspector-head { margin: -20px -20px 0; padding: 20px 64px 16px 20px; top: -20px; background: #25233f; border-bottom-color: #a69bc04d; }
+.hud-dialog#inspector #close-inspector { top: 14px; right: 12px; }
+body.hud-hidden #workspace-panel[open] #navigation, body.hud-hidden #inspector[open] { visibility: visible !important; pointer-events: auto !important; }
+#mobile-inspect, body.hud-hidden #mobile-inspect { position: static; display: flex; width: 100%; margin: 0; min-height: 56px; border: 1px solid #a2c9dc; border-radius: 12px; padding: 10px; font-size: 13px; background: #343351; box-shadow: none; }
+.secondary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0; }
+.secondary-action, .secondary-color { display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; min-height: 56px; margin: 0; padding: 10px; border: 1px solid #aaa3ce; border-radius: 12px; background: #343351; color: #fff; font-size: 13px; line-height: 1.4; text-align: left; cursor: pointer; }
+.secondary-actions svg { width: 22px; height: 22px; flex-shrink: 0; }
+#panel .secondary-action, #panel #mobile-inspect { width: 100%; margin: 0; padding: 10px; background: #343351; font-size: 13px; }
+#panel #delete { border-color: #e6a4b4; }
+.secondary-color { position: relative; }
+#quick-color { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+#rename-box { padding-top: 8px; margin-top: 8px; }
+#rename-box .icon-button { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 10px; border: 1px solid #aab9df; border-radius: 10px; background: #403961; }
+#panel #confirm-name { margin: 0; width: 44px; padding: 10px; }
+.numeric-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#panel .position-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+#panel .position-buttons button { margin: 0; min-height: 44px; padding: 8px; }
+#panel .axis-choice { min-height: 44px; padding: 8px; border: 1px solid #a7a1db; border-radius: 8px; background: #393453; }
+#panel .axis-choice[aria-pressed="true"] { background: #6543b6; border-color: #9ee4f1; }
+#panel button:not([hidden]):not(.round-button) { min-height: 44px; }
+#panel .axis label { margin: 0; }
+#advanced-target { font-size: 14px; }
+#panel #status { color: #baf2ff; }
+#panel #remove[hidden] { display: none !important; }
+#notice { max-width: min(460px, calc(100vw - 32px)); bottom: 80px; font-size: 13px; background: #25233f; }
+#loading-indicator { top: 100px; background: #25233f; }
+#undo-remove { left: 20px; bottom: 80px; min-height: 44px; }
+@media (max-width: 700px) {
+  #header { height: 84px; padding: 12px 16px; }
+  .brand-name { font-size: 25px; }
+  .brand-mark { width: 28px; height: 28px; }
+  .brand { padding: 8px 12px; gap: 6px; }
+  #bar { right: 16px; bottom: 16px; gap: 8px; }
+  #hud-toggle { left: 16px; bottom: 16px; }
+  #scene-count { display: none; }
+  #scene-guide { bottom: 76px; padding: 7px 10px; }
+  #scene-guide span { font-size: 11px; }
+  .hud-dialog, .hud-dialog#inspector, .hud-dialog#collection-controls, .hud-dialog.floating-panel {
+    inset: auto 8px 8px;
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 24px);
+    padding: 16px;
+    border-radius: 20px;
+  }
+  #workspace-panel { left: 8px; right: 8px; }
+  .hud-dialog#inspector .inspector-head { top: -16px; margin: -16px -16px 0; padding: 16px 64px 16px 16px; }
+  #collection-controls .collection-row { flex-wrap: wrap; }
+  #collection-controls #collection-mode { flex: 1 1 120px; }
+  #collection-controls #collection-zoom { margin: 0 4px; }
+  #undo-remove { left: 70px; bottom: 16px; width: auto; padding: 8px; font-size: 12px; }
+  #loading-indicator { top: 88px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media (forced-colors: active) {
+  button, input, select, summary { border: 1px solid ButtonText !important; }
+}
+.hud-dialog .dialog-heading, .hud-dialog .panel-heading {
+  position: sticky; top: -20px; z-index: 3; margin: -20px -20px 16px;
+  padding: 14px 20px; background: #25233f; border-bottom: 1px solid #a69bc04d;
+}
+#panel .rotation-options label { min-height: 44px; padding: 6px; }
+@media (max-width: 700px) {
+  .hud-dialog .dialog-heading, .hud-dialog .panel-heading { top: -16px; margin: -16px -16px 14px; padding: 12px 16px; }
+}
+/* Keep backup controls and disclosures as usable as the primary actions. */
+.hud-dialog input[type="range"], .hud-dialog input[type="color"] { min-height: 44px; }
+#inspector.hud-dialog summary { min-height: 44px; }
+.hud-dialog { scroll-padding-top: 90px; }
+.secondary-color:focus-within { outline: 3px solid #ffe35d; outline-offset: 3px; }

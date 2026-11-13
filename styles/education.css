@@ -1,0 +1,375 @@
+/* Learning controls: readable language, visible control scope and recoverable actions. */
+
+textarea, summary {
+  font: inherit;
+}
+
+summary:focus-visible, textarea:focus-visible, #learning-feedback:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+#scope-status {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #e8e3ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#collection-controls button {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+}
+
+#collection-controls #collection-mode {
+  min-height: 44px;
+}
+
+#tools {
+  width: 226px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #9380ce transparent;
+}
+
+#actions {
+  grid-template-columns: repeat(4, 44px);
+}
+
+#tools .icon-button {
+  width: 44px;
+  height: 44px;
+}
+
+#tool-description {
+  color: #e3dff6;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 9px 0 0;
+}
+
+#inspector {
+  width: 280px;
+  padding: 18px;
+}
+
+#object-title {
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+#object-description {
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 14px 0;
+}
+
+#learning-card {
+  border-top: 1px solid #9c83d45c;
+  padding-top: 14px;
+}
+
+#learning-goal {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+#learning-observe {
+  color: #d5cfee;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+
+.study-button {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #9ad6e0;
+  border-radius: 12px;
+  background: #25485f;
+  color: #e9faff;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.study-button:hover {
+  background: #356279;
+}
+
+#learning-question {
+  margin: 16px 0 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#learning-choices {
+  display: grid;
+  gap: 8px;
+}
+
+.learning-choice {
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #aa99d3aa;
+  border-radius: 12px;
+  background: #42396e;
+  color: #f4f0ff;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.learning-choice:hover:not(:disabled), .learning-choice[aria-pressed="true"] {
+  background: #63508b;
+  border-color: #ffe35d;
+}
+
+.learning-choice:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+#learning-feedback {
+  border-left: 3px solid #ffe35d;
+  background: #ffe35d13;
+  padding: 10px;
+  border-radius: 0 10px 10px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #fff4c6;
+}
+
+#learning-feedback.correct {
+  border-color: #72e1b8;
+  background: #72e1b815;
+  color: #d0ffee;
+}
+
+#learning-deeper, #technical-details {
+  margin-top: 14px;
+  border-top: 1px solid #9c83d45c;
+  padding-top: 12px;
+}
+
+#learning-deeper summary, #technical-details summary {
+  min-height: 36px;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  color: #d8d1f1;
+}
+
+#learning-extension {
+  color: #d4cee8;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+#model-data {
+  margin-top: 10px;
+}
+
+#mobile-inspect {
+  display: none;
+  position: fixed;
+  right: 20px;
+  z-index: 4;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  border: 1px solid var(--cyan);
+  background: #343365eF;
+  border-radius: 100px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 12px;
+  box-shadow: 0 4px 15px #080a2d33;
+}
+
+#mobile-inspect svg {
+  width: 20px;
+  height: 20px;
+}
+
+#close-inspector {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  top: 12px;
+  width: 36px;
+  height: 36px;
+  padding: 7px;
+}
+
+#inspector.info-open #close-inspector {
+  display: grid;
+}
+
+#inspector.info-open .inspector-head {
+  padding-right: 28px;
+}
+
+body.hud-hidden #inspector.info-open {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+body.hud-hidden #mobile-inspect {
+  display: flex;
+}
+
+#undo-remove {
+  position: fixed;
+  right: 28px;
+  bottom: 84px;
+  z-index: 6;
+  width: auto;
+  margin: 0;
+  min-height: 44px;
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  #mobile-inspect {
+    display: flex;
+  }
+  #inspector.info-open {
+    display: block;
+    z-index: 5;
+    width: min(340px, calc(100vw - 32px));
+    top: 180px;
+    right: 20px;
+    max-height: calc(100dvh - 270px);
+  }
+}
+
+@media (max-width: 700px) {
+  .header-actions .round-button {
+    width: 44px;
+    height: 44px;
+  }
+  #collection-controls {
+    padding: 8px;
+  }
+  .collection-row {
+    gap: 4px;
+  }
+  #collection-controls button {
+    width: 44px;
+    height: 44px;
+  }
+  #collection-controls #collection-mode {
+    padding: 7px 4px;
+    margin-right: auto;
+  }
+  #collection-zoom {
+    position: absolute;
+    right: 12px;
+    bottom: 8px;
+  }
+  #scope-status {
+    padding-right: 48px;
+    font-size: 10px;
+  }
+  #mobile-inspect {
+    right: 16px;
+  }
+  #inspector.info-open {
+    left: 16px;
+    right: auto;
+    top: 146px;
+    width: calc(100vw - 32px);
+    max-height: calc(100dvh - 328px);
+    border-radius: 23px;
+  }
+  #undo-remove {
+    bottom: 174px;
+    right: 16px;
+  }
+}
+
+@media (max-height: 550px) and (min-width: 701px) {
+  #inspector.info-open {
+    top: 86px;
+    max-height: calc(100dvh - 156px);
+  }
+}
+
+.brand-name {
+  margin: 0;
+}
+
+#inspector .inspector-head {
+  position: sticky;
+  top: -18px;
+  z-index: 1;
+  margin: -18px -18px 0;
+  padding: 18px;
+  background: linear-gradient(115deg, #302859, #29305c);
+}
+
+#inspector.info-open .inspector-head {
+  padding-right: 54px;
+}
+
+#full-description {
+  color: #d4cee8;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.learning-steps {
+  display: flex;
+  gap: 7px;
+  margin: 4px 0 12px;
+}
+
+.learning-steps button {
+  flex: 1;
+  min-height: 44px;
+  padding: 9px 6px;
+  border: 1px solid #b5a4e177;
+  border-radius: 12px;
+  background: #3d366a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.learning-steps button[aria-pressed="true"] {
+  background: #6f50a3;
+  border-color: #72e1ec;
+}
+
+#notice {
+  pointer-events: none;
+}
+
+#undo-remove {
+  left: 28px;
+  right: auto;
+}
+
+@media (max-width: 700px) {
+  #undo-remove {
+    left: 64px;
+    right: auto;
+    bottom: 22px;
+    width: 80px;
+    min-height: 44px;
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+  body.has-undo #scene-count {
+    display: none;
+  }
+}

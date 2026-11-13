@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "modelos": [
+    {
+      "id": "sensor-pir",
+      "archivo": "PIR.glb",
+      "bytes": 3468700,
+      "sha256": "f287de753665b59a174b352d1fc5d3bc059ee9313423b026b22c7daf2cbae548",
+      "generator": "Khronos glTF Blender I/O v5.2.39",
+      "autor": "Autor del proyecto ExplorAR",
+      "licencia": "Modelo propio. Sin licencia pública especificada.",
+      "fuente": null,
+      "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+      "licenciaPublica": null,
+      "estado": "autoria-propia-declarada"
+    },
+    {
+      "id": "sensor-ultrasonico",
+      "archivo": "ultrasonico.glb",
+      "bytes": 2712776,
+      "sha256": "7f65e01151f3669bc2c6ccf5a9f1c6804cc8365a214269d13c24a8f544ab8e4e",
+      "generator": "Khronos glTF Blender I/O v5.2.39",
+      "autor": "Autor del proyecto ExplorAR",
+      "licencia": "Modelo propio. Sin licencia pública especificada.",
+      "fuente": null,
+      "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+      "licenciaPublica": null,
+      "estado": "autoria-propia-declarada"
+    },
+    {
+      "id": "sensor-temperatura",
+      "archivo": "temperatura.glb",
+      "bytes": 638860,
+      "sha256": "40a8f910656d2dcd4f34a2c0de3231beaee474777f125ad5069ec2cee18dc3a1",
+      "generator": "Khronos glTF Blender I/O v5.2.39",
+      "autor": "Autor del proyecto ExplorAR",
+      "licencia": "Modelo propio. Sin licencia pública especificada.",
+      "fuente": null,
+      "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+      "licenciaPublica": null,
+      "estado": "autoria-propia-declarada"
+    },
+    {
+      "id": "sensor-luz-ldr",
+      "archivo": "FOTORESISTENCIA.glb",
+      "bytes": 157540,
+      "sha256": "6adfc92232903efc3199426b7d2030beafd1391d834c95887324edbeeff5c998",
+      "generator": "Khronos glTF Blender I/O v5.2.39",
+      "autor": "Autor del proyecto ExplorAR",
+      "licencia": "Modelo propio. Sin licencia pública especificada.",
+      "fuente": null,
+      "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+      "licenciaPublica": null,
+      "estado": "autoria-propia-declarada"
+    },
+    {
+      "id": "sensor-color-rgb",
+      "archivo": "rgb sensor.glb",
+      "bytes": 2497676,
+      "sha256": "27ca587737394fea596eceaa1e4f3079dcff98738e62ce7f5fe8f6cb4b26e2d1",
+      "generator": "Khronos glTF Blender I/O v5.2.39",
+      "autor": "Autor del proyecto ExplorAR",
+      "licencia": "Modelo propio. Sin licencia pública especificada.",
+      "fuente": null,
+      "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+      "licenciaPublica": null,
+      "estado": "autoria-propia-declarada"
+    },
+    {
+      "id": "sensor-lluvia",
+      "archivo": "humedad lluvia.glb",
+      "bytes": 594164,
+      "sha256": "2b3f32a7fe2fd3c3e2a23c96f305f459f14d4799d146c6c06c6dbb52a5ad5e29",
+      "generator": "Khronos glTF Blender I/O v5.2.39",
+      "autor": "Autor del proyecto ExplorAR",
+      "licencia": "Modelo propio. Sin licencia pública especificada.",
+      "fuente": null,
+      "declaracion": "Autoría propia confirmada por el responsable del proyecto",
+      "licenciaPublica": null,
+      "estado": "autoria-propia-declarada"
+    },
+    {
+      "id": "arduino-uno",
+      "archivo": "arduino_uno.glb",
+      "bytes": 7601000,
+      "sha256": "3c2ef21617840dc629d59c46636a9265e049d4eb473ee6430c68402679835fa2",
+      "generator": "Sketchfab-0.6.0",
+      "autor": "Helindu",
+      "licencia": "CC BY 4.0",
+      "fuente": "https://sketchfab.com/3d-models/arduino-uno-51dd4e0cdfad4c4c95354bc5e29dcf1a",
+      "declaracion": null,
+      "licenciaPublica": "CC BY 4.0",
+      "estado": "documentado-en-archivo"
+    }
+  ]
+}

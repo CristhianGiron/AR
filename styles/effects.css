@@ -1,0 +1,33 @@
+:root { --hud-pitch: 0deg; --hud-yaw: 0deg; --hud-shadow-x: 0px; --hud-shadow-y: 0px; }
+/* Tilt the drawn frame, not the text viewport or its pagination measurements. */
+.hud-dialog::before, .hud-dialog#inspector::before {
+  transform: perspective(800px) rotateX(var(--hud-pitch)) rotateY(var(--hud-yaw)) rotate(-.35deg);
+  transform-origin: center;
+  transition: transform 180ms ease-out;
+  box-shadow: var(--hud-shadow-x) var(--hud-shadow-y) 12px #71eaff20;
+}
+.hud-dialog#inspector::before {
+  transform: perspective(800px) rotateX(var(--hud-pitch)) rotateY(var(--hud-yaw)) rotate(.4deg);
+}
+button, #navigation .nav-button, #tools .icon-button {
+  transform: perspective(700px) rotateX(var(--hud-pitch)) rotateY(var(--hud-yaw));
+  transform-origin: center;
+  transition: transform 180ms ease-out, filter 150ms ease-out;
+}
+/* One soft wobble per hover; the hit region never expands into adjacent controls. */
+@keyframes explorar-gelatina {
+  0%, 100% { scale: 1; }
+  22% { scale: .94 1; }
+  42% { scale: 1 .94; }
+  60% { scale: .975 1; }
+  78% { scale: 1 .985; }
+  90% { scale: .995 1; }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  button:not(:disabled):hover { animation: explorar-gelatina 560ms ease-out; }
+  button:not(:disabled):active { animation: none; scale: .97; }
+}
+@media (prefers-reduced-motion: reduce) {
+  button, #navigation .nav-button, #tools .icon-button { transform: none; scale: 1; animation: none !important; transition: none !important; }
+  .hud-dialog::before, .hud-dialog#inspector::before { transform: none; box-shadow: none; transition: none !important; }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "explorar-educativo",
+  "version": "1.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "check": "node scripts/check-project.mjs",
+    "test": "node --test tests/unit/*.test.js",
+    "test:browser": "node tests/browser/smoke.cjs",
+    "test:accessibility": "node tests/browser/accessibility.cjs",
+    "test:pagination": "node tests/browser/pagination.cjs",
+    "test:reference": "node tests/browser/reference.cjs",
+    "test:inspector": "node tests/browser/inspector.cjs",
+    "test:card": "node tests/browser/card-overview.cjs",
+    "test:camera": "node tests/browser/camera.cjs",
+    "test:startup": "node tests/browser/startup.cjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "audit:models": "node scripts/audit-models.mjs",
+    "release:prepare": "node scripts/prepare-release.mjs",
+    "test:panels": "node tests/browser/panels.cjs",
+    "test:centering": "node tests/browser/centering.cjs",
+    "test:effects": "node tests/browser/effects.cjs",
+    "test:projects": "node tests/browser/projects.cjs",
+    "test:lab": "node tests/browser/learning-lab.cjs --all-models",
+    "test:missions": "node tests/browser/missions.cjs --all-models",
+    "test:echo": "node tests/browser/echo-lab.cjs --all-models",
+    "test:banner": "node tests/browser/banner-labels.cjs --all-models",
+    "test:surfaces": "node tests/browser/surfaces.cjs --all-models"
+  },
+  "devDependencies": {
+    "axe-core": "4.14.0",
+    "puppeteer-core": "25.17.0"
+  },
+  "engines": {
+    "node": ">=22.17"
+  }
+}
