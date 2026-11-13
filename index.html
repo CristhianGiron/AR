@@ -80,7 +80,9 @@
       <label for="surface-scope">Qué quieres colocar</label><select id="surface-scope"><option value="selected">Componente seleccionado</option><option value="visible">Conjunto visible</option></select>
       <p>El conjunto comienza con unos 50 cm en su dimensión mayor. Puedes ajustar su tamaño y girarlo. Es una representación ampliada, sin escala física del sensor.</p>
       <p id="surface-message" role="status">Comprueba la compatibilidad antes de entrar.</p>
-      <div class="project-actions" data-page-group><button id="surface-start" class="study-button">Entrar en AR</button><button id="surface-cancel" class="study-button" hidden>Cancelar entrada</button></div>
+      <div class="project-actions" data-page-group><button id="surface-start" class="study-button" disabled>Entrar en AR</button><button id="surface-cancel" class="study-button" hidden>Cancelar entrada</button></div>
+      <button id="surface-check" class="study-button">Comprobar compatibilidad de nuevo</button>
+      <p>Si aparece un bloqueo, abre la URL pública directamente en el navegador, fuera de previsualizaciones o navegadores integrados en otras aplicaciones.</p>
       <p>Requiere HTTPS y un dispositivo con WebXR AR y detección de superficies. La posición dura esta sesión; el archivo de escena conserva el trabajo del laboratorio, sin mapas del entorno.</p>
     </dialog>
     <div id="surface-overlay" hidden>

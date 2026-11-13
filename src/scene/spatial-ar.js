@@ -1,3 +1,4 @@
+import { XR_UNAVAILABLE, xrFailure, spatialPolicyAllowed } from './xr-availability.js';
 import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
 import { horizontalSurface } from './surface-pose.js';
@@ -10,11 +11,13 @@ export function createSpatialAR(app) {
   let readyPose = false, placed = false, lastPoseAt = 0, scale = 1, yaw = 0, savedLoop = false;
   let hidden = [], previousFocus = null, pageHidden = false;
   const pose = new THREE.Matrix4();
+  let availability = "unknown", supportRun = 0;
   function message(text) {
     for (const id of ['surface-message', 'surface-live']) if ($(id).textContent !== text) $(id).textContent = text;
   }
   function sync() {
-    $('surface-start').disabled = pending || active;
+    $('surface-start').disabled = pending || active || availability !== 'available';
+    $('surface-check').disabled = pending || active || availability === 'checking';
     $('surface-cancel').hidden = !pending;
     $('surface-place').disabled = !active || !readyPose;
     $('surface-reposition').disabled = !active || !placed;
@@ -99,6 +102,8 @@ export function createSpatialAR(app) {
   }
   async function start() {
     if (pending || active) return;
+    if (availability !== 'available') { await support(); return; }
+    if (!spatialPolicyAllowed(document)) { availability = 'blocked'; sync(); message(xrFailure({name:'SecurityError'})); return; }
     if (!isSecureContext || !navigator.xr?.requestSession) { message('La detección de superficies necesita HTTPS y un navegador con WebXR AR. Puedes continuar en 3D o con cámara de fondo.'); return; }
     if (!app.state.startupReady || app.state.pendingLoads || app.state.catalogLoading || app.projects.busy) { message('Espera a que termine la carga antes de entrar en AR.'); return; }
     let candidate = null, preparedScene = null; const operation = ++generation; pending = true; sync();
@@ -128,8 +133,8 @@ export function createSpatialAR(app) {
       const ownsState = operation === generation || arScene === preparedScene && (!session || session === candidate);
       if (!ownsState) return;
       cleanup();
-      if (error.name === 'AbortError') message('Entrada en AR cancelada. Puedes continuar explorando.');
-      else message(error.name === 'NotAllowedError' ? 'No se autorizó el acceso a AR. Revisa los permisos o continúa en 3D.' : 'Este dispositivo no pudo iniciar AR con detección de superficies. Puedes usar 3D o cámara de fondo.');
+      if (error.name === 'NotSupportedError' || /no runtimes supported|requested configuration/i.test(error.message || '')) availability = 'unavailable';
+      sync(); message(xrFailure(error));
     }
   }
   async function end() {
@@ -139,12 +144,24 @@ export function createSpatialAR(app) {
     try { await previous.end(); } catch { message('No se pudo salir de AR. Usa el control de salida del navegador.'); }
   }
   async function support() {
+    if (pending || active) return;
+    const check = ++supportRun;
     $('surface-scope').querySelector('[value="selected"]').disabled = !app.state.chosen;
     $('surface-scope').value = app.state.chosen ? 'selected' : 'visible';
-    if (!isSecureContext || !navigator.xr?.isSessionSupported) { message('La detección de superficies necesita HTTPS y un navegador con WebXR AR. Puedes seguir en 3D o con cámara de fondo.'); return; }
-    try { const supported = await navigator.xr.isSessionSupported('immersive-ar'); message(supported ? 'AR disponible. Al entrar, mueve el dispositivo despacio para buscar una superficie horizontal.' : 'Este navegador no ofrece AR espacial. La exploración 3D y la cámara como fondo siguen disponibles.'); }
-    catch { message('No se pudo comprobar AR. Revisa los permisos o continúa en 3D.'); }
+    availability = 'checking'; sync(); message('Comprobando compatibilidad con AR espacial…');
+    if (!isSecureContext || !navigator.xr?.isSessionSupported) {
+      availability = 'unavailable'; sync();
+      message(!isSecureContext ? 'Abre la dirección HTTPS del sitio para comprobar AR. La dirección HTTP de otro equipo no es un contexto seguro.' : XR_UNAVAILABLE); return;
+    }
+    if (!spatialPolicyAllowed(document)) { availability = 'blocked'; sync(); message(xrFailure({name:'SecurityError'})); return; }
+    try {
+      const supported = await navigator.xr.isSessionSupported('immersive-ar');
+      if (check !== supportRun) return;
+      availability = supported ? 'available' : 'unavailable'; sync();
+      message(supported ? 'El navegador admite sesiones AR. Al entrar se comprobará también la detección de superficies; mueve el dispositivo despacio.' : XR_UNAVAILABLE);
+    } catch (error) { if (check !== supportRun) return; availability = 'unavailable'; sync(); message(xrFailure(error)); }
   }
+  $('surface-check').onclick = support;
   $('surface-start').onclick = start; $('surface-cancel').onclick = end; $('surface-exit').onclick = end; $('surface-place').onclick = place;
   $('surface-reposition').onclick = () => { placed = false; readyPose = false; placement.visible = false; sync(); };
   const transform = () => { if (!content) return; content.scale.setScalar(content.userData.baseScale * scale); content.rotation.y = THREE.MathUtils.degToRad(yaw); sync(); };

@@ -17,3 +17,9 @@ Se detectan intersecciones sobre superficies horizontales; no se reconstruye una
 Las pruebas automáticas sustituyen el puente XR del renderer y no validan sensores, compositor WebXR o el seguimiento del mundo real. Sigue pendiente probar físicamente en un dispositivo compatible desde HTTPS. Registrar disponibilidad, deriva, estabilidad, recuperación y salida en `validacion/dispositivos.md`. No se afirma que se haya realizado esa prueba ni que todos los móviles sean compatibles.
 
 Referencias de implementación: [WebXR Hit Test, W3C](https://www.w3.org/TR/webxr-hit-test-1/) y [ejemplo oficial Three.js r160](https://github.com/mrdoob/three.js/blob/r160/examples/webxr_ar_hittest.html). La API informa intersecciones estimadas por el dispositivo; no garantiza precisión de medición.
+
+## Corrección 1.4.1 — disponibilidad y Netlify
+
+La entrada se desactiva hasta comprobar que el navegador admite immersive-ar. Una respuesta negativa no intenta crear una sesión. Si el runtime rechaza las funciones requeridas tras una comprobación positiva, se explica que no hay una configuración AR compatible y se permite comprobar de nuevo. No se sustituye hit test por una cámara sin seguimiento. Los bloqueos de Permissions-Policy tienen un mensaje distinto.
+
+El paquete incluye `_headers` para permitir cámara y seguimiento espacial al propio origen en Netlify. Los encabezados no instalan un runtime AR ni garantizan compatibilidad del teléfono. La comprobación del despliegue concreto requiere URL y dispositivo; consulte `publicacion.md`.

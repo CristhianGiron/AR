@@ -18,7 +18,7 @@ export async function runtimeFiles() {
     if (!file.startsWith(resolve(root, 'modelos-3d') + sep)) throw new Error('Ruta fuera del catálogo');
     return relative(root, file).split(sep).join('/');
   });
-  return [...new Set(['index.html', 'README.md', ...models, 'modelos-3d/catalogo.json',
+  return [...new Set(['index.html', 'README.md', '_headers', ...models, 'modelos-3d/catalogo.json',
     ...await filesUnder('src'), ...await filesUnder('styles'), ...await filesUnder('assets'),
     ...await filesUnder('contenido'), ...await filesUnder('vendor'), ...await filesUnder('docs')])].sort();
 }

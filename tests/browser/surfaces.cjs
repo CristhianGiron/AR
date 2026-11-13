@@ -3,8 +3,9 @@ const path=require('node:path');
 const {run}=require('./harness.cjs');
 run(async({page,click,close,select,frame,artifacts})=>{
  await select('sensor-temperatura');await close();await click('#view-controls-toggle');await click('#open-surfaces');
+ await page.waitForFunction(()=>!document.querySelector('#surface-message').textContent.includes('Comprobando'));
  assert.ok(await page.$eval('#surface-message',e=>e.textContent.length>10));
- await click('#surface-start');
+ assert.equal(await page.$eval('#surface-start',e=>e.disabled),true,'unsupported runtime cannot request an immersive session');
  await page.waitForFunction(()=>!__app.spatial.pending);
  assert.equal(await page.evaluate(()=>__app.spatial.active),false,'unsupported browser retains lab');
  const originals=await page.evaluate(()=>__app.projects.capture());
@@ -18,6 +19,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
   const xr=new EventTarget();xr.isSessionSupported=async()=>true;
   xr.requestSession=async(mode,options)=>{
    __xrOptions.push({mode,required:options.requiredFeatures,overlay:options.domOverlay.root.id});
+   if(__xrMode==='no-runtime')throw new DOMException('Could not create a session because: No runtimes supported the requested configuration','NotSupportedError');
    if(__xrMode==='denied')throw new DOMException('Denied','NotAllowedError');
    if(__xrMode==='late')await new Promise(resolve=>window.__resolveXR=resolve);
    const session=new EventTarget();session.visibilityState='visible';session.domOverlayState=__xrMode==='no-overlay'?null:{type:'screen'};session.endCount=0;
@@ -34,7 +36,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
    __arCallback?.(performance.now(),{getViewerPose:()=>tracked?{}:null,getHitTestResults:()=>kind==='none'?[]:[{getPose:()=>({transform:{matrix:matrix.toArray()}})}]});
   };
  });
- await page.evaluate(()=>{__app.spatial.support();__app.loop.start();});await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);
+ await page.evaluate(async()=>{__app.loop.start();await __app.spatial.support();});await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);
  assert.deepEqual(await page.evaluate(()=>__xrOptions.at(-1)),{mode:'immersive-ar',required:['local','hit-test'],overlay:'surface-overlay'});
  assert.equal(await page.$eval('#surface-place',e=>e.disabled),true);
  await page.evaluate(()=>__surfaceFrame('wall'));assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'wall rejected');
@@ -58,6 +60,15 @@ run(async({page,click,close,select,frame,artifacts})=>{
  assert.equal(await page.evaluate(()=>__xrSessions[0].source.cancelled),1);assert.equal(await page.$eval('#surface-overlay',e=>e.hidden),true);assert.equal(await page.evaluate(()=>document.activeElement.id),'view-controls-toggle','focus returns to visible control');
  assert.equal(await page.evaluate(()=>__app.loop.running),true,'normal loop resumes after XR');await page.evaluate(()=>__app.loop.stop());
  assert.deepEqual(await page.evaluate(()=>__app.projects.capture()),originals,'AR does not change saved transforms or learning');
+ await page.evaluate(async()=>{navigator.xr.isSessionSupported=async()=>false;await __app.spatial.support();});
+ assert.equal(await page.$eval('#surface-start',e=>e.disabled),true,'negative preflight disables entry');
+ const requestsBefore=await page.evaluate(()=>__xrOptions.length);await page.evaluate(()=>__app.spatial.start());
+ assert.equal(await page.evaluate(()=>__xrOptions.length),requestsBefore,'unsupported runtime is never requested');
+ await page.evaluate(async()=>{navigator.xr.isSessionSupported=async()=>true;__xrMode='no-runtime';if(__app.state.hudSurface!=='surfaces')__app.hud.open('surfaces');await __app.spatial.support();});
+ await click('#surface-start');await page.waitForFunction(()=>!__app.spatial.pending);
+ assert.ok(await page.$eval('#surface-message',e=>e.textContent.includes('sistema AR compatible')),'exact Chromium error has a natural explanation');
+ assert.equal(await page.$eval('#surface-start',e=>e.disabled),true,'failed runtime requires compatibility recheck');
+ await click('#surface-check');await page.waitForFunction(()=>!document.querySelector('#surface-start').disabled);
  for(const mode of ['denied','source-error']){
   await page.evaluate(mode=>{__xrMode=mode;if(__app.state.hudSurface!=='surfaces')__app.hud.open('surfaces');},mode);await click('#surface-start');await page.waitForFunction(()=>!__app.spatial.pending&&!__app.spatial.active);
   assert.equal(await page.$eval('body',e=>e.classList.contains('surface-active')),false);assert.equal(await page.evaluate(()=>__app.engine.renderer.xr.enabled),false);
