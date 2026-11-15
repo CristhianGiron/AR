@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { wrapAngle } from "../core/math.js";
+import { modelFormat } from './formats.js';
 
 export function createAssets(app) {
   const catalogURL = new URL("./modelos-3d/catalogo.json", document.baseURI);
@@ -27,7 +28,8 @@ export function createAssets(app) {
       ids.add(model.id);
       if (typeof model.nombre !== "string" || !model.nombre.trim() || typeof model.descripcion !== "string" || typeof model.archivo !== "string") throw new Error(`Faltan nombre, descripcion o archivo en ${model.id}.`);
       const url = new URL(model.archivo, catalogURL);
-      if (url.origin !== catalogURL.origin || !url.pathname.startsWith(new URL(".", catalogURL).pathname) || !/\.(glb|gltf)$/i.test(url.pathname)) throw new Error(`El archivo de ${model.id} debe ser un GLB o glTF dentro de modelos-3d/.`);
+      if (url.origin !== catalogURL.origin || !url.pathname.startsWith(new URL(".", catalogURL).pathname)) throw new Error(`El archivo de ${model.id} debe estar dentro de modelos-3d/.`);
+      modelFormat(url.pathname);
       const view = model.visualizacion || {};
       const size = view.tamano ?? 1.6, height = view.alturaEtiqueta ?? 1.85;
       const rotation = view.rotacion ?? [0, 0, 0];

@@ -203,8 +203,11 @@
       <details id="manual-upload">
         <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3M7 8l5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>Cargar desde mi equipo</summary>
         <form id="upload-form">
-          <label for="local-file">Modelo GLB con sus recursos integrados</label>
-          <input id="local-file" type="file" accept=".glb,model/gltf-binary" required />
+          <label for="local-file">Modelo GLB, glTF, OBJ, FBX, STL o PLY</label>
+          <input id="local-file" type="file" accept=".glb,.gltf,.obj,.fbx,.stl,.ply" aria-describedby="local-resources-help" required />
+          <label for="local-resources">Materiales y texturas (si el modelo los necesita)</label>
+          <input id="local-resources" type="file" multiple accept=".mtl,.bin,.png,.jpg,.jpeg,.webp,.tga,.bmp,.gif" aria-describedby="local-resources-help" />
+          <p id="local-resources-help" class="local-note">Selecciona también los archivos MTL, BIN y las imágenes que acompañan al modelo. Puedes elegir varios a la vez. Máximo: 64 MB en total.</p>
           <label for="local-name">Nombre del objeto</label>
           <input id="local-name" maxlength="35" required placeholder="Ej.: Mi sensor" />
           <label for="local-description">Descripción (opcional)</label>

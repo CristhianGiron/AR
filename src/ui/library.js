@@ -1,4 +1,5 @@
 import { $ } from "./dom.js";
+import { importLocalModel } from '../models/importer.js';
 
 export function createLibrary(app) {
   const state = app.state;
@@ -7,7 +8,7 @@ export function createLibrary(app) {
   $("local-file").addEventListener("change", () => {
     $("local-error").hidden = true;
     const file = $("local-file").files[0];
-    if (file) $("local-name").value = file.name.replace(/\.glb$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 35) || "Modelo local";
+    if (file) $("local-name").value = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim().slice(0, 35) || "Modelo local";
   });
 
   $("upload-form").addEventListener("submit", async (event) => {
@@ -16,21 +17,18 @@ export function createLibrary(app) {
     const file = $("local-file").files[0];
     if (!file) return;
     $("local-error").hidden = true;
-    if (!/\.glb$/i.test(file.name)) {
-      $("local-error").textContent = "Selecciona un modelo con extensión .glb."; $("local-error").hidden = false; return;
-    }
     if (state.catalogLoading) {
       $("local-error").textContent = "Espera a que termine de cargar el catálogo y vuelve a intentarlo."; $("local-error").hidden = false; return;
     }
     const name = $("local-name").value.trim() || "Modelo local";
     const description = $("local-description").value.trim() || "Modelo 3D cargado desde tu equipo.";
     const generation = state.sceneGeneration;
-    const inputs = [$("local-file"), $("local-name"), $("local-description"), $("import-local")];
+    const resources = [...$("local-resources").files];
+    const inputs = [$("local-file"), $("local-resources"), $("local-name"), $("local-description"), $("import-local")];
     manualImporting = true; state.pendingLoads++; inputs.forEach((input) => { input.disabled = true; });
     app.interface.setLoading("Abriendo " + name + "…");
     try {
-      const buffer = await file.arrayBuffer(); app.assets.validateLocalGLB(buffer);
-      const gltf = await app.models.loader.parseAsync(buffer, "");
+      const { gltf, buffer } = await importLocalModel(file, resources, app.assets);
       const definition = {
         id: "local-" + Date.now() + "-" + (++manualSequence), nombre: name,
         archivo: file.name, categoria: "Modelo local", descripcion: description,

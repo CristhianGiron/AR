@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { loadCatalogModel } from './importer.js';
 import { $ } from "../ui/dom.js";
 
 export function createModels(app) {
@@ -19,7 +20,7 @@ export function createModels(app) {
   async function loadModel(id, generation = state.sceneGeneration, selectNew = true, staged = false) {
     const definition = catalogMap.get(id);
     if (!definition) throw new Error("El modelo no existe en el catálogo.");
-    const gltf = await loader.loadAsync(definition.url);
+    const gltf = await loadCatalogModel(definition.url, loader, app.assets);
     return insertModel(gltf, definition, generation, selectNew, staged);
   }
 
