@@ -22,6 +22,7 @@
     "test:centering": "node tests/browser/centering.cjs",
     "test:effects": "node tests/browser/effects.cjs",
     "test:projects": "node tests/browser/projects.cjs",
+    "test:formats": "node tests/browser/model-formats.cjs",
     "test:lab": "node tests/browser/learning-lab.cjs --all-models",
     "test:missions": "node tests/browser/missions.cjs --all-models",
     "test:echo": "node tests/browser/echo-lab.cjs --all-models",

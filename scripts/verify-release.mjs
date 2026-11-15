@@ -10,6 +10,7 @@ const jobs = [
   ['estructura', ['scripts/check-project.mjs']],
   ['unitarias', ['--test', 'tests/unit/learning.test.js', 'tests/unit/pagination.test.js', 'tests/unit/projects.test.js', 'tests/unit/missions.test.js', 'tests/unit/echo.test.js', 'tests/unit/surfaces.test.js', 'tests/unit/xr-availability.test.js']],
   ['escenas-guardadas', ['tests/browser/projects.cjs']],
+  ['formatos-modelos', ['tests/browser/model-formats.cjs']],
   ['laboratorio-educativo', ['tests/browser/learning-lab.cjs', '--all-models']],
   ['laboratorio-eco', ['tests/browser/echo-lab.cjs', '--all-models']],
   ['misiones-guiadas', ['tests/browser/missions.cjs', '--all-models']],
