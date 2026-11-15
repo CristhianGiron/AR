@@ -19,6 +19,7 @@ export async function runtimeFiles() {
     return relative(root, file).split(sep).join('/');
   });
   return [...new Set(['index.html', 'README.md', '_headers', ...models, 'modelos-3d/catalogo.json',
+    ...(await filesUnder('modelos-3d')).filter((file) => /\.(mtl|bin|png|jpe?g|webp|tga|bmp|gif)$/i.test(file)),
     ...await filesUnder('src'), ...await filesUnder('styles'), ...await filesUnder('assets'),
     ...await filesUnder('contenido'), ...await filesUnder('vendor'), ...await filesUnder('docs')])].sort();
 }

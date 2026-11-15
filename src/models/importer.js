@@ -41,6 +41,9 @@ async function parseModel(buffer, format, manager, base, readText) {
   const module = format === 'stl' ? await import('three/addons/loaders/STLLoader.js') : await import('three/addons/loaders/PLYLoader.js');
   const Loader = module.STLLoader || module.PLYLoader;
   const geometry = new Loader(manager).parse(buffer);
+  if (format === 'ply' && !geometry.index && !geometry.hasAttribute('uv')) {
+    geometry.dispose(); throw new Error('Este PLY solo contiene puntos. Exporta una malla con caras para explorarla.');
+  }
   if (!geometry.hasAttribute('normal')) geometry.computeVertexNormals();
   const material = new THREE.MeshStandardMaterial({ color: geometry.hasAttribute('color') ? 0xffffff : 0xb8c5d6,
     vertexColors: geometry.hasAttribute('color'), roughness: .65, side: THREE.DoubleSide,
@@ -75,10 +78,10 @@ export async function importLocalModel(file, resources, assets) {
     const { TGALoader } = await import('three/addons/loaders/TGALoader.js');
     manager.addHandler(/\.tga$/i, new TGALoader(manager));
     const buffer = await file.arrayBuffer();
+    if (format === 'glb') assets.validateLocalGLB(buffer);
     original = await parseModel(buffer, format, manager, '', async (name) => ({ text: await findResource(files, name).text(), base: '' }));
     await tracking.settle(); tracking.check(); validateGeometry(original.scene);
     if (format === 'glb') {
-      assets.validateLocalGLB(buffer);
       return { gltf: original, buffer };
     }
     // Store all local formats as self-contained GLB, preserving the project schema.
@@ -105,6 +108,8 @@ export async function loadCatalogModel(url, gltfLoader, assets) {
   const tracking = trackedManager(), base = new URL('.', url).href;
   let model;
   try {
+    const { TGALoader } = await import('three/addons/loaders/TGALoader.js');
+    tracking.manager.addHandler(/\.tga$/i, new TGALoader(tracking.manager));
     const response = await fetch(url);
     if (!response.ok) throw new Error('No se pudo leer el modelo (HTTP ' + response.status + ').');
     model = await parseModel(await response.arrayBuffer(), format, tracking.manager, base, async (name) => {

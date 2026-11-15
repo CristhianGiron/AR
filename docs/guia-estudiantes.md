@@ -12,7 +12,7 @@ Para acercar o girar todos los componentes, abre el botón de controles del pie.
 
 La cámara es opcional: el icono del pie solicita permiso para mostrarla como fondo. Vuelve a pulsarlo o usa el cubo para apagarla. Puedes hacer las actividades sin cámara. Ese botón solo usa la cámara como fondo. Para colocarlos sobre una superficie usa el modo AR de los controles de vista, si tu dispositivo lo admite.
 
-**Cargar modelo** abre un GLB desde tu equipo. El archivo se lee en tu navegador. Antes de recargar, usa **Mi escena → Guardar o recuperar escenas**. Guarda en este navegador o exporta un archivo para llevarlo a otro equipo. Al volver, abre la escena guardada o importa el archivo. El guardado es manual; no escribas datos personales. Pide al docente los modelos de la actividad.
+**Cargar modelo** abre un GLB, glTF, OBJ, FBX, STL o PLY desde tu equipo. Si el modelo tiene materiales, texturas o un archivo BIN, selecciónalos en **Materiales y texturas**. El máximo total es de 64 MB. El archivo se lee en tu navegador. Antes de recargar, usa **Mi escena → Guardar o recuperar escenas**. Guarda en este navegador o exporta un archivo para llevarlo a otro equipo. Al volver, abre la escena guardada o importa el archivo: los modelos y sus recursos quedan incluidos. El guardado es manual; no escribas datos personales. Pide al docente los modelos de la actividad.
 
 En la ficha, **Partes** muestra una lista de piezas. **Ver puntos en la escena** permite tocarlas directamente; puedes girar el objeto para descubrir las que quedan detrás.
 

@@ -20,7 +20,7 @@ La aplicación usa módulos ES nativos y Three.js local. Sigue funcionando como 
 | `src/ui/pagination.js` | Divide el contenido en páginas por filas completas y líneas de texto, mantiene el foco en contenido visible y revela los errores de formulario. |
 | `src/ui/hud.js` | Coordina la navegación integrada, un único diálogo secundario abierto y el retorno de foco. |
 | `src/scene/loop.js` | Actualiza cámara y escena; permite iniciar, parar o renderizar un fotograma. |
-| `src/models/` | Validación del catálogo y GLB, carga, normalización, materiales y optimización de mallas compatibles. |
+| `src/models/` | Validación del catálogo y carga de GLB, glTF, OBJ/MTL, FBX, STL y PLY; integración local de recursos en GLB, normalización, materiales y optimización de mallas compatibles. |
 | `src/ui/` | Biblioteca, importación local, editor, paneles, ficha, cámara del dispositivo y posición de controles. |
 | `src/education/` | Observación individual, ficha móvil, pasos del reto, pistas y evaluación de respuestas. |
 | `styles/` | Estilos base, componentes, adaptación de pantallas y experiencia educativa. |

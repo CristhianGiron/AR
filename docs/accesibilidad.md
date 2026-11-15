@@ -53,7 +53,7 @@ Los protocolos presenciales están en [dispositivos](validacion/dispositivos.md)
 
 Realizar una revisión humana de todos los criterios WCAG aplicables, incluidos contraste sobre fondos cambiantes, foco durante desplazamientos, ampliación y espaciado de texto, lectura y orden de anuncios con NVDA/VoiceOver/TalkBack, y uso completo con teclado o control por voz. Probar cámara y rendimiento en dispositivos físicos; observar sesiones con estudiantes de las edades previstas, incluyendo necesidades visuales, motoras y cognitivas, y revisión docente del contenido.
 
-El sitio no pide identidad. El guardado manual conserva respuestas y notas junto con la escena en IndexedDB o en el archivo exportado. La importación GLB se realiza en el navegador; las escenas no se envían a un servidor. Evite introducir información personal. Cualquier futura cuenta, analítica, evaluación persistente o publicación institucional requiere revisar los requisitos de privacidad y educación aplicables a ese contexto.
+El sitio no pide identidad. El guardado manual conserva respuestas y notas junto con la escena en IndexedDB o en el archivo exportado. La importación de modelos y sus recursos se realiza en el navegador; las escenas no se envían a un servidor. Evite introducir información personal. Cualquier futura cuenta, analítica, evaluación persistente o publicación institucional requiere revisar los requisitos de privacidad y educación aplicables a ese contexto.
 
 ## Herramientas educativas 1.1
 

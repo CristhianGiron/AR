@@ -9,7 +9,7 @@ Estado previsto: candidato para validación educativa. Este alcance describe lo 
 - Laboratorio 3D educativo para estudiantes de 11 a 16 años, con seis sensores iniciales y Arduino UNO opcional.
 - Selección, movimiento, giro preciso X/Y/Z, tamaño, tinte, etiquetas conectadas, eliminación y recuperación de la última eliminación.
 - Zoom y giro conjunto de la cámara sin alterar las transformaciones de cada modelo.
-- Catálogo JSON y carga temporal de archivos GLB con recursos integrados.
+- Catálogo JSON y carga de modelos GLB, glTF, OBJ/MTL, FBX, STL y PLY; integración de materiales, texturas y buffers locales al guardar una escena.
 - Ficha principal compacta; reto y datos técnicos por separado; observación, preguntas, pistas y reintentos.
 - Cámara opcional que muestra los objetos sobre el vídeo. Su permiso se solicita solo al activarla, sin audio.
 - Navegación integrada, presentación de referencia, adaptación móvil y contenido extenso paginado.

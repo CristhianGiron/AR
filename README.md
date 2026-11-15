@@ -88,7 +88,7 @@ Los nombres de archivo con espacios se admiten directamente en el JSON. La ficha
 
 Para añadir otro modelo:
 
-1. Copia su archivo `.glb` a `modelos-3d/`.
+1. Copia su archivo `.glb`, `.gltf`, `.obj`, `.fbx`, `.stl` o `.ply` a `modelos-3d/`, junto con sus materiales, texturas y buffers si los necesita. Conserva las rutas relativas de esos recursos.
 2. Añade una entrada en la lista `modelos` del JSON, con un `id` único.
 3. Recarga la página o usa **Ajustes → Recargar modelos iniciales**. Esta acción sustituye la escena actual por los modelos marcados para cargar al inicio.
 
@@ -126,13 +126,16 @@ Los materiales originales se conservan al cargar. El selector de color aplica un
 
 Pulsa **Cargar modelo** para abrir directamente el formulario local. También puedes abrir **Cargar desde mi equipo** dentro de **Explorar modelos**:
 
-1. Selecciona un archivo `.glb` con sus texturas y buffers integrados.
-2. Ajusta el nombre y, si quieres, escribe una descripción.
-3. Pulsa **Añadir a la escena**.
+1. Selecciona un archivo `.glb`, `.gltf`, `.obj`, `.fbx`, `.stl` o `.ply`.
+2. Si tiene archivos auxiliares, selecciónalos juntos en **Materiales y texturas**: `.mtl`, `.bin` e imágenes PNG, JPEG, WebP, TGA, BMP o GIF. Los GLB deben tener sus recursos integrados. El límite del modelo y sus recursos es de 64 MB.
+3. Ajusta el nombre y, si quieres, escribe una descripción.
+4. Pulsa **Añadir a la escena**.
 
-El archivo se lee en el navegador, sin subirlo al servidor ni modificar `catalogo.json`. El modelo admite los mismos controles de selección, giro, movimiento, tamaño y color que los del catálogo. Si el GLB trae datos de autor, fuente o licencia, se muestran en su ficha.
+El archivo se lee en el navegador, sin subirlo al servidor ni modificar `catalogo.json`. El modelo admite los mismos controles de selección, giro, movimiento, tamaño y color que los del catálogo. Si el glTF o GLB trae datos de autor, fuente o licencia, se muestran en su ficha.
 
-Guarda o exporta la escena para conservar los modelos importados antes de recargar la página o usar **Recargar modelos iniciales**. Para incorporarlos permanentemente a la biblioteca, copia el GLB a `modelos-3d/` y regístralo en el JSON como se explica arriba.
+OBJ conserva los materiales definidos en sus archivos MTL y sus imágenes. Selecciona todos los MTL que indique el OBJ; las referencias con rutas se resuelven por nombre cuando este es único. STL y PLY admiten mallas ASCII y binarias; PLY necesita caras, no solo una nube de puntos. FBX usa el soporte de Three.js para versiones modernas (ASCII 7.x y binario compatible). Los materiales de otros formatos pueden verse algo distintos al adaptarse al visor. El visor no reproduce animaciones ni incorpora decodificadores Draco/KTX2; los formatos de trabajo como `.blend` deben exportarse primero a uno de los formatos admitidos.
+
+Guarda o exporta la escena para conservar los modelos importados antes de recargar la página o usar **Recargar modelos iniciales**. Los formatos nuevos se integran internamente como GLB con sus recursos para recuperar la escena sin los archivos originales; las escenas GLB anteriores siguen siendo compatibles. Para incorporarlos permanentemente a la biblioteca, copia el modelo y sus recursos a `modelos-3d/` y regístralo en el JSON como se explica arriba.
 
 ## Explorar todos los componentes en conjunto
 
@@ -174,7 +177,7 @@ El informe queda en `reports/` y el paquete en `dist/`. La preparación no publi
 
 ## Dependencias
 
-Three.js 0.160.1 y su GLTFLoader se incluyen en `vendor/three/` para funcionar sin una CDN. Su licencia MIT está en `vendor/three/LICENSE`. No se requieren paquetes npm para ejecutar el proyecto.
+Three.js 0.160.1 y sus cargadores se incluyen en `vendor/three/` para funcionar sin una CDN. Los cargadores OBJ, MTL, FBX, STL, PLY y TGA, GLTFExporter y sus utilidades proceden de la etiqueta oficial [r160](https://github.com/mrdoob/three.js/tree/r160/examples/jsm). Su licencia MIT está en `vendor/three/LICENSE`; `fflate.module.js`, dependencia de FBX, conserva su aviso de licencia. La integración de recursos utiliza la [exportación GLB de Three.js](https://archive.threejs.org/docs/examples/en/exporters/GLTFExporter.html). No se requieren paquetes npm para ejecutar el proyecto.
 
 ## Créditos de modelos
 
