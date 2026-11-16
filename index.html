@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ExplorAR · Tu laboratorio de ideas</title>
+    <title>ExplorAR · Taller de engranajes</title>
     <link rel="stylesheet" href="./styles/base.css" />
     <link rel="stylesheet" href="./styles/components.css" />
     <link rel="stylesheet" href="./styles/responsive.css" />
@@ -16,12 +16,20 @@
     <link rel="stylesheet" href="./styles/effects.css" />
     <link rel="stylesheet" href="./styles/laboratory.css" />
     <link rel="stylesheet" href="./styles/surfaces.css" />
+    <link rel="stylesheet" href="./styles/gears.css" />
+    <link rel="stylesheet" href="./styles/gear-class.css" />
+    <link rel="stylesheet" href="./styles/gear-telemetry.css" />
+    <link rel="stylesheet" href="./styles/gear-dock.css" />
+    <link rel="stylesheet" href="./styles/gear-compact.css" />
+    <link rel="stylesheet" href="./styles/gear-comic.css" />
+    <link rel="stylesheet" href="./styles/gear-center.css" />
   </head>
   <body>
     <svg class="frame-filters" aria-hidden="true" focusable="false" width="0" height="0"><defs><filter id="comic-outline" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.014 0.025" numOctaves="2" seed="7" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
     <video id="video" autoplay muted playsinline></video>
     <main id="workspace" aria-label="Escena de exploración">
       <div id="stage"></div>
+      <div id="gear-telemetry" role="group" aria-label="Datos simulados de cada engranaje" hidden><svg id="gear-telemetry-lines" aria-hidden="true"></svg></div>
       <p id="scene-text-alternative" class="sr-only">Puedes elegir los componentes desde Mi escena y usar sus opciones sin arrastrar.</p>
     </main>
     <div class="decoration ribbon top" aria-hidden="true"></div>
@@ -34,6 +42,7 @@
       <div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true" class="brand-mark"><path d="m25 5 21 12v24L25 53 4 41V17L25 5Z"/><path d="m4 17 21 12 21-12M25 29v24"/><g class="brand-rocket"><path class="rocket-fin" d="m36 38-10 3 5-12M44 46l-3 11 12-12"/><path class="rocket-body" d="M31 41c2-15 12-25 28-26 0 16-9 26-23 31l-5-5Z"/><circle class="rocket-window" cx="47" cy="28" r="4"/><path class="rocket-flame" d="m30 45-5 12 12-6"/></g></svg><h1 class="brand-name">Explor<b>AR</b></h1></div>
       <div class="mode-badge"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="M8 3H4a1 1 0 0 0-1 1v4M16 3h4a1 1 0 0 1 1 1v4M3 16v4a1 1 0 0 0 1 1h4M21 16v4a1 1 0 0 1-1 1h-4"/><path d="m12 7 5 3v5l-5 3-5-3v-5l5-3ZM7 10l5 3 5-3M12 13v5"/></svg><span id="mode-title">Exploración 3D</span></div>
       <div class="header-actions">
+        <button id="toggle-telemetry" class="round-button" aria-label="Mostrar datos sobre los engranajes" title="Datos sobre los engranajes" aria-pressed="true" hidden>HUD</button>
         <button id="help" class="round-button" title="Guía de exploración" aria-label="Guía de exploración" aria-expanded="false" aria-controls="help-panel"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5a2.6 2.6 0 0 1 5 1c0 2-2.5 2-2.5 4M12 17h.01"/></svg></button>
         <button id="workspace-toggle" class="round-button" title="Abrir herramientas" aria-label="Abrir herramientas" aria-expanded="false" aria-controls="workspace-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.5 3-2 1-2.5-1-2 4 2.5 2v2L2 16l2 4 3-1 2 1 1 2h4l1-2 2-1 3 1 2-4-2.5-2v-2L22 10l-2-4-2.5 1-2-1L15 3H9Z"/><circle cx="12" cy="12" r="3"/></svg><span>Herramientas</span></button>
 <button id="hud-toggle" class="round-button" title="Despejar la vista" aria-label="Despejar la vista" aria-pressed="false">
@@ -45,6 +54,8 @@
     </header>
     <aside id="workspace-panel" aria-label="Herramientas de exploración">
     <nav id="navigation" aria-label="Explorar el laboratorio">
+      <button id="open-gear-class" class="nav-button nav-yellow" aria-controls="gear-class"><span aria-hidden="true">⚙</span><span>Mi clase</span></button>
+      <button id="open-gears" class="nav-button nav-teal" aria-controls="gears" aria-expanded="false"><span aria-hidden="true">⚙</span><span>Mecanismos</span></button>
       <button id="explore" class="nav-button nav-yellow" aria-expanded="false" aria-controls="library"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Z"/><path d="m3 8 9 5 9-5M12 13v9"/></svg><span>Explorar<br />modelos</span></button>
       <button id="my-scene" class="nav-button nav-violet" aria-expanded="false" aria-controls="scene-panel"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg><span>Mi escena</span></button>
       <button id="toggle" class="nav-button nav-teal" title="Ajustes y objetos" aria-label="Ajustes y objetos" aria-expanded="false" aria-controls="panel"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m9 3-.5 3-2 1-2.5-1-2 4 2.5 2v2L2 16l2 4 3-1 2 1 1 2h4l1-2 2-1 3 1 2-4-2.5-2v-2L22 10l-2-4-2.5 1-2-1L15 3H9Z"/><circle cx="12" cy="12" r="3"/></svg><span>Ajustes</span></button>
@@ -197,6 +208,137 @@
     <footer id="bar" aria-label="Controles de la vista"><button id="quick-camera" class="round-button" title="Activar o desactivar cámara" aria-label="Activar cámara" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 1-2h6l1 2h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4Z"/><circle cx="12" cy="12" r="4"/></svg></button><button id="view-controls-toggle" class="round-button" title="Controles de vista y conjunto" aria-label="Controles de vista y conjunto" aria-controls="collection-controls" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg></button><button id="mission-resume" class="round-button" title="Volver a mi misión" aria-label="Volver a mi misión" aria-controls="missions" hidden>⚑</button><span id="scene-count">0 objetos</span><button id="view" aria-label="Volver a la vista 3D" title="Desactivar cámara y volver a la vista 3D"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Z"/><path d="m3 8 9 5 9-5M12 13v9"/></svg><span>Vista 3D</span></button><button id="undo-remove" class="primary-button" title="Recuperar el último componente eliminado" aria-label="Deshacer la eliminación del componente" hidden>Deshacer</button></footer>
     <div id="notice" role="status" hidden></div>
     <div id="loading-indicator" role="status">Cargando catálogo de modelos…</div>
+    <div id="gear-dock">
+    <div id="gear-inline" role="dialog" aria-labelledby="gear-inline-title" hidden>
+      <div class="inline-heading"><h2 id="gear-inline-title">Ajustes rápidos</h2><button id="gear-inline-close" type="button" aria-label="Cerrar ajustes rápidos">×</button></div>
+      <form id="gear-inline-form" novalidate>
+        <div class="inline-field"><label for="gear-inline-rpm">RPM entrada</label><input id="gear-inline-rpm" type="number" min="1" max="120" step="1" value="12" /></div>
+        <div id="gear-inline-teeth"><div class="inline-field"><label for="gear-inline-z1">Dientes Z₁</label><input id="gear-inline-z1" type="number" min="18" max="120" step="1" value="20" aria-label="Dientes Z₁ de entrada" /></div><div class="inline-field"><label for="gear-inline-z2">Dientes Z₂</label><input id="gear-inline-z2" type="number" min="18" max="120" step="1" value="40" aria-label="Dientes Z₂ de salida" /></div></div>
+        <p id="gear-inline-error" role="alert" hidden></p><button id="gear-inline-apply" type="submit">Aplicar</button>
+      </form>
+      <button id="gear-inline-class" type="button">Todas las opciones →</button>
+    </div>
+    <div id="gear-model-switcher" class="gear-model-options" role="group" aria-label="Cambiar de modelo" hidden>
+      <button type="button" data-gear-select="engranajes-rectos" aria-pressed="false">Rectos</button><button type="button" data-gear-select="engranajes-conicos" aria-pressed="false">Cónicos</button><button type="button" data-gear-select="engranajes-helicoidales" aria-label="Hélice · Engranajes helicoidales" title="Engranajes helicoidales" aria-pressed="false"><span class="model-full-name">Helicoidales</span><span class="model-short-name" aria-hidden="true">Hélice</span></button>
+    </div>
+    <div id="gear-transport" role="group" aria-label="Controles rápidos del mecanismo" hidden>
+      <button id="gear-toggle" class="primary-button" title="Iniciar o pausar el mecanismo" aria-pressed="false">Iniciar</button>
+      <button id="gear-step-quick" class="study-button" title="Girar un paso de 15 grados" aria-label="Girar el engranaje un paso">Paso</button>
+      <button id="gear-separate-quick" class="study-button">Separar</button>
+      <button id="gear-quick" class="study-button" title="Ajustes rápidos: RPM y dientes" aria-controls="gears">Ajustar</button>
+    </div>
+    </div>
+    <button id="class-return" class="study-button" aria-controls="gear-class">Mi clase</button>
+    <dialog id="gear-center" class="hud-dialog" aria-labelledby="gear-center-title" hidden>
+      <div class="panel-heading"><h2 id="gear-center-title" tabindex="-1">Mi taller</h2><button class="round-button" data-close="gear-center" aria-label="Cerrar taller y ver el modelo">×</button></div>
+      <div class="gear-center-tabs" role="tablist" aria-label="Secciones del taller">
+        <button id="center-controls-tab" type="button" role="tab" aria-controls="center-controls" aria-selected="true">Manipular</button>
+        <button id="center-learn-tab" type="button" role="tab" aria-controls="center-learn" aria-selected="false" tabindex="-1">Aprender</button>
+        <button id="center-scenes-tab" type="button" role="tab" aria-controls="center-scenes" aria-selected="false" tabindex="-1">Escenas</button>
+      </div>
+      <div id="gear-center-models"></div>
+      <div class="gear-center-body">
+        <section id="center-controls" role="tabpanel" aria-labelledby="center-controls-tab"></section>
+        <section id="center-learn" role="tabpanel" aria-labelledby="center-learn-tab" hidden></section>
+        <section id="center-scenes" role="tabpanel" aria-labelledby="center-scenes-tab" hidden></section>
+      </div>
+      <div id="gear-context" class="gear-context" role="dialog" aria-modal="false" aria-labelledby="gear-context-title" hidden>
+        <div class="panel-heading"><h2 id="gear-context-title" tabindex="-1">Ajustar</h2><button id="gear-context-close" type="button" class="round-button" aria-label="Cerrar control flotante">×</button></div>
+      </div>
+      <div id="gear-control-store" hidden></div>
+    </dialog>
+    <dialog id="gear-class" class="hud-dialog" aria-labelledby="class-title" hidden>
+      <div class="panel-heading"><h2 id="class-title" tabindex="-1">Aprendemos con engranajes</h2><button class="round-button" data-close="gear-class" aria-label="Cerrar clase y ver el mecanismo">×</button></div>
+      <div id="class-model-options" class="gear-model-options" role="group" aria-label="Modelo de la clase">
+        <button type="button" data-gear-select="engranajes-rectos" aria-pressed="false">Rectos</button><button type="button" data-gear-select="engranajes-conicos" aria-pressed="false">Cónicos</button><button type="button" data-gear-select="engranajes-helicoidales" aria-pressed="false">Helicoidales</button>
+      </div>
+      <p id="class-empty">Abre un mecanismo en el taller para empezar.</p>
+      <div id="class-content" hidden>
+        <div class="class-topics" role="group" aria-label="Tema de la clase">
+          <button id="class-ratio-tab" type="button" aria-pressed="true" aria-controls="class-ratio-panel">1. Dientes</button>
+          <button id="class-speed-tab" type="button" aria-pressed="false" aria-controls="class-speed-panel">2. Giro</button>
+          <button id="class-torque-tab" type="button" aria-pressed="false" aria-controls="class-torque-panel">3. Torque</button>
+        </div>
+        <p id="class-model"></p>
+        <div class="class-wheel-labels"><p><b>1 · Entrada</b><span id="class-entry"></span></p><p><b>2 · Salida</b><span id="class-exit"></span></p></div>
+        <section id="class-ratio-panel" aria-label="Cantidad de dientes y relación">
+          <h3>¿Qué rueda gira más rápido?</h3>
+          <form id="class-custom" novalidate>
+            <div class="class-number-pair"><div><label for="class-teeth-1">Dientes de entrada</label><input id="class-teeth-1" type="number" min="18" max="120" step="1" value="20" aria-describedby="class-teeth-note class-error" /></div><div><label for="class-teeth-2">Dientes de salida</label><input id="class-teeth-2" type="number" min="18" max="120" step="1" value="40" aria-describedby="class-teeth-note class-error" /></div></div>
+            <p id="class-teeth-note">De 18 a 120 dientes. Pulsa Aplicar para cambiar las ruedas.</p>
+            <button id="class-apply" type="submit" class="primary-button">Aplicar dientes</button>
+            <div class="class-presets" role="group" aria-label="Ejemplos para comparar"><button type="button" data-class-teeth="20,40">20 → 40</button><button type="button" data-class-teeth="30,30">30 → 30</button><button type="button" data-class-teeth="40,20">40 → 20</button></div>
+          </form>
+          <p id="class-fixed" hidden>Este modelo conserva sus dientes originales. Para cambiar cantidades, elige los rectos en el taller.</p>
+          <p id="class-ratio-formula" class="class-formula"></p><p id="class-ratio-result"></p>
+        </section>
+        <section id="class-speed-panel" aria-label="Sentido de giro y velocidad" hidden>
+          <h3>Observa el giro</h3>
+          <p id="class-direction"></p>
+          <label for="class-rpm">Velocidad de entrada (rpm)</label><input id="class-rpm" type="number" min="1" max="120" step="1" value="12" aria-describedby="class-unit-note" />
+          <p id="class-speed-formula" class="class-formula"></p>
+          <p class="class-output">Velocidad de salida <strong id="class-output"></strong></p>
+          <p id="class-turns"></p><p id="class-unit-note"></p>
+          <details><summary>De rpm a velocidad angular</summary><p id="class-angular"></p><p>Una vuelta tiene 2π radianes. La velocidad lineal en el radio r es v = ω × r, con r en metros y v en m/s.</p></details>
+        </section>
+        <section id="class-torque-panel" aria-label="Ejemplo de torque" hidden>
+          <h3>Fuerza × radio = torque</h3><p>Imagina una fuerza perpendicular al radio: cuanto más lejos del eje empujas, mayor es el torque.</p>
+          <div class="class-number-pair"><div><label for="class-force">Fuerza (N)</label><input id="class-force" type="number" min="0" max="1000" step="1" value="10" /></div><div><label for="class-radius">Radio (m)</label><input id="class-radius" type="number" min="0.001" max="10" step="0.001" value="0.5" /></div></div>
+          <p id="class-torque-result" class="class-formula" role="status"></p>
+          <p>Ejemplo de cálculo independiente: estos valores no aplican fuerzas al modelo 3D.</p>
+        </section>
+        <p id="class-error" role="alert" hidden></p>
+        <div class="class-play-controls" role="group" aria-label="Mover el mecanismo"><button id="class-run" class="primary-button" aria-pressed="false">Ver girar</button><button id="class-step" class="study-button">Un paso</button><button id="class-reverse" class="study-button" aria-pressed="false">Invertir</button></div>
+      </div>
+      <details id="class-teacher"><summary>Herramientas del docente</summary><p>Otros modelos, separación de piezas y dimensiones avanzadas.</p><button id="class-workshop" class="study-button">Abrir taller completo</button><button id="class-save" class="study-button">Guardar mi escena</button><button id="class-tools" class="study-button">Mostrar todas las herramientas</button></details>
+    </dialog>
+    <dialog id="gears" class="hud-dialog" aria-labelledby="gear-heading" hidden>
+      <div class="panel-heading"><h2 id="gear-heading" tabindex="-1">Taller de engranajes</h2><button class="round-button" data-close="gears" aria-label="Cerrar taller de engranajes">×</button></div>
+      <label for="gear-system">Tipo de engranaje</label><select id="gear-system"><option value="">Elige un mecanismo</option></select>
+      <p id="gear-empty">Selecciona un engranaje de la escena para experimentar con él.</p>
+      <div id="gear-controls" hidden>
+        <h3 id="gear-title">Mecanismo</h3><p id="gear-description"></p>
+        <p id="gear-design-mode"></p><button id="gear-design-open" class="study-button" aria-controls="gear-designer" hidden>Cambiar cantidad de dientes</button>
+        <div class="gear-actions"><button id="gear-play" class="primary-button" aria-pressed="false">Poner en marcha</button><button id="gear-step" class="study-button">Girar un paso</button></div>
+        <label for="gear-speed">Velocidad de entrada <output id="gear-speed-value" for="gear-speed">12 rpm</output></label>
+        <input id="gear-speed" type="range" min="1" max="120" value="12" />
+        <button id="gear-reverse" class="study-button" aria-pressed="false">Invertir sentido</button>
+        <p id="gear-reading"></p>
+        <div class="gear-actions"><button id="gear-explode" class="study-button">Separar piezas</button><button id="gear-assemble" class="study-button">Volver a montar</button></div>
+        <label for="gear-separation">Separación <output id="gear-separation-value" for="gear-separation">0 %</output></label>
+        <input id="gear-separation" type="range" min="0" max="100" value="0" />
+        <details><summary>Examinar una pieza</summary>
+          <label for="gear-piece">Pieza que quieres explorar</label><select id="gear-piece"><option value="0">Piñón de entrada</option><option value="1">Rueda de salida</option></select>
+          <button id="gear-isolate" class="study-button" aria-pressed="false">Ver solo esta pieza</button>
+          <p>Separa las piezas para girarlas individualmente con Girar un paso. Volver a montar recupera el ajuste original.</p>
+        </details>
+        <p id="gear-status" role="status"></p>
+        <button id="gear-reset" class="study-button">Restablecer mecanismo</button>
+        <p class="simulation-note">Simulación del movimiento según los dientes y los ejes. No calcula fuerzas, fricción ni colisiones.</p>
+      </div>
+    </dialog>
+    <dialog id="gear-designer" class="hud-dialog" aria-labelledby="gear-designer-title" hidden>
+      <div class="panel-heading"><h2 id="gear-designer-title" tabindex="-1">Diseñar engranajes rectos</h2><button class="round-button" data-close="gear-designer" aria-label="Cerrar diseñador de engranajes">×</button></div>
+      <p>Introduce los dientes de cada rueda. Al generar, cambiarán su forma y su transmisión.</p>
+      <form id="gear-design-form" novalidate>
+        <label for="gear-teeth-1">Dientes de entrada · z₁</label><input id="gear-teeth-1" type="number" min="18" max="120" step="1" value="20" required aria-describedby="gear-teeth-help gear-design-error" />
+        <label for="gear-teeth-2">Dientes de salida · z₂</label><input id="gear-teeth-2" type="number" min="18" max="120" step="1" value="40" required aria-describedby="gear-teeth-help gear-design-error" />
+        <p id="gear-teeth-help">Entre 18 y 120 dientes por rueda. Ambas usan el mismo módulo y un perfil de evolvente de 20°.</p>
+        <details><summary>Dimensiones avanzadas</summary>
+          <label for="gear-module">Módulo (mm)</label><input id="gear-module" type="number" min="0.5" max="5" step="0.1" value="2.5" required aria-describedby="gear-module-help gear-design-error" />
+          <p id="gear-module-help">Controla el tamaño de los dientes. Las dos ruedas comparten este valor para engranar.</p>
+          <label for="gear-width">Ancho de las ruedas (mm)</label><input id="gear-width" type="number" min="1" max="20" step="0.5" value="10" required aria-describedby="gear-design-error" />
+          <label for="gear-bore">Diámetro del agujero (mm)</label><input id="gear-bore" type="number" min="0" max="40" step="0.5" value="4" required aria-describedby="gear-bore-help gear-design-error" />
+          <p id="gear-bore-help">Usa 0 para una rueda maciza. El agujero debe dejar material bajo la raíz de los dientes.</p>
+        </details>
+        <p id="gear-draft-reading" role="status"></p>
+        <p id="gear-design-error" role="alert" hidden></p>
+        <button id="gear-generate" type="submit" class="primary-button">Generar y aplicar par</button>
+      </form>
+      <button id="gear-use-original" class="study-button" hidden>Recuperar modelo OBJ original</button>
+      <button id="gear-design-back" class="study-button">Volver al mecanismo</button>
+      <p class="simulation-note">El diseño se guarda con la escena. Simulación visual: no verifica resistencia, tolerancias de fabricación ni cargas.</p>
+    </dialog>
     <dialog id="library" class="hud-dialog floating-panel hidden" hidden aria-label="Explorar modelos">
       <div class="panel-heading"><h2 id="library-title" tabindex="-1">Modelos para explorar</h2><button class="round-button" data-close="library" aria-label="Cerrar modelos"><svg viewBox="0 0 24 24" aria-hidden="true" class=""><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
       <p>Elige un modelo de la colección para añadirlo a tu escena y explorarlo.</p>

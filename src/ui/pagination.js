@@ -207,11 +207,14 @@ export function createPagination() {
   }
   function refresh(surface, reset = false) { controllers.get(surface)?.refresh(reset); }
   function reveal(element) {
+    if (element?.closest('#gear-center[open]') && !element.closest('.paged-surface') && element.getClientRects().length) {
+      element.scrollIntoView({ block: 'nearest' }); return 0;
+    }
     const surface = element?.closest('.paged-surface');
     return controllers.get(surface)?.reveal(element) ?? -1;
   }
   function initialize() {
-    document.querySelectorAll('dialog.hud-dialog, #workspace-panel').forEach(mount);
+    document.querySelectorAll('dialog.hud-dialog:not(#gear-class):not(#gear-center), #workspace-panel').forEach(mount);
     const update = () => controllers.forEach((controller) => controller.refresh());
     addEventListener('resize', update); visualViewport?.addEventListener('resize', update);
   }
@@ -219,5 +222,5 @@ export function createPagination() {
     const surface = element?.closest('.paged-surface'), controller = controllers.get(surface);
     return controller ? { surface: surface.id, target: controller.locate(element), current: controller.index } : null;
   }
-  return { initialize, refresh, reveal, locate };
+  return { initialize, mount, refresh, reveal, locate };
 }

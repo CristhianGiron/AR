@@ -1,3 +1,4 @@
+import { validateGearState } from '../education/gear-model.js';
 export const MAX_PROJECT_BYTES = 128 * 1024 * 1024;
 const object = (value) => value && typeof value === 'object' && !Array.isArray(value);
 const text = (value, limit, label) => { if (typeof value !== 'string' || !value.trim() || value.length > limit) throw new Error(label + ' no válido.'); return value; };
@@ -45,7 +46,9 @@ export function validateProject(data, catalogIds) {
     }
     const partsVisited = entry.partsVisited === undefined ? [] : entry.partsVisited;
     if (!Array.isArray(partsVisited) || partsVisited.length > 20 || !partsVisited.every((part) => typeof part === 'string' && part.length < 80)) throw new Error('Partes observadas no válidas.');
-    return { source, name: text(entry.name, 35, 'Nombre del componente'), color: entry.color,
+    const gearState = validateGearState(entry.gearState);
+    if (gearState?.design && source.catalog !== 'engranajes-rectos') throw new Error('El diseño paramétrico debe pertenecer a un par de engranajes rectos.');
+    return { source, gearState, name: text(entry.name, 35, 'Nombre del componente'), color: entry.color,
       position: vector(entry.position, -100, 100, 'Posición'), homePosition: vector(entry.homePosition || entry.position, -100, 100, 'Posición inicial'), rotation: vector(entry.rotation, -180, 180, 'Giro'),
       size: number(entry.size, .3, 2.5, 'Tamaño'), height: number(entry.height, .8, 3.4, 'Altura de etiqueta'), activity, echoActivity, partsVisited: [...new Set(partsVisited)] };
   });

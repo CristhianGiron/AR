@@ -56,7 +56,7 @@ export function createLibrary(app) {
     $("library-grid").replaceChildren(); $("shape").replaceChildren();
     state.catalog.forEach((definition) => {
       const button = document.createElement("button"); button.className = "model-card";
-      button.dataset.model = definition.id; button.innerHTML = app.interface.modelIcon();
+      button.dataset.model = definition.id; button.innerHTML = app.interface.modelIcon(definition.id);
       const title = document.createElement("span"); title.textContent = definition.nombre;
       const category = document.createElement("small"); category.textContent = definition.categoria;
       button.append(title, category); button.onclick = () => app.models.addFromCatalog(definition.id, button);

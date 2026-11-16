@@ -112,6 +112,51 @@
       "pista": "Los sensores aportan información y el programa indica qué hacer con ella.",
       "profundiza": "Elige dos sensores de la colección y describe una regla del tipo: si ocurre esto, entonces haz aquello.",
       "resumen": "Lee señales de sensores y ejecuta instrucciones de un programa."
+    },
+    {
+      "modelo": "engranajes-rectos",
+      "objetivo": "Relaciona la forma de los dientes con la transmisión del movimiento.",
+      "observa": "Abre Mecanismos, gira un paso, separa las piezas y vuelve a montarlas.",
+      "pregunta": "Si el piñón da dos vueltas, ¿cuántas da la rueda de 30 dientes?",
+      "opciones": [
+        "Una vuelta",
+        "Dos vueltas",
+        "Cuatro vueltas"
+      ],
+      "correcta": 0,
+      "explicacion": "Una vuelta. Compruébalo con el mecanismo.",
+      "pista": "Observa el número de dientes y la orientación de los ejes.",
+      "profundiza": "Invierte el sentido y predice qué ocurrirá con la rueda de salida."
+    },
+    {
+      "modelo": "engranajes-conicos",
+      "objetivo": "Relaciona la forma de los dientes con la transmisión del movimiento.",
+      "observa": "Abre Mecanismos, gira un paso, separa las piezas y vuelve a montarlas.",
+      "pregunta": "¿Cómo son los ejes del par cónico?",
+      "opciones": [
+        "Perpendiculares",
+        "Paralelos",
+        "El mismo eje"
+      ],
+      "correcta": 0,
+      "explicacion": "Perpendiculares. Compruébalo con el mecanismo.",
+      "pista": "Observa el número de dientes y la orientación de los ejes.",
+      "profundiza": "Invierte el sentido y predice qué ocurrirá con la rueda de salida."
+    },
+    {
+      "modelo": "engranajes-helicoidales",
+      "objetivo": "Relaciona la forma de los dientes con la transmisión del movimiento.",
+      "observa": "Abre Mecanismos, gira un paso, separa las piezas y vuelve a montarlas.",
+      "pregunta": "¿Qué distingue a estos dientes?",
+      "opciones": [
+        "Están inclinados respecto al eje",
+        "Son lisos y sin dientes",
+        "Son cables"
+      ],
+      "correcta": 0,
+      "explicacion": "Están inclinados respecto al eje. Compruébalo con el mecanismo.",
+      "pista": "Observa el número de dientes y la orientación de los ejes.",
+      "profundiza": "Invierte el sentido y predice qué ocurrirá con la rueda de salida."
     }
   ]
 }

@@ -16,6 +16,7 @@ export function createSpatialAR(app) {
     for (const id of ['surface-message', 'surface-live']) if ($(id).textContent !== text) $(id).textContent = text;
   }
   function sync() {
+    app.gearTelemetry?.updateFrame();
     $('surface-start').disabled = pending || active || availability !== 'available';
     $('surface-check').disabled = pending || active || availability === 'checking';
     $('surface-cancel').hidden = !pending;
@@ -94,6 +95,7 @@ export function createSpatialAR(app) {
           message(session.domOverlayState ? 'Superficie horizontal encontrada. Pulsa Colocar o toca la pantalla.' : 'Superficie horizontal encontrada. Toca la pantalla para colocar.');
         } else message('Mueve el dispositivo despacio y apunta a una mesa o al suelo.');
       } else message('Colocado. Muévete para observarlo. Puedes girar, cambiar tamaño o buscar otro lugar.');
+      app.gears?.updateFrame();
       sync(); renderer.render(arScene, camera);
     } catch {
       readyPose = false; placement.visible = reticle.visible = false; sync();

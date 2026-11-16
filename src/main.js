@@ -23,6 +23,13 @@ import { createInteractions } from "./scene/interactions.js";
 import { createLayout } from "./ui/layout.js";
 import { createLoop } from "./scene/loop.js";
 import { createCamera } from "./ui/camera.js";
+import { createGears } from './education/gears.js';
+import { createGearDesigner } from './education/gear-designer.js';
+import { createGearClass } from './education/gear-class.js';
+import { createGearTelemetry } from './scene/gear-telemetry.js';
+import { createGearInline } from './ui/gear-inline.js';
+import { installInterfaceIcons } from './ui/icons.js';
+import { createGearCenter } from './ui/gear-center.js';
 
 export const app = { state: createState() };
 
@@ -52,10 +59,26 @@ app.hud = createHud(app);
 app.hud.initialize();
 app.effects = createEffects(app);
 app.spatial = createSpatialAR(app);
+app.gears = createGears(app);
+app.gearDesigner = createGearDesigner(app);
+app.gearClass = createGearClass(app);
+app.gearTelemetry = createGearTelemetry(app);
+app.gearInline = createGearInline(app);
+app.gearCenter = createGearCenter(app);
+installInterfaceIcons();
 
 app.view.syncCollectionControls();
 app.loop.start();
-app.ready = Promise.all([app.models.loadCatalogAndScene(), app.learning.load(), app.parts.load(), app.missions.load()]).then((results) => { app.state.startupReady = true; return results; });
+app.ready = Promise.all([app.models.loadCatalogAndScene(), app.learning.load(), app.parts.load(), app.missions.load()]).then((results) => {
+  app.state.startupReady = true;
+  if (app.state.collection === 'engranajes') {
+    app.gearCenter.activate();
+    app.interface.select(app.state.entries.find((item) => item.mechanism) || null);
+    document.body.classList.add('classroom-mode');
+    app.hud.setNavigation(false);
+  }
+  return results;
+});
 
 window.addEventListener("pagehide", () => app.loop.stop());
 window.addEventListener("pageshow", () => { if (!document.hidden) app.loop.start(); });

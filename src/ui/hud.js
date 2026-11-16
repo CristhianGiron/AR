@@ -4,6 +4,8 @@ import { $ } from "./dom.js";
 export function createHud(app) {
   const state = app.state;
   const surfaces = new Map([
+    ['gear-center', $('gear-center')],
+    ['gear-class', $('gear-class')], ['gears', $('gears')], ['gear-designer', $('gear-designer')],
     ["surfaces", $("surfaces")],
     ["echo-experiment", $("echo-experiment")], ["missions", $("missions")], ["parts", $("parts")], ["experiment", $("experiment")], ["projects", $("projects")], ["library", $("library")],
     ["scene-panel", $("scene-panel")], ["help-panel", $("help-panel")],
@@ -12,6 +14,7 @@ export function createHud(app) {
     ["collection-controls", $("collection-controls")],
   ]);
   const triggers = new Map([
+    ['open-gears', 'gears'],
     ["open-surfaces", "surfaces"],
     ["open-parts", "parts"], ["open-experiment", "experiment"], ["open-projects", "projects"], ["experiment-save", "projects"], ["open-challenge", "challenge"], ["open-technical", "technical"],
     ["explore", "library"], ["add-shortcut", "library"],
@@ -38,17 +41,20 @@ export function createHud(app) {
   }
 
   const docked = matchMedia("(min-width: 1100px) and (min-height: 650px)");
-  const informational = new Set(["inspector", "technical", "challenge", "parts", "experiment", "echo-experiment", "missions"]);
-  function isDocked() { return informational.has(state.hudSurface) && docked.matches; }
+  const informational = new Set(["gear-center", "gear-class", "gears", "gear-designer", "inspector", "technical", "challenge", "parts", "experiment", "echo-experiment", "missions"]);
+  function isDocked() { return state.hudSurface === "gear-center" || (informational.has(state.hudSurface) && docked.matches); }
   function dockedPanel() { return isDocked() ? surfaces.get(state.hudSurface) : null; }
   function isBlocking() { return !!state.hudSurface && !isDocked(); }
   let opener = null;
 
   function sync() {
+    app.gearInline?.sync();
+    if (app.gearCenter?.active) $("gear-quick").setAttribute("aria-expanded", String(state.hudSurface === "gear-center"));
     document.body.classList.toggle("has-hud-surface", isBlocking());
     document.body.classList.toggle("has-docked-panel", isDocked());
-    for (const [id, name] of triggers) $(id).setAttribute("aria-expanded", String(state.hudSurface === (id === "open-experiment" ? app.experiment.surface() : name)));
+    for (const [id, name] of triggers) $(id).setAttribute("aria-expanded", String(state.hudSurface === (app.gearCenter?.handles(name) ? 'gear-center' : id === "open-experiment" ? app.experiment.surface() : name)));
     $("tools").hidden = !state.chosen || state.collectionMode || isBlocking();
+    app.gearTelemetry?.updateFrame();
   }
 
   function visible(element) {
@@ -65,6 +71,7 @@ export function createHud(app) {
       const target = state.hudSurface === "echo-experiment" ? $("open-experiment") : $("open-" + state.hudSurface);
       close(false); open("inspector", $("object-inspect")); target.focus({ preventScroll: true }); return;
     }
+    app.gearCenter?.dismiss();
     const returnTarget = opener;
     state.hudSurface = null; opener = null; sync();
     if (dialog.open) dialog.close();
@@ -78,6 +85,7 @@ export function createHud(app) {
   }
 
   function open(name, trigger = document.activeElement) {
+    if (app.gearCenter?.handles(name)) { app.gearCenter.openSurface(name, trigger); return; }
     if (!surfaces.has(name)) throw new Error("Superficie HUD desconocida: " + name);
     if (state.hudSurface === name) { close(); return; }
     close(false);
@@ -143,6 +151,7 @@ export function createHud(app) {
       });
     }
     for (const [id, name] of triggers) $(id).onclick = () => {
+      if (id === 'open-gears') { if (state.hudSurface === 'gears') close(); else app.gears.open(); return; }
       if (id === "open-experiment") { app.experiment.open(); return; }
       if (id === "explore") $("manual-upload").open = false;
       open(name, $(id));

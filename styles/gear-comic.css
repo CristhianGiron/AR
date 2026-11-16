@@ -1,0 +1,102 @@
+/* Shared visual language for the newer gear tools and the established comic UI. */
+:root {
+  --comic-ink: #302154;
+  --comic-purple: linear-gradient(135deg, #8852d5, #523293);
+  --comic-blue: linear-gradient(135deg, #45639e, #293a77);
+  --comic-teal: linear-gradient(135deg, #107784, #075b6d);
+  --comic-yellow: linear-gradient(135deg, #fff07c, #ffdc45);
+  --comic-button-shadow: inset 0 2px 4px #ffffff24, 0 3px 0 #17143d40;
+}
+
+/* The standalone study button must not inherit the full-width panel action size. */
+#class-return {
+  width: max-content; max-width: calc(100vw - 44px); min-width: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 2px solid #fff4b1; border-radius: 18px 22px 17px 21px;
+  padding: 8px 15px; background: var(--comic-yellow); color: var(--comic-ink);
+  box-shadow: var(--comic-button-shadow); line-height: 1.2;
+}
+body:not(.gear-workspace) #class-return, body.classroom-mode #class-return,
+body.has-hud-surface #class-return, body.hud-hidden #class-return { display: none; }
+
+.round-button, .icon-button, #gear-inline-close,
+#gear-toggle, #gear-step-quick, #gear-quick {
+  align-items: center; justify-content: center; line-height: 1; flex-shrink: 0;
+}
+#gear-toggle, #gear-step-quick, #gear-quick, #gear-inline-close { display: inline-grid; place-items: center; }
+#gear-transport { width: max-content; background: transparent; border: 0; padding: 0; gap: 8px; box-shadow: none; }
+#gear-transport #gear-toggle, #gear-transport #gear-step-quick, #gear-transport #gear-quick {
+  width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0;
+  border: 2px solid #c6deff; border-radius: 50%; background: var(--comic-blue);
+  color: #fff; box-shadow: var(--comic-button-shadow);
+}
+#gear-transport #gear-toggle { width: 52px; min-width: 52px; height: 52px; background: var(--comic-purple); }
+#gear-transport #gear-separate-quick { width: auto; min-height: 44px; padding: 7px 12px; border: 2px solid #9bf4ed; border-radius: 999px; background: var(--comic-teal); color: #fff; box-shadow: var(--comic-button-shadow); }
+#gear-model-switcher { background: transparent; border: 0; padding: 0; gap: 7px; box-shadow: none; }
+#gear-model-switcher button { background: var(--comic-blue); border: 2px solid #c6deff; border-radius: 999px; box-shadow: var(--comic-button-shadow); }
+#gear-model-switcher button[aria-pressed='true'] { background: var(--comic-purple); border-color: #ead6ff; }
+.round-button > svg, .icon-button > svg,
+#gear-transport button > svg, #gear-inline-close > svg {
+  display: block; margin: 0; width: 22px; height: 22px; flex: none;
+}
+#gear-toggle > svg { width: 24px; height: 24px; }
+body.classroom-mode #gear-dock #gear-transport button::before { content: none; }
+
+.hud-dialog .study-button {
+  border: 2px solid #b9c9ff; color: #fff; background: var(--comic-blue);
+  border-radius: 13px 16px 13px 16px; box-shadow: var(--comic-button-shadow);
+}
+.hud-dialog .study-button:hover { filter: brightness(1.1); background: var(--comic-blue); }
+.hud-dialog .primary-button { background: var(--comic-purple); border-color: #e5caff; color: #fff; box-shadow: var(--comic-button-shadow); }
+.hud-dialog .primary-button:hover { filter: brightness(1.08); }
+
+#gear-inline {
+  background: linear-gradient(145deg, #423069f5, #292653f5);
+  border: 2px solid #92eaff; border-radius: 19px 23px 18px 23px;
+  box-shadow: inset 0 0 0 3px #b090eb26, 0 6px 18px #17113d38;
+}
+#gear-inline .inline-heading { border-bottom: 1px solid #c5a8f377; padding-bottom: 5px; }
+#gear-inline-close { background: var(--comic-purple); border: 2px solid #e2caff; border-radius: 50%; padding: 7px; }
+#gear-inline #gear-inline-apply { background: var(--comic-purple); border: 2px solid #e0beff; border-radius: 999px; box-shadow: var(--comic-button-shadow); }
+#gear-inline #gear-inline-class { color: #fff2ac; border: 1px solid #c6a3f16b; border-radius: 999px; background: #3d316e; }
+#gear-inline input, #gear-class input[type='number'], #gear-designer input[type='number'],
+#gears select {
+  background: linear-gradient(145deg, #302752, #242344); color: #fff;
+  border: 2px solid #b5b5ef; border-radius: 10px 12px 10px 12px;
+}
+#gear-inline label, #gear-class label, #gear-designer label { color: #ede2ff; }
+
+#gear-class > .panel-heading, #gear-designer > .panel-heading, #gears > .panel-heading {
+  background: linear-gradient(110deg, #59358c, #34275f);
+  border-bottom: 2px solid #c2a2f0;
+}
+#gear-class .class-play-controls { background: #302650; border-top: 1px solid #c6a3f16b; border-radius: 10px; }
+#gear-class .class-topics button, #gear-class .class-presets button,
+#gear-class .class-play-controls button, #class-model-options button {
+  color: #fff; background: var(--comic-blue); border: 2px solid #b7d7ff;
+  border-radius: 13px 17px 12px 16px; box-shadow: var(--comic-button-shadow);
+}
+#gear-class .class-topics #class-ratio-tab { background: var(--comic-yellow); color: var(--comic-ink); border-color: #fff5b0; }
+#gear-class .class-topics #class-speed-tab { background: var(--comic-teal); border-color: #9bf4ed; }
+#gear-class .class-topics #class-torque-tab { background: var(--comic-purple); border-color: #dfc3ff; }
+#gear-class .class-topics [aria-pressed='true'] { outline: 2px solid #fff; outline-offset: 1px; }
+#gear-class .class-topics button:focus-visible { outline: 3px solid #ffe14b; outline-offset: 4px; }
+#class-model-options [aria-pressed='true'], #gear-class #class-run { background: var(--comic-purple); border-color: #e4c9ff; }
+#gear-class .class-formula, #gear-draft-reading {
+  background: var(--comic-yellow); color: var(--comic-ink); border: 2px solid #fff4a8;
+  border-radius: 12px 16px 12px 16px; font-weight: 700; box-shadow: 0 2px 0 #19113a33;
+}
+#gear-class .class-wheel-labels p { background: #3d3265; border-radius: 12px 15px 11px 15px; }
+#class-teacher { border-top: 2px dashed #bba0dd88; }
+.gear-readout { background: linear-gradient(135deg, #302151d6, #182f50cc); border-radius: 10px 17px 10px 17px; }
+.readout-heading { font-family: var(--app-font); }
+
+@media (max-width: 700px) {
+  #class-return { top: 96px; left: auto; right: 16px; max-width: calc(100vw - 32px); }
+}
+@media (forced-colors: active) {
+  #class-return, .hud-dialog .study-button, #gear-inline, #gear-inline button,
+  #gear-class .class-topics button, #gear-class .class-formula, #gear-draft-reading {
+    background: Canvas; color: CanvasText; border-color: ButtonText; box-shadow: none;
+  }
+}

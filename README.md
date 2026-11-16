@@ -1,5 +1,9 @@
 # ExplorAR
 
+El visor abre con el modelo despejado y botones flotantes para cambiar de engranaje, reproducir o pausar y avanzar un paso. **Ajustar** abre **[Mi taller](docs/taller-engranajes.md)**, un único panel con tres secciones: **Manipular** (movimiento, dientes, separación, diseño, aspecto y vista), **Aprender** (explicaciones, fórmulas y ficha) y **Escenas** (guardar, abrir e importar). El selector de modelos permanece arriba y los ajustes se conservan al cambiar de sección. Los sensores permanecen conservados fuera de la colección activa.
+
+El botón **HUD** muestra pequeñas etiquetas conectadas a cada rueda: RPM actuales, dientes, sentido, velocidad angular y ángulo de giro. Los valores se actualizan con la simulación; al pausar se distingue la velocidad configurada de la velocidad actual.
+
 Laboratorio 3D con cámara opcional y colocación sobre superficies mediante WebXR, interacción directa, etiquetas conectadas y controles de giro precisos.
 
 ## Abrir el proyecto

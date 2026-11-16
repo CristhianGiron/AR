@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { loadCatalogModel } from './importer.js';
 import { $ } from "../ui/dom.js";
+import { createParametricGears } from './parametric-gears.js';
+import { parametricSystem } from '../education/gear-design.js';
 
 export function createModels(app) {
   const state = app.state;
@@ -17,20 +19,29 @@ export function createModels(app) {
     }
   }
 
-  async function loadModel(id, generation = state.sceneGeneration, selectNew = true, staged = false) {
-    const definition = catalogMap.get(id);
+  async function loadModel(id, generation = state.sceneGeneration, selectNew = true, staged = false, design) {
+    let definition = catalogMap.get(id);
     if (!definition) throw new Error("El modelo no existe en el catálogo.");
-    const gltf = await loadCatalogModel(definition.url, loader, app.assets);
+    if (design !== undefined && id !== 'engranajes-rectos') throw new Error('El diseño paramétrico corresponde únicamente a engranajes rectos.');
+    const gltf = design === undefined ? await loadCatalogModel(definition.url, loader, app.assets) : createParametricGears(design);
+    if (gltf.gearDesign) {
+      const d = gltf.gearDesign, system = parametricSystem(d);
+      definition = { ...definition, descripcion: system.description, datos: [
+        { etiqueta: 'Dientes', valor: d.teeth.join(' y ') }, { etiqueta: 'Relación', valor: (d.teeth[1] / d.teeth[0]).toFixed(2) + ':1' },
+        { etiqueta: 'Módulo', valor: d.module + ' mm' }, { etiqueta: 'Ancho', valor: d.width + ' mm' }, { etiqueta: 'Agujero', valor: d.bore + ' mm' },
+      ] };
+    }
     return insertModel(gltf, definition, generation, selectNew, staged);
   }
 
   function insertModel(gltf, definition, generation = state.sceneGeneration, selectNew = true, staged = false) {
     if (generation !== state.sceneGeneration) { app.assets.disposeResources(gltf.scene); return null; }
+    const mechanism = app.gears?.prepare(gltf, definition);
     // Preserve educational anchors before static mesh batching loses node names.
     const partBounds = new Map();
     gltf.scene.updateMatrixWorld(true);
     gltf.scene.traverse((node) => { if (node.isMesh) partBounds.set(node.name, new THREE.Box3().setFromObject(node)); });
-    const content = app.assets.optimizeStaticModel(gltf);
+    const content = mechanism ? gltf.scene : app.assets.optimizeStaticModel(gltf);
     content.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(content);
     const dimensions = bounds.getSize(new THREE.Vector3());
@@ -59,7 +70,7 @@ export function createModels(app) {
       }
     });
     const item = {
-      anchor, mesh, tag, localBounds, partBounds, definition, type: definition.id,
+      anchor, mesh, tag, localBounds, partBounds, definition, mechanism, type: definition.id,
       name: definition.nombre, color: "#ffffff", materialColors,
       size: 1, height, rot: rotation, initialRot: rotation.slice(),
       initialPosition: anchor.position.clone(),
@@ -94,7 +105,10 @@ export function createModels(app) {
     try {
       const response = await fetch(app.assets.catalogURL, { cache: "no-store" });
       if (!response.ok) throw new Error("No se pudo leer catalogo.json (HTTP " + response.status + ").");
-      const definitions = app.assets.validateCatalog(await response.json());
+      const data = await response.json();
+      state.collection = data.coleccionActiva || null;
+      const definitions = app.assets.validateCatalog(data).filter((model) => !state.collection || model.coleccion === state.collection);
+      document.body.classList.toggle('gear-workspace', state.collection === 'engranajes');
       app.interactions.cancelGesture(); app.history.clear(); app.learning.showAll(); state.sceneGeneration++; app.interface.select(null);
       state.entries.forEach(disposeItem); state.entries.length = 0;
       state.catalog = definitions; catalogMap.clear(); state.catalog.forEach((model) => catalogMap.set(model.id, model));

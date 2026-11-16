@@ -54,6 +54,7 @@ export function createLearning(app) {
   }
 
   function getSummary(item) {
+    if (item?.mechanism?.design) return item.definition.descripcion;
     return item ? lessons.get(item.definition.id)?.resumen || item.definition.descripcion : "";
   }
 
@@ -80,18 +81,21 @@ export function createLearning(app) {
     }
     updateFocusButton();
     const key = item.definition.id;
-    if (currentKey === key) return;
-    currentKey = key;
-    const lesson = lessons.get(key);
+    const design = item.mechanism?.design;
+    const renderKey = key + (design ? ':' + JSON.stringify(design) : '');
+    if (currentKey === renderKey) return;
+    currentKey = renderKey;
+    // Fixed OBJ questions do not describe a newly designed tooth count.
+    const lesson = design ? null : lessons.get(key);
     showStep("observe");
     $("learning-quiz-tab").hidden = !lesson;
     $("learning-choices").replaceChildren();
     $("learning-feedback").hidden = $("retry-lesson").hidden = true;
     $("learning-deeper").open = false;
-    $("learning-goal").textContent = lesson?.objetivo || "Explora la forma y las partes de este modelo.";
-    $("learning-observe").textContent = lesson?.observa || "Gira el componente, observa sus caras y describe dos partes que puedas distinguir.";
+    $("learning-goal").textContent = design ? 'Relaciona los dientes de tu diseño con su velocidad de salida.' : lesson?.objetivo || "Explora la forma y las partes de este modelo.";
+    $("learning-observe").textContent = design ? 'Tu par tiene ' + design.teeth.join(' y ') + ' dientes. Ponlo en marcha, invierte el sentido y compara las vueltas de ambas ruedas.' : lesson?.observa || "Gira el componente, observa sus caras y describe dos partes que puedas distinguir.";
     $("learning-question").textContent = lesson?.pregunta || "¿Qué has observado?";
-    $("learning-extension").textContent = lesson?.profundiza || "Compara este modelo con un sensor de la colección. ¿En qué se parecen y en qué se diferencian?";
+    $("learning-extension").textContent = lesson?.profundiza || "Compara este modelo con otro de la colección. ¿En qué se parecen y en qué se diferencian?";
     if (!lesson) return;
     lesson.opciones.forEach((text, index) => {
       const button = document.createElement("button");

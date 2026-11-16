@@ -1,0 +1,26 @@
+#gears h3 { margin: 10px 0 5px; font-size: 17px; }
+#gears p { font-size: 12px; line-height: 1.45; }
+#gears label { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+#gears input[type='range'], #gears select { width: 100%; min-height: 44px; accent-color: #ffe14b; }
+#gears output { color: #ffe14b; white-space: nowrap; }
+.gear-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-block: 8px; }
+.gear-actions > button { flex: 1 1 125px; }
+#gear-reading, #gear-status { padding: 8px; background: #23234e; border-radius: 10px; }
+#gears .simulation-note { color: #e1d9ff; font-size: 11px; }
+#gear-design-mode { color: #b4e9ff; }
+#gear-designer p { font-size: 12px; line-height: 1.45; }
+#gear-designer label { display: block; font-size: 12px; }
+#gear-designer input { display: block; width: 100%; min-height: 44px; box-sizing: border-box; }
+#gear-draft-reading { border: 1px solid #9cbddc; border-radius: 10px; padding: 9px; color: #fff; background: #23234f; }
+#gear-design-error { color: #fff; background: #672b45; border: 1px solid #ffb9d0; border-radius: 8px; padding: 8px; }
+#gear-designer [aria-invalid='true'] { outline: 2px solid #ffb9d0; outline-offset: 2px; }
+#gear-designer .simulation-note { color: #e1d9ff; font-size: 11px; }
+#gear-transport { position: fixed; z-index: 4; left: 50%; bottom: 128px; transform: translateX(-50%); display: flex; gap: 5px; padding: 7px; border: 1px solid #9cbddc; border-radius: 16px; background: #23234f; max-width: calc(100vw - 16px); white-space: nowrap; }
+#gear-transport[hidden], body.has-hud-surface #gear-transport, body.has-docked-panel #gear-transport, body.hud-hidden #gear-transport { display: none; }
+#gear-transport button { min-height: 44px; min-width: 0; padding: 7px 10px; margin: 0; font-size: 12px; }
+body.gear-workspace #scene-guide { display: none; }
+body:not(.gear-workspace) #open-gears { display: none; }
+body.gear-workspace #open-missions { display: none; }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .hud-dialog#gears, .hud-dialog#gear-designer { z-index: 5; inset: clamp(116px, 15vh, 150px) 22px auto auto; width: clamp(320px, 25vw, 420px); max-height: calc(100dvh - clamp(116px, 15vh, 150px) - 82px); }
+}

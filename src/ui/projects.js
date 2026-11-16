@@ -25,7 +25,7 @@ export function createProjects(app) {
         source = { asset: id };
       } else source = { catalog: item.definition.id };
       return { source, name: item.name, color: item.color, position: item.anchor.position.toArray(), homePosition: item.initialPosition.toArray(), rotation: item.rot.slice(), size: item.size, height: item.height,
-        activity: item.activity, echoActivity: item.echoActivity, partsVisited: item.partsVisited || [] };
+        gearState: app.gears?.snapshot(item), activity: item.activity, echoActivity: item.echoActivity, partsVisited: item.partsVisited || [] };
     });
     const learning = app.learning.snapshot();
     const document = validateProject({ journey: app.missions.snapshot(), format: 'explorar-project', version: 1, name: $('project-name').value.trim() || 'Mi exploración', assets, entries, view: { ...state.viewState },
@@ -45,7 +45,7 @@ export function createProjects(app) {
     try {
       for (const entry of document.entries) {
         check(); let item;
-        if (entry.source.catalog) item = await app.models.loadModel(entry.source.catalog, generation, false, true);
+        if (entry.source.catalog) item = await app.models.loadModel(entry.source.catalog, generation, false, true, entry.gearState?.design);
         else {
           const asset = document.assets.find((value) => value.id === entry.source.asset), buffer = buffers.get(asset.id);
           const gltf = await app.models.loader.parseAsync(buffer, '');
@@ -61,6 +61,7 @@ export function createProjects(app) {
         item.anchor.position.fromArray(entry.position); item.initialPosition.fromArray(entry.homePosition);
         item.rot = entry.rotation; item.size = entry.size; item.height = entry.height;
         item.activity = entry.activity; item.echoActivity = entry.echoActivity; item.partsVisited = entry.partsVisited;
+        app.gears?.restore(item, entry.gearState);
         app.editor.applyTransform(item);
       }
       check();
@@ -74,13 +75,14 @@ export function createProjects(app) {
       app.interface.rebuild(); app.interface.select(document.selected === null ? null : state.entries[document.selected]);
       app.missions.restore(document.journey);
       $('project-name').value = document.name;
-      app.hud.close(false); app.interface.notify('Escena abierta: ' + document.name); app.loop.renderFrame(); completed = true;
+      if (state.hudSurface !== 'gear-center') app.hud.close(false);
+      app.interface.notify('Escena abierta: ' + document.name); app.loop.renderFrame(); completed = true;
     } catch (error) {
       prepared.forEach((item) => { if (!state.entries.includes(item)) app.models.disposeItem(item); });
       throw error;
     } finally {
-      busy = false; state.projectLoading = false; if ($('project-progress').open) $('project-progress').close();
-      if (completed) $(state.chosen ? 'object-inspect' : 'workspace-toggle').focus({ preventScroll: true });
+      busy = false; state.projectLoading = false; app.gearCenter?.sync(); if ($('project-progress').open) $('project-progress').close();
+      if (completed) $(state.hudSurface === 'gear-center' ? 'project-name' : state.chosen ? 'object-inspect' : 'workspace-toggle').focus({ preventScroll: true });
     }
     return document;
   }

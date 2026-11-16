@@ -105,6 +105,7 @@ export function createEditor(app) {
     state.chosen.size = 1;
     state.chosen.height = state.chosen.definition.visualizacion.alturaEtiqueta;
     recolor(state.chosen, "#ffffff");
+    app.gears?.reset(state.chosen);
     applyTransform(state.chosen);
   };
 

@@ -72,7 +72,7 @@ export function createMissions(app) {
       const response = await fetch(new URL('./contenido/misiones.json', document.baseURI));
       if (!response.ok) throw new Error('Sin misiones.');
       const catalog = await fetch(app.assets.catalogURL).then((r) => r.json());
-      const data = await response.json(), ids = new Set(catalog.modelos.map((m) => m.id));
+      const data = await response.json(), ids = new Set(catalog.modelos.filter((m) => !catalog.coleccionActiva || m.coleccion === catalog.coleccionActiva).map((m) => m.id));
       data.misiones = data.misiones.filter((m) => m.pasos.every((step) => !step.modelo || ids.has(step.modelo)));
       missions = validateMissions(data, ids);
       $('mission-select').replaceChildren(...missions.map((mission) => { const option = document.createElement('option'); option.value = mission.id; option.textContent = mission.titulo; return option; }));

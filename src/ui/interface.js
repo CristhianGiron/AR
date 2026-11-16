@@ -5,9 +5,11 @@ export function createInterface(app) {
   function setLoading(message) {
     $("loading-indicator").textContent = message;
     $("loading-indicator").hidden = !message;
+    app.gearCenter?.sync();
   }
 
-  function modelIcon() {
+  function modelIcon(type) {
+    if (type?.startsWith('engranajes-')) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.5 3-2 1-2.5-1-2 4 2.5 2v2L2 16l2 4 3-1 2 1 1 2h4l1-2 2-1 3 1 2-4-2.5-2v-2L22 10l-2-4-2.5 1-2-1L15 3H9Z"/><circle cx="12" cy="12" r="3"/></svg>';
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="10" r="4"/><path d="M8 20v3M12 20v3M16 20v3M2 8h2M20 8h2M2 15h2M20 15h2"/></svg>';
   }
 
@@ -16,6 +18,7 @@ export function createInterface(app) {
     app.learning.render(item);
     app.parts?.render(item);
     app.experiment?.render(item);
+    app.gears?.render(item);
     $("object-kind").textContent = item ? item.definition.categoria + " · seleccionado" : "Tu espacio creativo";
     $("object-title").textContent = item ? item.name : "¡A explorar!";
     $("object-description").textContent = item ? app.learning.getSummary(item) : "Un pequeño laboratorio, infinitas ideas. Toca un objeto y descubre todo lo que puedes hacer con él.";
@@ -156,6 +159,7 @@ export function createInterface(app) {
   }
 
   function closePanels() {
+    if (state.hudSurface === 'gear-center' && !state.hudHidden) return;
     app.hud.close(false);
   }
 

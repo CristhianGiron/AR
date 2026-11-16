@@ -1,0 +1,58 @@
+/* Balanced density: readable fields, separate buttons and a clear primary action. */
+:root { --gear-control-height: 40px; }
+.model-short-name { display: none; }
+body.classroom-mode #gear-dock { background: transparent; border: 0; box-shadow: none; padding: 0; gap: 14px; border-radius: 0; }
+body.classroom-mode #gear-dock #gear-model-switcher { width: 304px; gap: 8px; }
+body.classroom-mode #gear-dock #gear-transport { gap: 8px; align-items: center; }
+body.classroom-mode #gear-dock .gear-model-options button,
+body.classroom-mode #gear-dock #gear-transport button { min-height: 44px; border: 2px solid #c6deff; border-radius: 999px; background: radial-gradient(ellipse at 35% 12%, #4764a4, #203d7a 60%, #182857); color: #fff; box-shadow: inset 0 2px 4px #d2e9ff25, 0 3px 8px #0b123933; font-size: 13px; }
+body.classroom-mode #gear-dock .gear-model-options button { padding: 6px 10px; line-height: 1.2; }
+body.classroom-mode #gear-dock .gear-model-options [aria-pressed='true'],
+body.classroom-mode #gear-dock #gear-toggle { background: linear-gradient(145deg, #7549d2, #43277c); border-color: #ead6ff; }
+body.classroom-mode #gear-dock #gear-transport button { width: 44px; min-width: 44px; height: 44px; padding: 0; font-size: 0; }
+body.classroom-mode #gear-dock #gear-transport #gear-toggle { width: 52px; min-width: 52px; height: 52px; }
+body.classroom-mode #gear-dock button:hover { border-color: #fff; filter: brightness(1.08); }
+body.classroom-mode #gear-dock button:focus-visible { outline: 3px solid #ffe14b; outline-offset: 4px; }
+
+#gear-inline { width: 268px; padding: 10px; border-radius: 16px; background: #172333f2; }
+#gear-inline .inline-heading { gap: 8px; }
+#gear-inline h2 { font-size: 15px; }
+#gear-inline #gear-inline-close { min-width: 40px; }
+#gear-inline-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: end; }
+#gear-inline-teeth { display: contents; }
+#gear-inline-teeth[hidden] { display: none; }
+#gear-inline .inline-field { min-width: 0; }
+#gear-inline label { font-size: 11px; line-height: 1.4; margin: 5px 0 4px; white-space: nowrap; }
+#gear-inline input { min-height: var(--gear-control-height); height: var(--gear-control-height); padding: 5px 6px; font-size: 15px; border-radius: 8px; }
+#gear-inline button { min-height: var(--gear-control-height); padding: 6px 9px; font-size: 13px; }
+#gear-inline #gear-inline-apply { grid-column: 1 / -1; margin-top: 4px; border-radius: 10px; background: #344f67; }
+#gear-inline #gear-inline-class { margin-top: 4px; }
+#gear-inline-error { grid-column: 1 / -1; font-size: 12px; margin: 4px 0; }
+
+#gear-class input[type='number'], #gear-designer input[type='number'] { width: 96px; max-width: 100%; min-height: var(--gear-control-height); padding: 5px 8px; font-size: 14px; border-radius: 8px; }
+#gear-class .class-number-pair { gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#gear-class .class-topics, #gear-class .class-presets, #gear-class .class-play-controls { gap: 6px; margin-block: 7px; }
+#gear-class .class-topics button, #gear-class .class-presets button, #gear-class .class-play-controls button,
+#class-model-options button, #gear-class .study-button, #gear-class .primary-button,
+#gear-designer .study-button, #gear-designer .primary-button { min-height: var(--gear-control-height); padding: 6px 9px; font-size: 12px; margin-block: 4px; border-radius: 10px; }
+#gear-class .class-formula, #gear-draft-reading { padding: 8px 10px; font-size: 13px; }
+#gear-class .class-wheel-labels p { padding: 7px 9px; }
+#gear-class #class-apply { width: auto; }
+#gears button:not(.round-button):not(.page-arrow) { min-height: var(--gear-control-height); padding: 6px 9px; font-size: 12px; }
+#gears select { min-height: var(--gear-control-height); width: 230px; max-width: 100%; padding: 5px 8px; font-size: 13px; }
+@media (pointer: coarse) {
+  :root { --gear-control-height: 44px; }
+  #gear-inline input { font-size: 16px; }
+}
+@media (max-width: 1099px) {
+  body.classroom-mode #gear-dock { width: min(304px, calc(100vw - 24px)); flex-direction: column; gap: 10px; }
+  body.classroom-mode #gear-dock #gear-model-switcher { width: 100%; gap: 7px; }
+  body.classroom-mode #gear-dock .gear-model-options button { min-width: 0; flex: 1 1 0; padding-inline: 6px; font-size: 12px; }
+  body.classroom-mode #gear-dock #gear-transport { width: auto; justify-content: center; gap: 12px; }
+  #gear-inline { width: min(268px, calc(100vw - 24px)); }
+}
+@media (max-height: 550px) and (min-width: 701px) {
+  body.classroom-mode #gear-dock { flex-direction: row; width: auto; gap: 12px; }
+  body.classroom-mode #gear-dock #gear-model-switcher { width: 280px; }
+  body.classroom-mode #gear-dock #gear-transport { gap: 8px; }
+}

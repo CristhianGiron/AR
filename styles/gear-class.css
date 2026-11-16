@@ -1,0 +1,39 @@
+#gear-class h3 { font-size: 16px; margin: 8px 0; }
+#gear-class { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+#gear-class > .panel-heading { position: sticky; top: -14px; z-index: 2; background: #302650; }
+#gear-class .class-play-controls { position: sticky; bottom: -7px; z-index: 1; background: #302650; padding: 8px 0; }
+#gear-class[data-topic='ratio'] .class-wheel-labels { display: none; }
+#gear-class[data-topic='ratio'] .class-number-pair > :first-child { border-top: 3px solid #f68c19; padding-top: 5px; }
+#gear-class[data-topic='ratio'] .class-number-pair > :last-child { border-top: 3px solid #ff76a2; padding-top: 5px; }
+#gear-class p { font-size: 12px; line-height: 1.45; margin: 7px 0; }
+#gear-class label { display: block; font-size: 12px; }
+#gear-class input { width: 100%; min-height: 44px; box-sizing: border-box; font: inherit; }
+.class-topics, .class-presets, .class-play-controls { display: flex; gap: 6px; margin-block: 8px; }
+.class-topics button, .class-presets button, .class-play-controls button { flex: 1; min-width: 0; min-height: 44px; padding: 7px; margin: 0; font: inherit; font-size: 12px; color: #fff; background: #292953; border: 1px solid #a9c6e4; border-radius: 10px; }
+.class-topics [aria-pressed='true'] { background: #653ca6; border-color: #ffe14b; }
+.class-number-pair, .class-wheel-labels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.class-number-pair > div { min-width: 0; }
+.class-wheel-labels p { padding: 9px; border-left: 4px solid #f68c19; background: #23234f; border-radius: 8px; }
+.class-wheel-labels p + p { border-color: #ff76a2; }
+.class-wheel-labels span, .class-wheel-labels b { display: block; }
+#gear-class .class-formula { border: 1px solid #ffe14b; background: #302650; color: #fff; padding: 10px; border-radius: 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
+#class-error { border: 1px solid #ffb9d0; padding: 8px; border-radius: 8px; background: #672b45; }
+#class-model { color: #b4e9ff; }
+.gear-model-options { display: flex; gap: 3px; padding: 3px; border: 1px solid #9cbddc88; border-radius: 12px; background: #23234feb; }
+.gear-model-options button { flex: 1; min-width: 0; min-height: 44px; padding: 6px 9px; margin: 0; border: 1px solid transparent; border-radius: 9px; color: #e9e7fa; background: transparent; font: inherit; font-size: 12px; }
+.gear-model-options button[aria-pressed='true'] { background: #514277; border-color: #b4d8ea; color: #fff; }
+.gear-model-options button:disabled { opacity: .55; cursor: wait; }
+#class-model-options { margin-block: 9px; }
+#gear-model-switcher { position: fixed; left: 50%; bottom: 200px; transform: translateX(-50%); z-index: 4; width: min(320px, calc(100vw - 24px)); box-sizing: border-box; }
+#gear-model-switcher[hidden], body.has-hud-surface #gear-model-switcher, body.has-docked-panel #gear-model-switcher, body.hud-hidden #gear-model-switcher { display: none; }
+#gear-class .class-output { display: flex; gap: 12px; justify-content: space-between; }
+#class-teacher { border-top: 1px solid #a9c6e477; padding-top: 7px; }
+#class-return { position: fixed; z-index: 4; top: 106px; left: 22px; min-height: 44px; padding: 8px 16px; }
+body:not(.gear-workspace) #open-gear-class, body:not(.gear-workspace) #class-return { display: none; }
+body.classroom-mode #class-return, body.has-hud-surface #class-return, body.hud-hidden #class-return { display: none; }
+body.classroom-mode #navigation > :not(#open-gear-class), body.classroom-mode #tools { display: none !important; }
+body.classroom-mode #gear-separate-quick { display: none; }
+body.classroom-mode.has-docked-panel #gear-transport { display: none; }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .hud-dialog#gear-class { z-index: 5; inset: 116px 22px auto auto; width: clamp(340px, 29vw, 440px); max-height: calc(100dvh - 198px); }
+}

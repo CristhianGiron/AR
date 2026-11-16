@@ -250,6 +250,100 @@
         "licencia": "CC BY 4.0",
         "licenciaUrl": "https://creativecommons.org/licenses/by/4.0/"
       }
+    },
+    {
+      "id": "engranajes-rectos",
+      "nombre": "Engranajes rectos",
+      "archivo": "GearRect.obj",
+      "categoria": "Engranajes",
+      "coleccion": "engranajes",
+      "descripcion": "Dos ruedas dentadas de ejes paralelos. Separa el piñón y la rueda, examina sus dientes y observa la transmisión de movimiento con relación 2:1.",
+      "cargarAlInicio": true,
+      "visualizacion": {
+        "tamano": 2.7,
+        "rotacion": [
+          -25,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 3
+      },
+      "mecanismo": {
+        "tipo": "rectos"
+      },
+      "datos": [
+        {
+          "etiqueta": "Dientes",
+          "valor": "15 y 30"
+        },
+        {
+          "etiqueta": "Relación",
+          "valor": "2:1"
+        }
+      ]
+    },
+    {
+      "id": "engranajes-conicos",
+      "nombre": "Engranajes cónicos",
+      "archivo": "GearConic.obj",
+      "categoria": "Engranajes",
+      "coleccion": "engranajes",
+      "descripcion": "Un par de engranajes cónicos que cambia la dirección del movimiento entre ejes perpendiculares. Separa las dos ruedas y vuelve a montar la transmisión.",
+      "cargarAlInicio": false,
+      "visualizacion": {
+        "tamano": 2.1,
+        "rotacion": [
+          -25,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 3
+      },
+      "mecanismo": {
+        "tipo": "conicos"
+      },
+      "datos": [
+        {
+          "etiqueta": "Dientes",
+          "valor": "15 y 15"
+        },
+        {
+          "etiqueta": "Relación",
+          "valor": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "engranajes-helicoidales",
+      "nombre": "Engranajes helicoidales",
+      "archivo": "GearHelix.obj",
+      "categoria": "Engranajes",
+      "coleccion": "engranajes",
+      "descripcion": "Par original de engranajes helicoidales, con un piñón de 15 dientes y una rueda de 30. Explora el engrane progresivo, separa las piezas y compara el giro con relación 2:1.",
+      "cargarAlInicio": false,
+      "visualizacion": {
+        "tamano": 2.6,
+        "rotacion": [
+          -25,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 3
+      },
+      "mecanismo": {
+        "tipo": "helicoidales"
+      },
+      "datos": [
+        {
+          "etiqueta": "Dientes",
+          "valor": "15 y 30"
+        },
+        {
+          "etiqueta": "Relación",
+          "valor": "2:1"
+        }
+      ]
     }
-  ]
+  ],
+  "coleccionActiva": "engranajes"
 }

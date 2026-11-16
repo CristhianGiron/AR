@@ -12,6 +12,7 @@ const types = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascr
 
 async function run(callback) {
   const allModels = process.argv.includes('--all-models');
+  const gears = process.argv.includes('--gears');
   fs.mkdirSync(artifacts, { recursive: true });
   const server = http.createServer((request, response) => {
     if (request.url === '/favicon.ico') { response.writeHead(204); return response.end(); }
@@ -21,7 +22,8 @@ async function run(callback) {
     if (pathname === '/contenido/retos.json' && request.headers.referer?.includes('no-lessons=1')) { response.writeHead(404); return response.end(); }
     if (pathname === '/contenido/misiones.json' && request.headers.referer?.includes('no-missions=1')) { response.writeHead(404); return response.end(); }
     response.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
-    if (pathname === '/modelos-3d/catalogo.json' && !allModels) return response.end(JSON.stringify({ ...catalog, modelos: catalog.modelos.filter((model) => ['sensor-luz-ldr', 'sensor-lluvia'].includes(model.id)) }));
+    // Historical sensor suites keep their fixture; --gears exercises the real active collection.
+    if (pathname === '/modelos-3d/catalogo.json' && !gears) return response.end(JSON.stringify({ ...catalog, coleccionActiva: null, modelos: catalog.modelos.filter((model) => model.coleccion !== 'engranajes' && (allModels || ['sensor-luz-ldr', 'sensor-lluvia'].includes(model.id))) }));
     response.end(fs.readFileSync(file));
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
