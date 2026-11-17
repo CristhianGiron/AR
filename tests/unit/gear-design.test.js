@@ -15,7 +15,7 @@ test('standard dimensions, matched module and phase agree at the pitch circles',
 });
 
 test('generated outlines contain exactly the requested number of teeth and no degenerate edges', () => {
-  for (const z of [18, 20, 24, 36, 80, 120]) {
+  for (const z of [15, 18, 20, 24, 36, 80, 120]) {
     const m = z === 18 ? .5 : 2.5, { root, tip } = gearDimensions(z, m), points = spurOutline(z, m);
     let peaks = 0, area = 0;
     for (let i = 0; i < points.length; i++) {
@@ -31,7 +31,7 @@ test('generated outlines contain exactly the requested number of teeth and no de
 });
 
 test('invalid counts, oversized bores and unsupported dimensions are rejected', () => {
-  for (const patch of [{ teeth: [17, 40] }, { teeth: [20.5, 40] }, { teeth: [20, 121] }, { module: 0 }, { module: NaN }, { width: 21 }, { bore: -1 }, { bore: 41 }, { teeth: [18, 20], module: .5, bore: 8 }, { version: 2 }]) {
+  for (const patch of [{ teeth: [14, 40] }, { teeth: [20.5, 40] }, { teeth: [20, 121] }, { module: 0 }, { module: NaN }, { width: 21 }, { bore: -1 }, { bore: 41 }, { teeth: [18, 20], module: .5, bore: 8 }, { version: 2 }]) {
     assert.throws(() => validateGearDesign({ ...DEFAULT_GEAR_DESIGN, ...patch }));
   }
   assert.doesNotThrow(() => validateGearDesign({ ...DEFAULT_GEAR_DESIGN, teeth: [18, 120], module: .5, bore: 0 }));
@@ -48,7 +48,7 @@ test('sampled mating profiles stay outside one another through a tooth cycle', (
     }
     return result;
   }
-  for (const teeth of [[18, 18], [20, 40], [40, 20], [18, 120]]) {
+  for (const teeth of [[15, 30], [18, 18], [20, 40], [40, 20], [18, 120]]) {
     const system = parametricSystem({ ...DEFAULT_GEAR_DESIGN, teeth, module: 1, bore: 0 });
     const a = spurOutline(teeth[0], 1), b = spurOutline(teeth[1], 1), center = system.centers[1][0];
     for (let frame = 0; frame < 12; frame++) {

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { applyGearColors } from './gear-colors.js';
 import { $ } from '../ui/dom.js';
-import { DEFAULT_GEAR_DESIGN, validateGearDesign, gearDimensions } from './gear-design.js';
+import { currentGearDesign, validateGearDesign, gearDimensions } from './gear-design.js';
 
 export function createGearDesigner(app) {
   let busy = false;
@@ -27,7 +27,7 @@ export function createGearDesigner(app) {
   function populate() {
     const item = app.state.chosen;
     if (item?.definition.id !== 'engranajes-rectos' || busy) return;
-    const d = item.mechanism.design || DEFAULT_GEAR_DESIGN;
+    const d = currentGearDesign(item.mechanism);
     [d.teeth[0], d.teeth[1], d.module, d.width, d.bore].forEach((value, index) => {
       const input = $('gear-' + fieldIds[index]); input.value = value; input.removeAttribute('aria-invalid');
     });
@@ -38,23 +38,25 @@ export function createGearDesigner(app) {
     if (app.state.chosen?.definition.id !== 'engranajes-rectos' || busy) return;
     populate(); app.hud.open('gear-designer', $('gear-design-open'));
   }
-  async function replace(design, showWorkshop = true) {
+  async function replace(design, showWorkshop = true, variant, transmission = false) {
     const item = app.state.chosen, state = app.state;
-    if (busy || state.pendingLoads || state.projectLoading || state.catalogLoading || item?.definition.id !== 'engranajes-rectos') throw new Error('Selecciona los engranajes rectos y espera a que termine la carga actual.');
+    if (busy || state.pendingLoads || state.projectLoading || state.catalogLoading || item?.definition.id !== (transmission ? 'engranajes-transmision' : 'engranajes-rectos')) throw new Error('Selecciona el mecanismo y espera a que termine la carga actual.');
     const generation = state.sceneGeneration;
     let prepared = null;
     busy = true; state.pendingLoads++;
     const inputs = [...$('gear-designer').querySelectorAll('input, button')]; inputs.forEach((input) => { input.disabled = true; });
-    app.interface.setLoading(design ? 'Generando los dientes…' : 'Recuperando el modelo original…');
+    app.interface.setLoading(design || variant ? 'Generando los dientes…' : 'Recuperando el modelo original…');
     try {
       // Prepare completely before releasing the model the learner is using.
-      prepared = await app.models.loadModel(item.definition.id, generation, false, true, design);
+      prepared = await app.models.loadModel(item.definition.id, generation, false, true, design, variant);
       const index = state.entries.indexOf(item);
       if (!prepared || generation !== state.sceneGeneration || index < 0) throw new Error('La escena cambió durante la preparación. Vuelve a intentarlo.');
-      prepared.name = item.name;
-      app.editor.rename(prepared, item.name, false);
+      const name = transmission && item.name === item.definition.nombre ? prepared.definition.nombre : item.name;
+      prepared.name = name;
+      app.editor.rename(prepared, name, false);
       prepared.color = item.color;
-      if (item.mechanism.state.colors) prepared.mechanism.state.colors = [...item.mechanism.state.colors];
+      if (design && item.mechanism.state.drive) prepared.mechanism.state.drive = { ...item.mechanism.state.drive };
+      if (item.mechanism.state.colors) prepared.mechanism.state.colors = prepared.mechanism.parts.map((_, i) => item.mechanism.state.colors[i] || null);
       const tint = new THREE.Color(item.color);
       prepared.materialColors.forEach((original, material) => material.color.copy(original).multiply(tint));
       applyGearColors(prepared);
@@ -93,5 +95,5 @@ export function createGearDesigner(app) {
   fieldIds.forEach((id) => $('gear-' + id).addEventListener('input', () => {
     $('gear-' + id).removeAttribute('aria-invalid'); $('gear-design-error').hidden = true; preview();
   }));
-  return { open, populate, replace, get busy() { return busy; } };
+  return { open, populate, replace, replaceTransmission: variant => replace(undefined, false, variant, true), get busy() { return busy; } };
 }

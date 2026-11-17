@@ -213,7 +213,7 @@
       <div class="inline-heading"><h2 id="gear-inline-title">Ajustes rápidos</h2><button id="gear-inline-close" type="button" aria-label="Cerrar ajustes rápidos">×</button></div>
       <form id="gear-inline-form" novalidate>
         <div class="inline-field"><label for="gear-inline-rpm">RPM entrada</label><input id="gear-inline-rpm" type="number" min="1" max="120" step="1" value="12" /></div>
-        <div id="gear-inline-teeth"><div class="inline-field"><label for="gear-inline-z1">Dientes Z₁</label><input id="gear-inline-z1" type="number" min="18" max="120" step="1" value="20" aria-label="Dientes Z₁ de entrada" /></div><div class="inline-field"><label for="gear-inline-z2">Dientes Z₂</label><input id="gear-inline-z2" type="number" min="18" max="120" step="1" value="40" aria-label="Dientes Z₂ de salida" /></div></div>
+        <div id="gear-inline-teeth"><div class="inline-field"><label for="gear-inline-z1">Dientes Z₁</label><input id="gear-inline-z1" type="number" min="15" max="120" step="1" value="20" aria-label="Dientes Z₁ de entrada" /></div><div class="inline-field"><label for="gear-inline-z2">Dientes Z₂</label><input id="gear-inline-z2" type="number" min="15" max="120" step="1" value="40" aria-label="Dientes Z₂ de salida" /></div></div>
         <p id="gear-inline-error" role="alert" hidden></p><button id="gear-inline-apply" type="submit">Aplicar</button>
       </form>
       <button id="gear-inline-class" type="button">Todas las opciones →</button>
@@ -266,13 +266,21 @@
         <section id="class-ratio-panel" aria-label="Cantidad de dientes y relación">
           <h3>¿Qué rueda gira más rápido?</h3>
           <form id="class-custom" novalidate>
-            <div class="class-number-pair"><div><label for="class-teeth-1">Dientes de entrada</label><input id="class-teeth-1" type="number" min="18" max="120" step="1" value="20" aria-describedby="class-teeth-note class-error" /></div><div><label for="class-teeth-2">Dientes de salida</label><input id="class-teeth-2" type="number" min="18" max="120" step="1" value="40" aria-describedby="class-teeth-note class-error" /></div></div>
-            <p id="class-teeth-note">De 18 a 120 dientes. Pulsa Aplicar para cambiar las ruedas.</p>
+            <div class="class-number-pair"><div><label for="class-teeth-1">Dientes de entrada</label><input id="class-teeth-1" type="number" min="15" max="120" step="1" value="20" aria-describedby="class-teeth-note class-error" /></div><div><label for="class-teeth-2">Dientes de salida</label><input id="class-teeth-2" type="number" min="15" max="120" step="1" value="40" aria-describedby="class-teeth-note class-error" /></div></div>
+            <p id="class-teeth-note">De 15 a 120 dientes. Pulsa Aplicar para cambiar las ruedas.</p>
             <button id="class-apply" type="submit" class="primary-button">Aplicar dientes</button>
             <div class="class-presets" role="group" aria-label="Ejemplos para comparar"><button type="button" data-class-teeth="20,40">20 → 40</button><button type="button" data-class-teeth="30,30">30 → 30</button><button type="button" data-class-teeth="40,20">40 → 20</button></div>
           </form>
           <p id="class-fixed" hidden>Este modelo conserva sus dientes originales. Para cambiar cantidades, elige los rectos en el taller.</p>
-          <p id="class-ratio-formula" class="class-formula"></p><p id="class-ratio-result"></p>
+          <p id="class-ratio-formula" class="class-formula"></p>
+          <p id="class-ratio-diameters" class="class-formula ratio-equivalence"></p>
+          <p id="class-ratio-speed-note"></p>
+          <div data-page-group>
+            <p id="class-ratio-rpm" class="class-formula ratio-equivalence"></p>
+            <p id="class-ratio-radians" class="class-formula ratio-equivalence"></p>
+          </div>
+          <p id="class-ratio-result"></p>
+          <details><summary>¿Qué significa cada símbolo?</summary><p>Z: número de dientes. d: diámetro primitivo en mm. n: velocidad en rpm. ω: velocidad angular en rad/s. 1 vuelta = 2π rad; ω = 2π × n / 60. Se comparan magnitudes; el sentido de giro se indica por separado.</p></details>
         </section>
         <section id="class-speed-panel" aria-label="Sentido de giro y velocidad" hidden>
           <h3>Observa el giro</h3>
@@ -284,10 +292,32 @@
           <details><summary>De rpm a velocidad angular</summary><p id="class-angular"></p><p>Una vuelta tiene 2π radianes. La velocidad lineal en el radio r es v = ω × r, con r en metros y v en m/s.</p></details>
         </section>
         <section id="class-torque-panel" aria-label="Ejemplo de torque" hidden>
-          <h3>Fuerza × radio = torque</h3><p>Imagina una fuerza perpendicular al radio: cuanto más lejos del eje empujas, mayor es el torque.</p>
-          <div class="class-number-pair"><div><label for="class-force">Fuerza (N)</label><input id="class-force" type="number" min="0" max="1000" step="1" value="10" /></div><div><label for="class-radius">Radio (m)</label><input id="class-radius" type="number" min="0.001" max="10" step="0.001" value="0.5" /></div></div>
-          <p id="class-torque-result" class="class-formula" role="status"></p>
-          <p>Ejemplo de cálculo independiente: estos valores no aplican fuerzas al modelo 3D.</p>
+          <h3>Fuerza de entrada</h3><p>Introduce la fuerza tangencial. El torque se calcula con el radio del engranaje.</p>
+          <div data-page-group>
+            <div id="gear-force-inputs" class="class-number-pair"><div><label for="class-force">Fuerza de entrada (N)</label><input id="class-force" type="number" min="0" max="1000" step="1" value="10" /></div><div id="gear-radius-field"><label for="class-radius">Radio (m)</label><input id="class-radius" type="number" min="0.001" max="10" step="0.001" value="0.5" /></div></div>
+            <button id="gear-force-apply" type="button" class="primary-button">Aplicar fuerza</button>
+            <p id="gear-force-error" role="alert" hidden></p>
+          </div>
+          <div id="gear-torque-formulas" data-page-group>
+            <p id="class-torque-result" class="class-formula" role="status"></p>
+            <p id="gear-force-formula" class="class-formula"></p>
+          </div>
+          <p id="gear-force-note">Elige los engranajes rectos para aplicar la fuerza al modelo.</p>
+          <div id="gear-force-settings" hidden>
+            <p id="gear-force-reading" role="status"></p>
+            <details id="gear-physical-details"><summary>Propiedades calculadas del modelo</summary>
+              <p id="gear-material-note">Acero de referencia · 7.850 kg/m³. El color visual no cambia el material.</p>
+              <table id="gear-physical-table"><caption>Propiedades de cada engranaje</caption><thead><tr><th scope="col">Dato</th><th scope="col">Entrada</th><th scope="col">Salida</th></tr></thead><tbody>
+                <tr><th scope="row">Radio primitivo</th><td id="gear-physical-pitch1"></td><td id="gear-physical-pitch2"></td></tr>
+                <tr><th scope="row">Radio exterior</th><td id="gear-physical-outer1"></td><td id="gear-physical-outer2"></td></tr>
+                <tr><th scope="row">Masa</th><td id="gear-physical-mass1"></td><td id="gear-physical-mass2"></td></tr>
+                <tr><th scope="row">Peso</th><td id="gear-physical-weight1"></td><td id="gear-physical-weight2"></td></tr>
+                <tr><th scope="row">Inercia</th><td id="gear-physical-inertia1"></td><td id="gear-physical-inertia2"></td></tr>
+              </tbody></table>
+              <p>Masa e inercia estimadas con la geometría, los rebajes y el agujero. Escenario fijo: carga resistente de 0,2 N·m y rozamiento de 0,02 N·m·s/rad. Límite didáctico: 240 rpm de entrada.</p>
+            </details>
+            <button id="gear-force-fixed" type="button" class="study-button">Volver a velocidad fija</button>
+          </div>
         </section>
         <p id="class-error" role="alert" hidden></p>
         <div class="class-play-controls" role="group" aria-label="Mover el mecanismo"><button id="class-run" class="primary-button" aria-pressed="false">Ver girar</button><button id="class-step" class="study-button">Un paso</button><button id="class-reverse" class="study-button" aria-pressed="false">Invertir</button></div>
@@ -316,16 +346,16 @@
         </details>
         <p id="gear-status" role="status"></p>
         <button id="gear-reset" class="study-button">Restablecer mecanismo</button>
-        <p class="simulation-note">Simulación del movimiento según los dientes y los ejes. No calcula fuerzas, fricción ni colisiones.</p>
+        <p class="simulation-note">Velocidad fija o fuerza aplicada en rectos paramétricos. Modelo didáctico; no calcula contacto ni resistencia de materiales.</p>
       </div>
     </dialog>
     <dialog id="gear-designer" class="hud-dialog" aria-labelledby="gear-designer-title" hidden>
       <div class="panel-heading"><h2 id="gear-designer-title" tabindex="-1">Diseñar engranajes rectos</h2><button class="round-button" data-close="gear-designer" aria-label="Cerrar diseñador de engranajes">×</button></div>
       <p>Introduce los dientes de cada rueda. Al generar, cambiarán su forma y su transmisión.</p>
       <form id="gear-design-form" novalidate>
-        <label for="gear-teeth-1">Dientes de entrada · z₁</label><input id="gear-teeth-1" type="number" min="18" max="120" step="1" value="20" required aria-describedby="gear-teeth-help gear-design-error" />
-        <label for="gear-teeth-2">Dientes de salida · z₂</label><input id="gear-teeth-2" type="number" min="18" max="120" step="1" value="40" required aria-describedby="gear-teeth-help gear-design-error" />
-        <p id="gear-teeth-help">Entre 18 y 120 dientes por rueda. Ambas usan el mismo módulo y un perfil de evolvente de 20°.</p>
+        <label for="gear-teeth-1">Dientes de entrada · z₁</label><input id="gear-teeth-1" type="number" min="15" max="120" step="1" value="20" required aria-describedby="gear-teeth-help gear-design-error" />
+        <label for="gear-teeth-2">Dientes de salida · z₂</label><input id="gear-teeth-2" type="number" min="15" max="120" step="1" value="40" required aria-describedby="gear-teeth-help gear-design-error" />
+        <p id="gear-teeth-help">Entre 15 y 120 dientes por rueda. Ambas usan el mismo módulo y un perfil de evolvente de 20°.</p>
         <details><summary>Dimensiones avanzadas</summary>
           <label for="gear-module">Módulo (mm)</label><input id="gear-module" type="number" min="0.5" max="5" step="0.1" value="2.5" required aria-describedby="gear-module-help gear-design-error" />
           <p id="gear-module-help">Controla el tamaño de los dientes. Las dos ruedas comparten este valor para engranar.</p>

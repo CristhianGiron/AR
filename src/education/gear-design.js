@@ -5,7 +5,7 @@ function invalid(field, message) { const error = new Error(message); error.field
 export function validateGearDesign(value) {
   if (!value || value.version !== 1 || !Array.isArray(value.teeth) || value.teeth.length !== 2) invalid('teeth-1', 'El diseño de engranajes no es compatible.');
   value.teeth.forEach((teeth, index) => {
-    if (!Number.isInteger(teeth) || teeth < 18 || teeth > 120) invalid('teeth-' + (index + 1), 'Introduce entre 18 y 120 dientes enteros por rueda.');
+    if (!Number.isInteger(teeth) || teeth < 15 || teeth > 120) invalid('teeth-' + (index + 1), 'Introduce entre 15 y 120 dientes enteros por rueda.');
   });
   for (const [key, min, max, label] of [['module', .5, 5, 'El módulo debe estar entre 0,5 y 5 mm.'], ['width', 1, 20, 'El ancho debe estar entre 1 y 20 mm.'], ['bore', 0, 40, 'El diámetro del agujero debe estar entre 0 y 40 mm.']]) {
     if (!Number.isFinite(value[key]) || value[key] < min || value[key] > max) invalid(key, label);
@@ -18,6 +18,12 @@ export function validateGearDesign(value) {
 export function gearDimensions(teeth, module) {
   const pitch = teeth * module / 2;
   return { pitch, base: pitch * Math.cos(PRESSURE_ANGLE), tip: pitch + module, root: pitch - 1.25 * module };
+}
+
+/** Recessed faces and full-width toothed rim, following the original OBJ silhouette. */
+export function gearFaceRelief(teeth, module, width, bore) {
+  const radius = Math.max(bore / 2, gearDimensions(teeth, module).root - 2.5 * module);
+  return { radius, depth: radius > bore / 2 + 1e-6 ? width * 2 / 15 : 0 };
 }
 
 const involute = (angle) => Math.tan(angle) - angle;
@@ -59,4 +65,13 @@ export function parametricSystem(input) {
   return { teeth: design.teeth, nodes: ['pinion', 'gear'], centers: [[0, 0, 0], [distance, 0, 0]], axes: [[0, 0, 1], [0, 0, 1]],
     separation: [[-1, 0, 0], [1, 0, 0]], travel: distance * .6, phase: [0, Math.PI - Math.PI / design.teeth[1]],
     description: 'Par paramétrico de ' + design.teeth.join(' y ') + ' dientes. Perfil de evolvente de 20°, módulo común de ' + design.module + ' mm y distancia entre ejes de ' + distance.toFixed(2) + ' mm.' };
+}
+
+export function currentGearDesign(mechanism) {
+  if (mechanism.design) return mechanism.design;
+  const physical = mechanism.physical;
+  return { ...DEFAULT_GEAR_DESIGN, teeth: [...mechanism.system.teeth],
+    module: physical ? physical.parts[0].pitchRadius * 2000 / mechanism.system.teeth[0] : DEFAULT_GEAR_DESIGN.module,
+    width: physical ? physical.parts[0].width * 1000 : DEFAULT_GEAR_DESIGN.width,
+    bore: physical ? Math.round(physical.parts[0].bore * 1000) : DEFAULT_GEAR_DESIGN.bore };
 }

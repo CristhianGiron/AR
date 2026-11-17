@@ -74,3 +74,8 @@
 #gear-direction-arrows .direction-head { fill: var(--direction-color); stroke: #20183c; stroke-width: 1.5; stroke-linejoin: round; }
 #gear-direction-arrows[data-running='false'] { opacity: .7; }
 @media (forced-colors: active) { #gear-direction-arrows .direction-arc { stroke: Highlight; } #gear-direction-arrows .direction-head { fill: Highlight; } }
+
+.readout-force, .readout-torque { font-size: 10px; line-height: 1.35; color: #fff1b0; white-space: nowrap; }
+.readout-force { border-top: 1px solid #cab86866; margin-top: 3px; padding-top: 3px; }
+[data-density='compact'] .readout-force, [data-density='compact'] .readout-torque { font-size: 8px; line-height: 1.2; }
+[data-density='compact'] .readout-force { margin-top: 2px; padding-top: 2px; }

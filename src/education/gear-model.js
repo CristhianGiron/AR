@@ -1,3 +1,5 @@
+import { validateTransmissionVariant } from './transmission-design.js';
+import { validateDrive } from './gear-dynamics.js';
 import { validateGearDesign } from './gear-design.js';
 export const GEAR_SYSTEMS = {
   transmision: {
@@ -38,6 +40,8 @@ export function validateGearState(value) {
     if (!Array.isArray(value.colors) || value.colors.length !== value.offsets.length || !value.colors.every(color => color === null || (typeof color === 'string' && /^#[a-f\d]{6}$/i.test(color)))) throw new Error('Los colores de los engranajes no son válidos.');
     result.colors = value.colors.map(color => color === null ? null : color.toLowerCase());
   }
+  if (value.drive !== undefined) result.drive = validateDrive(value.drive);
   if (value.design !== undefined) result.design = validateGearDesign(value.design);
+  if (value.transmissionVariant !== undefined) result.transmissionVariant = validateTransmissionVariant(value.transmissionVariant);
   return result;
 }

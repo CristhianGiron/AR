@@ -1,5 +1,5 @@
 import { $ } from './dom.js';
-import { DEFAULT_GEAR_DESIGN, validateGearDesign } from '../education/gear-design.js';
+import { currentGearDesign, validateGearDesign } from '../education/gear-design.js';
 
 export function createGearInline(app) {
   const panel = $('gear-inline'), trigger = $('gear-quick');
@@ -30,7 +30,7 @@ export function createGearInline(app) {
     try {
       const rpm = $('gear-inline-rpm').valueAsNumber;
       if (!Number.isInteger(rpm) || rpm < 1 || rpm > 120) throw new Error('La velocidad debe ser un entero entre 1 y 120 rpm.');
-      const design = item.mechanism.design || DEFAULT_GEAR_DESIGN;
+      const design = currentGearDesign(item.mechanism);
       let next;
       const teeth = [$('gear-inline-z1').valueAsNumber, $('gear-inline-z2').valueAsNumber];
       if (item.definition.id === 'engranajes-rectos' && teeth.some((z, i) => z !== item.mechanism.system.teeth[i])) next = validateGearDesign({ ...design, teeth });

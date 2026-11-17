@@ -37,3 +37,10 @@ body.classroom-mode.has-docked-panel #gear-transport { display: none; }
 @media (min-width: 1100px) and (min-height: 650px) {
   .hud-dialog#gear-class { z-index: 5; inset: 116px 22px auto auto; width: clamp(340px, 29vw, 440px); max-height: calc(100dvh - 198px); }
 }
+
+.class-number-pair.force-automatic, #gear-class .class-number-pair.force-automatic { grid-template-columns: minmax(0, 1fr); }
+
+#gear-torque-formulas { display: grid; gap: 8px; }
+#gear-torque-formulas .class-formula { margin: 0; white-space: pre-line; }
+
+#class-ratio-formula, .ratio-equivalence { white-space: pre-line; }

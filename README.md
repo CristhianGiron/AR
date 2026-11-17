@@ -1,5 +1,11 @@
 # ExplorAR
 
+Los engranajes rectos, originales y generados, también permiten aplicar fuerza y observar F y torque en sus etiquetas, conservando sus dientes y el modelo actual; radio, masa, peso e inercia se calculan a partir del diseño con acero de referencia. Consulta el [modelo didáctico y sus supuestos](docs/taller-engranajes.md).
+
+La transmisión permite comparar montajes simple, reductor, multiplicador y uno compuesto de cuatro etapas, conservando la opción de recuperar el OBJ original. Se eligen en **Más → Variantes** y se guardan con la escena.
+
+Los cuatro mecanismos incluyen un sonido mecánico suave y diferente, ligado al giro, con un botón Sonido para silenciarlo.
+
 El visor abre con el modelo despejado y botones flotantes para cambiar de engranaje, reproducir/pausar y avanzar un paso. **[Mi taller](docs/taller-engranajes.md)** agrupa botones en Manipular, Aprender y Escenas; **Más** despliega acciones adicionales y cada ajuste aparece en una tarjeta flotante que se cierra al tocar fuera. El selector incluye Rectos, Cónicos, Helicoidales y la nueva **Transmisión compuesta** de cuatro ejes y cinco ruedas, con movimiento de tres etapas, separación, aislamiento, datos por eje y guardado de escena.
 
 El botón **HUD** muestra pequeñas etiquetas conectadas a cada rueda: RPM actuales, dientes, sentido, velocidad angular y ángulo de giro. Los valores se actualizan con la simulación; al pausar se distingue la velocidad configurada de la velocidad actual.

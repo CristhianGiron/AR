@@ -3,6 +3,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { loadCatalogModel } from './importer.js';
 import { $ } from "../ui/dom.js";
 import { createParametricGears } from './parametric-gears.js';
+import { TRANSMISSION_VARIANTS } from '../education/transmission-design.js';
+import { createTransmissionGears } from './transmission-gears.js';
 import { parametricSystem } from '../education/gear-design.js';
 
 export function createModels(app) {
@@ -19,11 +21,13 @@ export function createModels(app) {
     }
   }
 
-  async function loadModel(id, generation = state.sceneGeneration, selectNew = true, staged = false, design) {
+  async function loadModel(id, generation = state.sceneGeneration, selectNew = true, staged = false, design, variant) {
     let definition = catalogMap.get(id);
     if (!definition) throw new Error("El modelo no existe en el catálogo.");
     if (design !== undefined && id !== 'engranajes-rectos') throw new Error('El diseño paramétrico corresponde únicamente a engranajes rectos.');
-    const gltf = design === undefined ? await loadCatalogModel(definition.url, loader, app.assets) : createParametricGears(design);
+    if (variant !== undefined && design !== undefined) throw new Error('Elige un diseño de par o una variante de transmisión.');
+    if (variant !== undefined && id !== 'engranajes-transmision') throw new Error('La variante corresponde a la transmisión.');
+    const gltf = variant !== undefined ? createTransmissionGears(variant) : design === undefined ? await loadCatalogModel(definition.url, loader, app.assets) : createParametricGears(design);
     if (gltf.gearDesign) {
       const d = gltf.gearDesign, system = parametricSystem(d);
       definition = { ...definition, descripcion: system.description, datos: [
@@ -31,6 +35,7 @@ export function createModels(app) {
         { etiqueta: 'Módulo', valor: d.module + ' mm' }, { etiqueta: 'Ancho', valor: d.width + ' mm' }, { etiqueta: 'Agujero', valor: d.bore + ' mm' },
       ] };
     }
+    if (gltf.gearSystem) definition = { ...definition, nombre: 'Transmisión · ' + TRANSMISSION_VARIANTS[variant].name, descripcion: gltf.gearSystem.description, datos: [{ etiqueta: 'Variante', valor: gltf.gearSystem.description }, { etiqueta: 'Etapas', valor: String(gltf.gearSystem.stages.length) }] };
     return insertModel(gltf, definition, generation, selectNew, staged);
   }
 
@@ -41,6 +46,7 @@ export function createModels(app) {
     const partBounds = new Map();
     gltf.scene.updateMatrixWorld(true);
     gltf.scene.traverse((node) => { if (node.isMesh) partBounds.set(node.name, new THREE.Box3().setFromObject(node)); });
+    if (mechanism) mechanism.parts.forEach((part, i) => partBounds.set(mechanism.system.nodes[i], new THREE.Box3().setFromObject(part.pivot)));
     const content = mechanism ? gltf.scene : app.assets.optimizeStaticModel(gltf);
     content.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(content);

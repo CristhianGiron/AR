@@ -8,13 +8,16 @@ await mkdir(folder, { recursive: true });
 const before = await sourceSnapshot();
 const jobs = [
   ['estructura', ['scripts/check-project.mjs']],
-  ['unitarias', ['--test', 'tests/unit/learning.test.js', 'tests/unit/pagination.test.js', 'tests/unit/projects.test.js', 'tests/unit/missions.test.js', 'tests/unit/echo.test.js', 'tests/unit/surfaces.test.js', 'tests/unit/xr-availability.test.js', 'tests/unit/model-formats.test.js', 'tests/unit/gears.test.js', 'tests/unit/gear-design.test.js', 'tests/unit/gear-class.test.js', 'tests/unit/gear-label-layout.test.js']],
+  ['unitarias', ['--test', 'tests/unit/learning.test.js', 'tests/unit/pagination.test.js', 'tests/unit/projects.test.js', 'tests/unit/missions.test.js', 'tests/unit/echo.test.js', 'tests/unit/surfaces.test.js', 'tests/unit/xr-availability.test.js', 'tests/unit/model-formats.test.js', 'tests/unit/gears.test.js', 'tests/unit/gear-design.test.js', 'tests/unit/gear-class.test.js', 'tests/unit/gear-dynamics.test.js', 'tests/unit/gear-sound.test.js', 'tests/unit/transmission-design.test.js', 'tests/unit/gear-label-layout.test.js']],
   ['escenas-guardadas', ['tests/browser/projects.cjs']],
   ['formatos-modelos', ['tests/browser/model-formats.cjs']],
   ['taller-engranajes', ['tests/browser/gears.cjs']],
+  ['variantes-transmision', ['tests/browser/transmission-variants.cjs']],
   ['transmision-compuesta', ['tests/browser/gear-transmission.cjs']],
   ['colores-por-engranaje', ['tests/browser/gear-colors.cjs']],
   ['diseno-engranajes', ['tests/browser/gear-designer.cjs']],
+  ['sonido-engranajes', ['tests/browser/gear-sound.cjs']],
+  ['fuerza-y-torque', ['tests/browser/gear-force.cjs']],
   ['clase-engranajes', ['tests/browser/gear-class.cjs']],
   ['datos-sobre-engranajes', ['tests/browser/gear-telemetry.cjs']],
   ['sentido-de-giro', ['tests/browser/gear-directions.cjs']],

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
+import { actualRPM, forceReadings } from '../education/gear-dynamics.js';
 import { rotationAngles, speedFactors, gearRatio, gearRPM } from '../education/gear-model.js';
 
 import { arrangeGearLabels, boxAt } from './gear-label-layout.js';
@@ -11,22 +12,23 @@ export function createGearTelemetry(app) {
   const cards = [];
   function addCard(index) {
     const card = document.createElement('div'); card.className = 'gear-readout'; card.dataset.wheel = index;
-    card.innerHTML = '<div class="readout-heading"><span class="readout-dot"></span><b>' + (index ? '02 · SALIDA' : '01 · ENTRADA') + '</b><span class="readout-state"></span></div><div class="readout-speed"><strong>0</strong><span>rpm</span></div><div class="readout-details"></div><div class="readout-angle"></div><div class="readout-setting"></div>';
+    card.innerHTML = '<div class="readout-heading"><span class="readout-dot"></span><b>' + (index ? '02 · SALIDA' : '01 · ENTRADA') + '</b><span class="readout-state"></span></div><div class="readout-speed"><strong>0</strong><span>rpm</span></div><div class="readout-details"></div><div class="readout-angle"></div><div class="readout-setting"></div><div class="readout-force" hidden></div><div class="readout-torque" hidden></div>';
     layer.append(card);
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'), dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     path.dataset.wheel = dot.dataset.wheel = index; dot.setAttribute('r', '3'); svg.append(path, dot);
-    return { card, path, dot, heading: card.querySelector('b'), speed: card.querySelector('strong'), state: card.querySelector('.readout-state'), details: card.querySelector('.readout-details'), angle: card.querySelector('.readout-angle'), setting: card.querySelector('.readout-setting') };
+    return { card, path, dot, heading: card.querySelector('b'), speed: card.querySelector('strong'), state: card.querySelector('.readout-state'), details: card.querySelector('.readout-details'), angle: card.querySelector('.readout-angle'), setting: card.querySelector('.readout-setting'), force: card.querySelector('.readout-force'), torque: card.querySelector('.readout-torque') };
   }
   for (let index = 0; index < 2; index++) cards.push(addCard(index));
   let enabled = true, lastItem = null, signature = '', placements = [], previous = [], layoutInput = null;
   function measure(record) {
-    if (record.measureWidth !== innerWidth) {
+    const measureKey = innerWidth + ':' + !record.force.hidden;
+    if (record.measureWidth !== measureKey) {
       record.sizes = {};
       for (const density of ['full', 'compact']) {
         record.card.dataset.density = density; record.card.hidden = false;
         record.sizes[density] = { w: record.card.offsetWidth, h: record.card.offsetHeight };
       }
-      record.measureWidth = innerWidth;
+      record.measureWidth = measureKey;
     }
     return record.sizes;
   }
@@ -81,7 +83,7 @@ export function createGearTelemetry(app) {
     if (lastItem !== item) { lastItem = item; signature = ''; placements = []; previous = []; }
     const factors = speedFactors(mechanism.system), angles = rotationAngles(mechanism.system, mechanism.state.angle, mechanism.state.offsets);
     const running = mechanism.state.running && !mechanism.state.separation && mechanism.state.isolated === null;
-    const labels = [];
+    const labels = [], physics = forceReadings(mechanism);
     svg.setAttribute('viewBox', '0 0 ' + viewport.width + ' ' + viewport.height); layer.dataset.running = String(running);
     cards.forEach((record, index) => {
       const p = projected[index];
@@ -91,27 +93,35 @@ export function createGearTelemetry(app) {
       const role = index === 0 ? 'Entrada' : index === mechanism.parts.length - 1 ? 'Salida' : 'Intermedio ' + index;
       const caption = index > 0 && index < mechanism.parts.length - 1 ? 'INT. ' + index : role.toUpperCase();
       text(record.heading, String(index + 1).padStart(2, '0') + ' · ' + caption);
-      const rpm = running ? gearRPM(mechanism.system, mechanism.state.rpm, index) : 0;
+      const rpm = running ? gearRPM(mechanism.system, actualRPM(mechanism), index) : 0;
       const sign = mechanism.state.direction * Math.sign(factors[index]), arrow = sign > 0 ? '↺' : '↻';
       const teeth = mechanism.system.partTeeth?.[index]?.join(' / ') || mechanism.system.teeth[index];
       const setpoint = gearRPM(mechanism.system, mechanism.state.rpm, index);
       const angular = number(rpm * Math.PI / 30, 2), angle = number(((angles[index] * 180 / Math.PI) % 360 + 360) % 360, 0);
-      text(record.speed, number(rpm)); text(record.state, running ? 'ACTIVO' : 'PAUSA');
+      text(record.speed, number(rpm)); text(record.state, physics?.stalled ? 'CARGA' : running ? 'ACTIVO' : 'PAUSA');
       record.angleFull = 'ω ' + angular + ' rad/s · θ ' + angle + '°';
       record.angleShort = 'ω' + angular + 'rad/s θ' + angle + '°';
       text(record.angle, record.angleFull);
       record.detailsShort = String(teeth).replaceAll(' / ', '/') + ' dientes ' + arrow;
       record.detailsText = teeth + ' dientes · ' + arrow;
       record.settingText = running ? 'R ' + number(gearRatio(mechanism.system), 2) + ':1 · simulación' : 'Ajuste ' + number(setpoint) + ' rpm';
+      if (physics) record.settingText = index && physics.connected ? 'τ disp. ' + number(physics.available, 3) + ' N·m' : !physics.connected ? 'Desconectado' : physics.limited ? 'Límite 240 rpm' : physics.stalled ? 'Carga: detenido' : 'Accionado por fuerza';
       text(record.details, record.detailsText); text(record.setting, record.settingText);
+      record.force.hidden = record.torque.hidden = !physics;
+      if (physics) {
+        const force = index === 0 ? physics.running ? mechanism.state.drive.force : 0 : physics.force2;
+        const torque = index === 0 ? physics.running ? physics.applied : 0 : physics.torque2;
+        text(record.force, (index ? 'Fₜ ' : 'F ') + number(force, 3) + ' N');
+        text(record.torque, (index ? 'τ₂ ' : 'τ₁ ') + number(torque, 3) + ' N·m');
+      }
       record.card.setAttribute('role', 'group');
-      record.card.setAttribute('aria-label', role + ': ' + number(rpm) + ' rpm, ' + teeth + ' dientes, velocidad angular ' + angular + ' radianes por segundo, ángulo ' + angle + ' grados. ' + (running ? 'En movimiento.' : 'En pausa, ajuste de ' + number(setpoint) + ' rpm.'));
+      record.card.setAttribute('aria-label', role + ': ' + number(rpm) + ' rpm, ' + teeth + ' dientes, velocidad angular ' + angular + ' radianes por segundo, ángulo ' + angle + ' grados. ' + (running ? 'En movimiento.' : 'En pausa, ajuste de ' + number(setpoint) + ' rpm.') + (physics ? ' ' + record.force.textContent + ', ' + record.torque.textContent + '. Modelo dinámico educativo.' : ''));
       if (visible) labels.push({ index, anchor: p, footprint: p.footprint, sizes: measure(record) });
     });
     const modelBounds = projected.filter((point, index) => mechanism.parts[index].pivot.visible && point.z >= -1 && point.z <= 1).map(point => point.footprint);
     const safe = boxAt(8, top, viewport.width - 16, Math.max(0, viewport.height - top - 12));
     // Values and motor angle do not change the layout; solve only when geometry/UI moves.
-    const key = [innerWidth, innerHeight, ...labels.flatMap(label => [label.index, Math.round(label.anchor.x * 2), Math.round(label.anchor.y * 2), ...[label.footprint.left, label.footprint.top, label.footprint.right, label.footprint.bottom].map(Math.round)]), ...[...obstacles, ...modelBounds].flatMap(box => [box.left, box.top, box.right, box.bottom].map(Math.round))].join('|');
+    const key = [innerWidth, innerHeight, !!physics, ...labels.flatMap(label => [label.index, Math.round(label.anchor.x * 2), Math.round(label.anchor.y * 2), ...[label.footprint.left, label.footprint.top, label.footprint.right, label.footprint.bottom].map(Math.round)]), ...[...obstacles, ...modelBounds].flatMap(box => [box.left, box.top, box.right, box.bottom].map(Math.round))].join('|');
     if (key !== signature) {
       layoutInput = { labels, obstacles, modelBounds, viewport: safe, previous, maxDistance: innerWidth <= 600 ? 112 : 128 };
       placements = arrangeGearLabels(layoutInput);

@@ -1,4 +1,4 @@
-const atomicSelector = 'button, input, select, textarea, label, meter, li, summary, p, h3, .axis, .stat, .help-step, #model-data > div, .nav-caption, .reference-fact, [role=alert], #status';
+const atomicSelector = 'table, button, input, select, textarea, label, meter, li, summary, p, h3, .axis, .stat, .help-step, #model-data > div, .nav-caption, .reference-fact, [role=alert], #status';
 
 /** Pack whole visual rows; tall prose is supplied as individual text lines. */
 export function paginateBands(bands, capacity, totalHeight) {

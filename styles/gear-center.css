@@ -107,3 +107,11 @@ body.classroom-mode #gear-dock #gear-model-switcher { display: grid; grid-templa
   #gear-center #class-model-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
   #gear-center #class-model-options button { padding-inline: 2px; font-size: 10px; overflow-wrap: anywhere; }
 }
+
+#gear-physical-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10px; }
+#gear-physical-table th, #gear-physical-table td { padding: 6px 3px; text-align: left; border-bottom: 1px solid #c2a2f04d; overflow-wrap: anywhere; }
+#gear-physical-table caption { text-align: left; margin-block: 6px; color: #ffeaa6; }
+
+.gear-variant-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.gear-variant-options button { min-height: 44px; white-space: normal; }
+.gear-variant-options button[aria-pressed='true'] { background: var(--comic-yellow); color: var(--comic-ink); }

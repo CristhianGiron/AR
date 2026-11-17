@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
 import { GEAR_SYSTEMS, gearRPM, rotationAngles, validateGearState } from './gear-model.js';
-import { parametricSystem, DEFAULT_GEAR_DESIGN, validateGearDesign } from './gear-design.js';
+import { parametricSystem } from './gear-design.js';
 import { preparePartColors, applyGearColors } from './gear-colors.js';
+import { originalGearPhysical } from '../models/gear-solid.js';
+import { advanceDrive, driveGeometry } from './gear-dynamics.js';
 import { uiIcon } from '../ui/icons.js';
 
 export function createGears(app) {
@@ -10,7 +12,7 @@ export function createGears(app) {
   const initial = (count = 2) => ({ angle: 0, rpm: 12, direction: 1, separation: 0, offsets: Array(count).fill(0), isolated: null, running: false });
   function prepare(gltf, definition) {
     const design = gltf.gearDesign;
-    const system = design ? parametricSystem(design) : GEAR_SYSTEMS[definition.mecanismo?.tipo];
+    const system = gltf.gearSystem || (design ? parametricSystem(design) : GEAR_SYSTEMS[definition.mecanismo?.tipo]);
     if (!system) return null;
     const sourceMaterials = new Set();
     gltf.scene.traverse(node => { for (const material of Array.isArray(node.material) ? node.material : node.material ? [node.material] : []) sourceMaterials.add(material); });
@@ -25,9 +27,12 @@ export function createGears(app) {
     const used = new Set();
     gltf.scene.traverse(node => { for (const material of Array.isArray(node.material) ? node.material : node.material ? [node.material] : []) used.add(material); });
     for (const material of sourceMaterials) if (!used.has(material)) material.dispose();
-    const mechanism = { system, parts, design, state: initial(parts.length) }; apply(mechanism); return mechanism;
+    const mechanism = { system, parts, design, transmissionVariant: gltf.transmissionVariant, state: initial(parts.length), motion: { omega: 0 } };
+    if (!design && definition.id === 'engranajes-rectos') mechanism.physical = originalGearPhysical(parts, system);
+    apply(mechanism); return mechanism;
   }
   function apply(mechanism) {
+    if (mechanism.state.separation || mechanism.state.isolated !== null) mechanism.motion = { omega: 0 };
     const { system, parts, state } = mechanism, angles = rotationAngles(system, state.angle, state.offsets);
     parts.forEach((part, index) => {
       part.pivot.position.copy(part.home).addScaledVector(part.direction, state.separation * system.travel);
@@ -69,7 +74,7 @@ export function createGears(app) {
     }
 
     $('gear-title').textContent = item.name;
-    $('gear-design-mode').textContent = mechanism.design ? 'Diseño paramétrico · ' + teeth.join(' / ') + ' dientes' : 'Modelo OBJ original · dientes fijos';
+    $('gear-design-mode').textContent = mechanism.transmissionVariant ? 'Transmisión generada · ' + mechanism.system.stages.length + ' etapas' : mechanism.design ? 'Diseño paramétrico · ' + teeth.join(' / ') + ' dientes' : 'Modelo OBJ original · dientes fijos';
     $('gear-description').textContent = mechanism.system.description;
     $('gear-play').textContent = state.running ? 'Pausar' : 'Poner en marcha';
     $('gear-play').setAttribute('aria-pressed', String(state.running));
@@ -106,6 +111,7 @@ export function createGears(app) {
   function reset(item = current()) {
     if (!item?.mechanism) return;
     const colors = item.mechanism.state.colors;
+    delete item.mechanism.state.drive; item.mechanism.motion = { omega: 0 };
     Object.assign(item.mechanism.state, initial(item.mechanism.parts.length));
     if (colors) item.mechanism.state.colors = colors;
     apply(item.mechanism); sync();
@@ -117,15 +123,19 @@ export function createGears(app) {
       const mechanism = item.mechanism; if (!mechanism) continue;
       if (mechanism.state.running && item.anchor.visible && mechanism.state.separation === 0 && mechanism.state.isolated === null) {
         // A continuous phase avoids a discontinuity in the driven wheel at 2π.
-        mechanism.state.angle += delta * mechanism.state.rpm * Math.PI / 30 * mechanism.state.direction;
+        if (mechanism.state.drive?.enabled && driveGeometry(mechanism)) {
+          const motion = advanceDrive(driveGeometry(mechanism), mechanism.state.drive, mechanism.motion?.omega || 0, delta);
+          mechanism.motion = motion; mechanism.state.angle += motion.angle * mechanism.state.direction;
+        } else mechanism.state.angle += delta * mechanism.state.rpm * Math.PI / 30 * mechanism.state.direction;
         apply(mechanism);
         if (item === app.state.chosen) app.selection.buildGlow(item);
       }
     }
+    app.gearForce?.updateReading();
   }
   function suspend() { lastTime = null; }
-  function snapshot(item) { return item.mechanism ? validateGearState({ ...item.mechanism.state, design: item.mechanism.design }) : undefined; }
-  function restore(item, value) { if (item.mechanism && value) { const validated = validateGearState(value); if (validated.offsets.length !== item.mechanism.parts.length) throw new Error('El estado no corresponde a las piezas de este mecanismo.'); delete item.mechanism.state.colors; Object.assign(item.mechanism.state, validated, { running: false }); apply(item.mechanism); applyGearColors(item); } }
+  function snapshot(item) { return item.mechanism ? validateGearState({ ...item.mechanism.state, design: item.mechanism.design, transmissionVariant: item.mechanism.transmissionVariant }) : undefined; }
+  function restore(item, value) { if (item.mechanism && value) { const validated = validateGearState(value); if (validated.offsets.length !== item.mechanism.parts.length) throw new Error('El estado no corresponde a las piezas de este mecanismo.'); delete item.mechanism.state.colors; delete item.mechanism.state.drive; item.mechanism.motion = { omega: 0 }; Object.assign(item.mechanism.state, validated, { running: false }); apply(item.mechanism); applyGearColors(item); } }
   function open(trigger = $('open-gears')) {
     if (!current()) {
       const item = app.state.entries.find((entry) => entry.mechanism);
@@ -199,7 +209,7 @@ export function createGears(app) {
   };
   $('gear-play').onclick = $('gear-toggle').onclick = toggleMotor;
   $('gear-step').onclick = $('gear-step-quick').onclick = step;
-  $('gear-reverse').onclick = () => mutate((state) => { state.direction *= -1; });
+  $('gear-reverse').onclick = () => mutate((state) => { state.direction *= -1; if (current()?.mechanism.state.drive?.enabled) current().mechanism.motion = { omega: 0 }; });
   $('gear-speed').oninput = () => mutate((state) => { state.rpm = Number($('gear-speed').value); });
   $('gear-separation').oninput = () => mutate((state) => { state.separation = Number($('gear-separation').value) / 100; state.running = false; });
   $('gear-explode').onclick = () => { mutate((state) => { state.separation = 1; state.running = false; state.isolated = null; }); preview(); };

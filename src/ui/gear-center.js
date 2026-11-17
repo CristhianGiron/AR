@@ -1,3 +1,4 @@
+import { TRANSMISSION_VARIANTS } from '../education/transmission-design.js';
 import { $ } from './dom.js';
 import { applyGearColors, partColor } from '../education/gear-colors.js';
 import { uiIcon } from './icons.js';
@@ -88,6 +89,8 @@ export function createGearCenter(app) {
     dismiss(); const record = cards.get(key); if (!record) return;
     if (key === 'design') app.gearDesigner.populate();
     if (key === 'colors') syncColors();
+    if (key === 'variants') syncVariants();
+    if (key === 'torque') app.gearForce.sync();
     if (['ratio', 'speed', 'torque'].includes(key)) $('class-' + key + '-tab').click();
     record.section.hidden = false;
     popup.querySelector('.page-content').append(record.section);
@@ -159,6 +162,33 @@ export function createGearCenter(app) {
     };
     return section;
   }
+  function createVariants() {
+    const section = document.createElement('section');
+    const note = document.createElement('p'); note.textContent = 'Compara montajes. Al cambiar de variante el mecanismo vuelve montado y en pausa.';
+    const grid = document.createElement('div'); grid.className = 'gear-variant-options'; grid.setAttribute('role', 'group'); grid.setAttribute('aria-label', 'Variantes de transmisión');
+    const reading = document.createElement('p'); reading.id = 'gear-variant-reading'; reading.setAttribute('role', 'status');
+    const error = document.createElement('p'); error.id = 'gear-variant-error'; error.setAttribute('role', 'alert'); error.hidden = true;
+    for (const [id, title] of [['original', 'Original · OBJ'], ...Object.entries(TRANSMISSION_VARIANTS).map(([id, v]) => [id, v.name])]) {
+      const option = document.createElement('button'); option.type = 'button'; option.className = 'study-button'; option.dataset.transmissionVariant = id; option.textContent = title;
+      option.onclick = async () => {
+        error.hidden = true;
+        grid.querySelectorAll('button').forEach(b => b.disabled = true);
+        try { await app.gearDesigner.replaceTransmission(id === 'original' ? undefined : id); }
+        catch (failure) { error.textContent = failure.message; error.hidden = false; }
+        finally { syncVariants(); app.pagination.refresh(popup); if (!error.hidden) app.pagination.reveal(error); }
+      };
+      grid.append(option);
+    }
+    section.append(note, grid, reading, error); return section;
+  }
+  function syncVariants() {
+    const item = app.state.chosen, m = item?.mechanism;
+    for (const b of document.querySelectorAll('[data-transmission-variant]')) {
+      b.setAttribute('aria-pressed', String((m?.transmissionVariant || 'original') === b.dataset.transmissionVariant));
+      b.disabled = item?.definition.id !== 'engranajes-transmision' || !!app.state.pendingLoads;
+    }
+    const reading = $('gear-variant-reading'); if (reading && item?.definition.id === 'engranajes-transmision') reading.textContent = m.system.description;
+  }
   function sync() {
     if (!active) return;
     const item = app.state.chosen, mechanism = item?.mechanism;
@@ -175,6 +205,11 @@ export function createGearCenter(app) {
     buttons.get('reverse').setAttribute('aria-pressed', String(mechanism?.state.direction === -1));
     buttons.get('design').hidden = item?.definition.id !== 'engranajes-rectos';
     buttons.get('design').disabled = busy;
+    buttons.get('force').hidden = item?.definition.id !== 'engranajes-rectos';
+    buttons.get('force').disabled = busy;
+    buttons.get('variants').hidden = item?.definition.id !== 'engranajes-transmision';
+    buttons.get('variants').disabled = busy;
+    syncVariants();
     if (item !== selectedItem) { selectedItem = item; if (['rpm', 'separate', 'teeth', 'piece', 'design', 'facts', 'colors'].includes(shown)) dismiss(); app.gearDesigner.populate(); }
     if (shown === 'colors') syncColors();
     if (app.state.hudSurface !== 'gear-center') { dismiss(); setMore(false); }
@@ -195,9 +230,13 @@ export function createGearCenter(app) {
     button('separate', 'Separar', 'separate', extra);
     button('assemble', 'Juntar', 'assemble', extra, () => { dismiss(); $('gear-assemble').click(); });
     button('direction', 'Ver giro', 'reverse', extra, () => app.gearDirections.toggle()).setAttribute('aria-pressed', String(app.gearDirections.enabled));
+    button('sound', 'Sonido', 'sound', extra, () => app.gearSound.toggle()); app.gearSound.sync();
     button('reverse', 'Invertir', 'reverse', extra, () => { dismiss(); $('gear-reverse').click(); });
     button('piece', 'Una pieza', 'piece', extra);
     button('design', 'Diseñar', 'settings', extra);
+    const forceButton = button('force', 'Fuerza', 'torque', extra, () => show('torque', buttons.get('force')));
+    forceButton.setAttribute('aria-controls', 'gear-context'); forceButton.setAttribute('aria-expanded', 'false');
+    button('variants', 'Variantes', 'settings', extra);
     button('colors', 'Color', 'palette', extra);
     button('appearance', 'Aspecto', 'palette', extra);
     button('view', 'Vista', 'view', extra);
@@ -206,6 +245,7 @@ export function createGearCenter(app) {
     button('ratio', 'Relación', 'settings', learn); button('speed', 'Giro', 'speed', learn);
     button('torque', 'Torque', 'torque', learn); button('facts', 'Ficha', 'book', learn);
     button('save', 'Guardar / abrir', 'save', scenes); button('models', 'Importar', 'add', scenes); button('objects', 'Objetos', 'piece', scenes);
+    card('variants', 'Variantes de transmisión', [createVariants()]);
     card('colors', 'Color por engranaje', [createColors()]);
     const perPart = document.createElement('button'); perPart.type = 'button'; perPart.className = 'study-button'; perPart.textContent = 'Color por engranaje'; perPart.onclick = () => show('colors', buttons.get('colors'));
     $('quick-color').closest('label').after(perPart);

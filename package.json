@@ -39,7 +39,10 @@
     "test:gear-colors": "node tests/browser/gear-colors.cjs",
     "test:gear-directions": "node tests/browser/gear-directions.cjs",
     "test:gear-layout": "node tests/browser/gear-layout.cjs",
-    "test:names": "node tests/browser/name-labels.cjs"
+    "test:names": "node tests/browser/name-labels.cjs",
+    "test:gear-force": "node tests/browser/gear-force.cjs",
+    "test:gear-sound": "node tests/browser/gear-sound.cjs",
+    "test:transmission-variants": "node tests/browser/transmission-variants.cjs"
   },
   "devDependencies": {
     "axe-core": "4.14.0",

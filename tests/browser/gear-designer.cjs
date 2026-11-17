@@ -12,6 +12,7 @@ run(async ({ page, click, artifacts, load, close }) => {
   });
   const before = await page.evaluate(() => { const i = __app.state.chosen; return { name: i.name, position: i.anchor.position.toArray(), rotation: i.rot, size: i.size }; });
   await page.evaluate(() => __app.gearDesigner.open());
+  assert.deepEqual(await page.evaluate(()=>['teeth-1','teeth-2','module','width','bore'].map(id=>document.querySelector('#gear-'+id).valueAsNumber)),[15,30,2.5,15,10],'designer starts from the original gear dimensions instead of replacing them with defaults');
   await fill('teeth-1', 24); await fill('teeth-2', 36);
   await click('#gear-design-form details summary');
   await fill('module', 2); await fill('width', 8); await fill('bore', 5);
@@ -26,10 +27,12 @@ run(async ({ page, click, artifacts, load, close }) => {
     };
     return { name: i.name, position: i.anchor.position.toArray(), rotation: i.rot, size: i.size, design: m.design,
       teeth: m.parts.map((p) => countTeeth(p.pivot.children[0].geometry)), holes: m.parts.map((p) => p.pivot.children[0].geometry.parameters.shapes.holes.length),
+      rims: m.parts.map(p=>p.pivot.children[0].children.length),
       center: m.parts[1].home.x, rpm: document.querySelector('#gear-reading').textContent,
       facts: i.definition.datos, running: m.state.running };
   });
   assert.deepEqual({ name: generated.name, position: generated.position, rotation: generated.rotation, size: generated.size }, before);
+  assert.deepEqual(generated.rims,[2,2],'generated wheels retain recessed faces and full-width outer rims');
   assert.deepEqual(generated.teeth, [24, 36]); assert.deepEqual(generated.holes, [1, 1]); assert.equal(generated.center, 60);
   assert.match(generated.rpm, /Salida: 8.0 rpm/); assert.equal(generated.running, false);
   assert.deepEqual(generated.facts[0], { etiqueta: 'Dientes', valor: '24 y 36' });
@@ -48,7 +51,7 @@ run(async ({ page, click, artifacts, load, close }) => {
   const originals = await page.evaluate(() => { window.__unchanged = [...__app.state.entries]; return __app.state.entries.length; });
   await fill('teeth-1', 12); await click('#gear-generate');
   await page.waitForFunction(() => !document.querySelector('#gear-design-error').hidden);
-  assert.match(await page.$eval('#gear-design-error', (e) => e.textContent), /18 y 120/);
+  assert.match(await page.$eval('#gear-design-error', (e) => e.textContent), /15 y 120/);
   assert.equal(await page.evaluate(() => __unchanged.every((entry, index) => entry === __app.state.entries[index])), true);
   assert.equal(await page.evaluate(() => __app.state.entries.length), originals);
   await fill('teeth-1', 18); await fill('module', .5); await fill('bore', 8); await click('#gear-generate');
@@ -85,12 +88,12 @@ run(async ({ page, click, artifacts, load, close }) => {
   const extremes = await page.evaluate(async () => {
     const { createParametricGears } = await import('/src/models/parametric-gears.js');
     const results = [];
-    for (const design of [{ version: 1, teeth: [18, 120], module: .5, width: 1, bore: 0 }, { version: 1, teeth: [120, 120], module: 5, width: 20, bore: 40 }]) {
+    for (const design of [{ version: 1, teeth: [15, 30], module: 2.5, width: 15, bore: 10 }, { version: 1, teeth: [18, 120], module: .5, width: 1, bore: 0 }, { version: 1, teeth: [120, 120], module: 5, width: 20, bore: 40 }]) {
       const model = createParametricGears(design);
       results.push(model.scene.children.every((mesh) => mesh.geometry.getAttribute('position').count > 0 && [...mesh.geometry.getAttribute('position').array].every(Number.isFinite)));
       __app.assets.disposeResources(model.scene);
     }
     return results;
-  }); assert.deepEqual(extremes, [true, true]);
+  }); assert.deepEqual(extremes, [true, true, true]);
   console.log('PASS: real 24/36 and 40/20 involute geometry, dimensions, bore, RPM, preserved transforms, atomic errors, original OBJ recovery, scene regeneration, camera stability and accessible 320/390/1280px designer.');
 }).catch((error) => { console.error(error); process.exitCode = 1; });

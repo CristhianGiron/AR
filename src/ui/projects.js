@@ -45,7 +45,7 @@ export function createProjects(app) {
     try {
       for (const entry of document.entries) {
         check(); let item;
-        if (entry.source.catalog) item = await app.models.loadModel(entry.source.catalog, generation, false, true, entry.gearState?.design);
+        if (entry.source.catalog) item = await app.models.loadModel(entry.source.catalog, generation, false, true, entry.gearState?.design, entry.gearState?.transmissionVariant);
         else {
           const asset = document.assets.find((value) => value.id === entry.source.asset), buffer = buffers.get(asset.id);
           const gltf = await app.models.loader.parseAsync(buffer, '');

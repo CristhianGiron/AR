@@ -47,6 +47,8 @@ export function validateProject(data, catalogIds) {
     const partsVisited = entry.partsVisited === undefined ? [] : entry.partsVisited;
     if (!Array.isArray(partsVisited) || partsVisited.length > 20 || !partsVisited.every((part) => typeof part === 'string' && part.length < 80)) throw new Error('Partes observadas no válidas.');
     const gearState = validateGearState(entry.gearState);
+    if (gearState?.transmissionVariant && source.catalog !== 'engranajes-transmision') throw new Error('La variante debe pertenecer a la transmisión.');
+    if (gearState?.drive && source.catalog !== 'engranajes-rectos') throw new Error('La fuerza necesita un par de engranajes rectos.');
     if (gearState?.design && source.catalog !== 'engranajes-rectos') throw new Error('El diseño paramétrico debe pertenecer a un par de engranajes rectos.');
     return { source, gearState, name: text(entry.name, 35, 'Nombre del componente'), color: entry.color,
       position: vector(entry.position, -100, 100, 'Posición'), homePosition: vector(entry.homePosition || entry.position, -100, 100, 'Posición inicial'), rotation: vector(entry.rotation, -180, 180, 'Giro'),

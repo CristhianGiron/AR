@@ -54,6 +54,7 @@ export function createLoop(app) {
     app.gearTelemetry?.updateFrame();
     app.parts?.updateFrame();
     app.missions?.update();
+    app.gearSound?.updateFrame();
   }
 
   function tick() {
@@ -71,6 +72,7 @@ export function createLoop(app) {
   function stop() {
     running = false;
     app.gears?.suspend();
+    app.gearSound?.silence();
     if (frameId !== null) cancelAnimationFrame(frameId);
   }
 

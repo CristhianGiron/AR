@@ -1,4 +1,6 @@
 const paths = {
+  sound: '<path d="M11 5 6 9H3v6h3l5 4V5ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/>',
+  muted: '<path d="M11 5 6 9H3v6h3l5 4V5ZM16 9l6 6m0-6-6 6"/>',
   more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
   speed: '<path d="M4 19a9 9 0 1 1 16 0M12 13l5-6M7 17h10"/>',
   separate: '<path d="M10 4v16M14 4v16M7 12H2m0 0 3-3m-3 3 3 3M17 12h5m0 0-3-3m3 3-3 3"/>',
