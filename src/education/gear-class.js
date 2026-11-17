@@ -15,24 +15,27 @@ export function createGearClass(app) {
       current = item;
       $('class-teeth-1').value = m.system.teeth[0]; $('class-teeth-2').value = m.system.teeth[1];
     }
-    const [z1, z2] = m.system.teeth, { ratio, output, behavior } = transmission([z1, z2], m.state.rpm);
+    const z1 = m.system.teeth[0], z2 = m.system.teeth.at(-1), compound = !!m.system.stages;
+    const { ratio, output, behavior } = transmission(m.system, m.state.rpm);
     $('class-custom').hidden = item.definition.id !== 'engranajes-rectos';
     $('class-fixed').hidden = item.definition.id === 'engranajes-rectos';
     $('class-model').textContent = item.definition.nombre;
     $('class-entry').textContent = z1 + ' dientes'; $('class-exit').textContent = z2 + ' dientes';
-    $('class-ratio-formula').textContent = 'R = Z₂ / Z₁ = ' + z2 + ' / ' + z1 + ' = ' + format(ratio);
+    $('class-exit').parentElement.querySelector('b').textContent = String(m.parts.length) + ' · Salida';
+    $('class-ratio-formula').textContent = compound ? 'R = ' + m.system.stages.map(stage => '(' + stage.teeth[1] + '/' + stage.teeth[0] + ')').join(' × ') + ' = ' + format(ratio) : 'R = Z₂ / Z₁ = ' + z2 + ' / ' + z1 + ' = ' + format(ratio);
     $('class-ratio-result').textContent = 'Por cada ' + format(ratio) + ' vueltas de entrada, la salida da 1 vuelta. ' + behavior;
     $('class-rpm').value = m.state.rpm;
-    $('class-speed-formula').textContent = 'n₂ = n₁ / R = ' + format(m.state.rpm) + ' / ' + format(ratio) + ' = ' + format(output) + ' rpm';
+    $('class-speed-formula').textContent = (compound ? 'n_salida = n_entrada / R = ' : 'n₂ = n₁ / R = ') + format(m.state.rpm) + ' / ' + format(ratio) + ' = ' + format(output) + ' rpm';
     $('class-output').textContent = format(output) + ' rpm';
     $('class-angular').textContent = 'Entrada: ω₁ = 2π × ' + format(m.state.rpm) + ' / 60 = ' + format(2 * Math.PI * m.state.rpm / 60) + ' rad/s.';
-    $('class-turns').textContent = '1 vuelta de entrada → ' + format(z1 / z2) + ' vueltas de salida';
-    $('class-direction').textContent = item.definition.mecanismo.tipo === 'conicos'
+    $('class-turns').textContent = '1 vuelta de entrada → ' + format(1 / ratio) + ' vueltas de salida';
+    $('class-fixed').textContent = compound ? 'Este conjunto tiene ' + m.parts.length + ' ejes y ' + m.system.partTeeth.flat().length + ' ruedas: ' + m.system.stages.map(stage => stage.teeth.join(' → ')).join('; ') + ' dientes. Las ruedas de 26 y 18 dientes del primer eje intermedio forman una sola pieza. Sus dientes originales se conservan.' : 'Este modelo conserva sus dientes originales. Para cambiar cantidades, elige los rectos.';
+    $('class-direction').textContent = compound ? m.system.stages.length + ' contactos externos invierten el giro sucesivamente. La salida gira ' + (m.system.stages.length % 2 ? 'en sentido contrario al de la entrada.' : 'en el mismo sentido que la entrada.') : item.definition.mecanismo.tipo === 'conicos'
       ? 'En los cónicos el giro pasa entre ejes perpendiculares. Compara el sentido desde cada eje.'
       : 'Dos engranajes externos con ejes paralelos giran en sentidos opuestos.';
     $('class-run').textContent = m.state.running ? 'Pausar' : 'Ver girar'; $('class-run').setAttribute('aria-pressed', String(m.state.running));
     $('class-reverse').setAttribute('aria-pressed', String(m.state.direction === -1));
-    $('class-unit-note').textContent = 'rpm: vueltas por minuto. R compara los dientes de salida con los de entrada.';
+    $('class-unit-note').textContent = compound ? 'rpm: vueltas por minuto. R es el producto de las relaciones de todas las etapas.' : 'rpm: vueltas por minuto. R compara los dientes de salida con los de entrada.';
     app.pagination.refresh($('gear-class'));
   }
   function showTab(name) {

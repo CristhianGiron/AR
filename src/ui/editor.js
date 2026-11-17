@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { $ } from "./dom.js";
+import { applyGearColors } from '../education/gear-colors.js';
 import { wrapAngle, clamp } from "../core/math.js";
 
 export function createEditor(app) {
@@ -26,16 +27,19 @@ export function createEditor(app) {
     app.interface.refreshInspector();
   }
 
-  function recolor(item, color) {
+  function recolor(item, color, clearParts = false) {
+    if (clearParts && item.mechanism) delete item.mechanism.state.colors;
     item.color = color;
     const tint = new THREE.Color(color);
     item.materialColors.forEach((original, material) => material.color.copy(original).multiply(tint));
+    applyGearColors(item);
+    app.gearCenter?.sync();
   }
 
-  function update() {
+  function update(event) {
     if (!state.chosen) return;
     if (state.chosen.name !== ($("name").value || "Sin nombre")) rename(state.chosen, $("name").value);
-    recolor(state.chosen, $("color").value);
+    recolor(state.chosen, $("color").value, event?.target?.id === "color");
     state.chosen.size = Number($("size").value);
     state.chosen.height = Number($("height").value);
     state.chosen.rot = ["x", "y", "z"].map((a) => Number($("r" + a).value));
@@ -67,7 +71,7 @@ export function createEditor(app) {
 
   $("quick-color").addEventListener("input", () => {
     if (!state.chosen) return;
-    recolor(state.chosen, $("quick-color").value);
+    recolor(state.chosen, $("quick-color").value, true);
     $("color").value = state.chosen.color;
   });
 
@@ -104,7 +108,7 @@ export function createEditor(app) {
     state.chosen.rot = state.chosen.initialRot.slice();
     state.chosen.size = 1;
     state.chosen.height = state.chosen.definition.visualizacion.alturaEtiqueta;
-    recolor(state.chosen, "#ffffff");
+    recolor(state.chosen, "#ffffff", true);
     app.gears?.reset(state.chosen);
     applyTransform(state.chosen);
   };
@@ -179,5 +183,5 @@ export function createEditor(app) {
 
   $("fine-rotation").onchange = $("rotation-step").onchange = () => app.interactions.cancelGesture();
 
-  return { rename, syncRotationControls, closeRename, applyTransform };
+  return { recolor, rename, syncRotationControls, closeRename, applyTransform };
 }

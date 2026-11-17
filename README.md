@@ -1,6 +1,6 @@
 # ExplorAR
 
-El visor abre con el modelo despejado y botones flotantes para cambiar de engranaje, reproducir o pausar y avanzar un paso. **Ajustar** abre **[Mi taller](docs/taller-engranajes.md)**, un único panel con tres secciones: **Manipular** (movimiento, dientes, separación, diseño, aspecto y vista), **Aprender** (explicaciones, fórmulas y ficha) y **Escenas** (guardar, abrir e importar). El selector de modelos permanece arriba y los ajustes se conservan al cambiar de sección. Los sensores permanecen conservados fuera de la colección activa.
+El visor abre con el modelo despejado y botones flotantes para cambiar de engranaje, reproducir/pausar y avanzar un paso. **[Mi taller](docs/taller-engranajes.md)** agrupa botones en Manipular, Aprender y Escenas; **Más** despliega acciones adicionales y cada ajuste aparece en una tarjeta flotante que se cierra al tocar fuera. El selector incluye Rectos, Cónicos, Helicoidales y la nueva **Transmisión compuesta** de cuatro ejes y cinco ruedas, con movimiento de tres etapas, separación, aislamiento, datos por eje y guardado de escena.
 
 El botón **HUD** muestra pequeñas etiquetas conectadas a cada rueda: RPM actuales, dientes, sentido, velocidad angular y ángulo de giro. Los valores se actualizan con la simulación; al pausar se distingue la velocidad configurada de la velocidad actual.
 

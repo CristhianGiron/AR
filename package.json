@@ -34,7 +34,12 @@
     "test:missions": "node tests/browser/missions.cjs --all-models",
     "test:echo": "node tests/browser/echo-lab.cjs --all-models",
     "test:banner": "node tests/browser/banner-labels.cjs --all-models",
-    "test:surfaces": "node tests/browser/surfaces.cjs --all-models"
+    "test:surfaces": "node tests/browser/surfaces.cjs --all-models",
+    "test:transmission": "node tests/browser/gear-transmission.cjs",
+    "test:gear-colors": "node tests/browser/gear-colors.cjs",
+    "test:gear-directions": "node tests/browser/gear-directions.cjs",
+    "test:gear-layout": "node tests/browser/gear-layout.cjs",
+    "test:names": "node tests/browser/name-labels.cjs"
   },
   "devDependencies": {
     "axe-core": "4.14.0",

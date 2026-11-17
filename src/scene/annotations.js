@@ -1,7 +1,9 @@
 import * as THREE from "three";
+import { createNameLabelLayout } from './name-label-layout.js';
 
 export function createAnnotations(app) {
   const state = app.state;
+  const nameLayout = createNameLabelLayout(app);
   function labelSprite(name) {
     const canvas = document.createElement("canvas");
     canvas.width = 768;
@@ -32,15 +34,15 @@ export function createAnnotations(app) {
     tex.colorSpace = THREE.SRGBColorSpace;
     const material = new THREE.SpriteMaterial({
       map: tex,
-      // Alpha cutout writes depth only inside the visible label, never its empty corners.
-      // Real depth lets nearer lines pass and hides anything genuinely behind this label.
-      transparent: false,
+      // Names are readable overlays; model geometry cannot pierce the card.
+      transparent: true,
       alphaTest: 0.1,
-      depthTest: true,
-      depthWrite: true,
+      depthTest: false,
+      depthWrite: false,
     });
     const sprite = new THREE.Sprite(material);
     sprite.scale.set(1.65, 0.33, 1);
+    sprite.renderOrder = 1000;
     return sprite;
   }
 
@@ -50,6 +52,7 @@ export function createAnnotations(app) {
   const labelBottom = new THREE.Vector3();
   const center = new THREE.Vector3();
   const direction = new THREE.Vector3();
+  const cameraRight = new THREE.Vector3(), cameraUp = new THREE.Vector3(), towardModel = new THREE.Vector3();
   const localStart = new THREE.Vector3(), localEnd = new THREE.Vector3();
 
   function endpointTexture() {
@@ -103,20 +106,28 @@ export function createAnnotations(app) {
   }
 
   function updateAll() {
+    nameLayout.update();
     const present = new Set(state.entries);
     for (const item of connectors.keys()) if (!present.has(item)) remove(item);
     for (const item of state.entries) {
       if (!item.anchor.visible) continue;
       const record = ensure(item), { line } = record;
+      line.visible = item.tag.visible;
+      if (!line.visible) continue;
       item.anchor.updateWorldMatrix(true, true);
       // Cache expensive mesh intersections until the model, label or view changes.
       if (!record.meshMatrix || !record.meshMatrix.equals(item.mesh.matrixWorld) ||
           !record.labelMatrix.equals(item.tag.matrixWorld) ||
           !record.cameraQuaternion.equals(app.engine.camera.quaternion)) {
-        labelBottom.set(0, -item.tag.scale.y / 2, 0)
-          .applyQuaternion(app.engine.camera.quaternion)
-          .add(item.tag.getWorldPosition(localEnd));
-        bounds.setFromObject(item.mesh).getCenter(center);
+        if (item.localBounds) item.mesh.localToWorld(item.localBounds.getCenter(center));
+        else bounds.setFromObject(item.mesh).getCenter(center);
+        item.tag.getWorldPosition(labelBottom);
+        cameraRight.set(1, 0, 0).applyQuaternion(app.engine.camera.quaternion);
+        cameraUp.set(0, 1, 0).applyQuaternion(app.engine.camera.quaternion);
+        towardModel.subVectors(center, labelBottom);
+        const dx = towardModel.dot(cameraRight), dy = towardModel.dot(cameraUp);
+        const fraction = Math.min(Math.abs(dx) > 1e-8 ? item.tag.scale.x / 2 / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-8 ? item.tag.scale.y / 2 / Math.abs(dy) : Infinity);
+        if (Number.isFinite(fraction)) labelBottom.addScaledVector(cameraRight, dx * fraction).addScaledVector(cameraUp, dy * fraction);
         direction.subVectors(center, labelBottom).normalize();
         raycaster.set(labelBottom, direction);
         const hit = raycaster.intersectObject(item.mesh, true)[0];

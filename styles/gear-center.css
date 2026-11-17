@@ -1,6 +1,6 @@
 /* Independent comic buttons and a single contextual card, without a scrolling toolbox. */
 .hud-dialog#gear-center {
-  z-index: 6; inset: auto 22px 86px auto; margin: 0; width: 344px; max-width: calc(100vw - 16px);
+  z-index: 6; inset: auto 22px 86px auto; margin: 0; width: 432px; max-width: calc(100vw - 16px);
   max-height: none; padding: 0; border: 0; border-radius: 0; background: transparent;
   box-shadow: none; overflow: visible; backdrop-filter: none; box-sizing: border-box;
 }
@@ -21,15 +21,16 @@
 #gear-center #class-model-options { margin: 9px 0; padding: 0; gap: 8px; border: 0; background: transparent; }
 #gear-center #class-model-options button { min-height: 44px; margin: 0; border-radius: 999px; }
 .gear-center-body { padding: 2px 0; overflow: visible; }
-.gear-button-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.gear-button-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+#gear-main-actions { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 #center-controls { display: block; }
 #center-controls[hidden], #gear-control-store { display: none; }
 #gear-more-actions { margin-top: 10px; }
-#gear-center .gear-hub-button { display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 4px; min-height: 60px; line-height: 1.2; }
+#gear-center .gear-hub-button { display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 4px; min-height: 56px; line-height: 1.2; }
 #gear-center .gear-hub-button svg { width: 22px; height: 22px; flex-shrink: 0; }
 #gear-center .gear-hub-button:disabled { opacity: .55; cursor: wait; }
 #gear-center .gear-hub-button[aria-expanded='true'], #gear-center .gear-hub-button[aria-pressed='true'] { background: var(--comic-purple); border-color: #f0dcff; }
-#gear-center #gear-hub-more { grid-column: span 2; flex-direction: row; background: var(--comic-teal); border-color: #9bf4ed; }
+#gear-center #gear-hub-more { grid-column: auto; flex-direction: column; background: var(--comic-teal); border-color: #9bf4ed; }
 #gear-center button:focus-visible, #gear-context summary:focus-visible { outline: 3px solid #ffe14b; outline-offset: 3px; }
 #gear-context {
   position: fixed; z-index: 7; display: flex; flex-direction: column; left: 8px; top: 8px;
@@ -58,7 +59,7 @@
 #gear-context .simulation-note { font-size: 11px; }
 #gear-context .round-button { display: grid; place-items: center; width: 40px; height: 40px; min-width: 40px; padding: 8px; }
 @media (max-width: 700px) {
-  .hud-dialog#gear-center { inset: auto 8px 80px auto; width: min(330px, calc(100vw - 16px)); }
+  .hud-dialog#gear-center { inset: auto 8px 80px auto; width: min(380px, calc(100vw - 16px)); }
 }
 @media (max-height: 620px) {
   .hud-dialog#gear-center { inset: auto 8px 8px auto; width: min(520px, calc(100vw - 16px)); }
@@ -72,4 +73,37 @@
 @media (forced-colors: active) {
   .gear-center-tabs button, #gear-center .gear-hub-button, #gear-context { background: Canvas; color: CanvasText; border-color: ButtonText; box-shadow: none; }
   .gear-center-tabs [aria-selected='true'] { outline-color: Highlight; }
+}
+
+/* Four mechanisms keep their full names in comfortable touch targets. */
+#gear-center #class-model-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#gear-model-switcher { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.classroom-mode #gear-dock #gear-model-switcher { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 701px) {
+  #gear-center #class-model-options { display: flex; }
+  body.classroom-mode #gear-dock #gear-model-switcher { width: 410px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-height: 620px) {
+  #gear-center #class-model-options { display: flex; }
+}
+
+#gear-context .gear-color-controls label { display: block; margin: 7px 0 4px; }
+#gear-context #gear-part-color { display: block; width: 100%; height: 48px; padding: 4px; border: 2px solid #b7d7ff; border-radius: 12px; background: #302456; cursor: pointer; }
+
+/* Balance the expanded palette horizontally while retaining comfortable touch targets. */
+@media (max-width: 700px) {
+  #gear-main-actions, #gear-more-actions { gap: 6px; }
+  #gear-more-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 8px; }
+  #gear-center .gear-hub-button { min-height: 54px; font-size: 11px; padding: 5px 3px; gap: 3px; }
+  #gear-center #gear-main-actions .gear-hub-button { font-size: 10px; }
+  #gear-center .gear-hub-button svg { width: 21px; height: 21px; }
+}
+@media (max-height: 620px) and (min-width: 701px) {
+  .hud-dialog#gear-center { width: min(600px, calc(100vw - 16px)); }
+  #gear-more-actions { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+@media (max-height: 620px) and (max-width: 700px) {
+  #gear-center .gear-hub-button { min-height: 48px; flex-direction: column; }
+  #gear-center #class-model-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+  #gear-center #class-model-options button { padding-inline: 2px; font-size: 10px; overflow-wrap: anywhere; }
 }

@@ -5,7 +5,7 @@ if (!process.argv.includes('--gears')) process.argv.push('--gears');
 
 run(async ({ page, click, artifacts, load, close }) => {
   await page.evaluate(() => { document.body.classList.remove('classroom-mode'); __app.hud.close(false); __app.gears.open(); });
-  assert.deepEqual(await page.evaluate(() => __app.state.catalog.map((m) => m.id)), ['engranajes-rectos', 'engranajes-conicos', 'engranajes-helicoidales']);
+  assert.deepEqual(await page.evaluate(() => __app.state.catalog.map((m) => m.id)), ['engranajes-rectos', 'engranajes-conicos', 'engranajes-helicoidales', 'engranajes-transmision']);
   assert.deepEqual(await page.evaluate(() => __app.state.entries.map((m) => m.type)), ['engranajes-rectos']);
   assert.equal(await page.$eval('#gear-center', (e) => e.open), true);
   await click('#gear-play');

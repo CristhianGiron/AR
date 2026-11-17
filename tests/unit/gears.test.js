@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GEAR_SYSTEMS, drivenRPM, rotationAngles, validateGearState } from '../../src/education/gear-model.js';
+import { GEAR_SYSTEMS, drivenRPM, speedFactors, gearRatio, gearRPM, rotationAngles, validateGearState } from '../../src/education/gear-model.js';
 import { validateProject } from '../../src/storage/project-format.js';
 
 test('meshed gears preserve tooth ratio, opposite direction and continuous full turns', () => {
@@ -27,4 +27,30 @@ test('gear state survives project JSON and excludes automatic motion on restore'
   for (const change of [s => s.rpm = 0, s => s.angle = Infinity, s => s.direction = 0, s => s.separation = 2, s => s.offsets = [NaN, 0], s => s.isolated = 7]) {
     const state = { ...gearState }; change(state); assert.throws(() => validateGearState(state));
   }
+});
+
+test('compound train keeps its two intermediate wheels solidary and transmits three stages', () => {
+  const system = GEAR_SYSTEMS.transmision;
+  assert.deepEqual(speedFactors(system), [1, -1, 18 / 13, -1]);
+  assert.equal(gearRatio(system), 1);
+  assert.deepEqual(system.nodes.map((_, i) => gearRPM(system, 26, i)), [26, 26, 36, 26]);
+  const angle = 4 * Math.PI;
+  const rotations = rotationAngles(system, angle, [0, 0, .25]);
+  assert.equal(rotations[0], angle); assert.equal(rotations[1], -angle);
+  assert.equal(rotations[2], angle * 18 / 13 + .25);
+  assert.equal(rotations[3], -angle);
+  assert.deepEqual(system.partTeeth[1], [26, 18]);
+});
+test('compound states retain all four axes and reject invalid isolation or excessive parts', () => {
+  const value = { angle: 1, rpm: 26, direction: 1, separation: .5, offsets: [0, .2, .3, .4], isolated: 3 };
+  assert.deepEqual(validateGearState(value), value);
+  assert.throws(() => validateGearState({ ...value, isolated: 4 }));
+  assert.throws(() => validateGearState({ ...value, offsets: Array(17).fill(0) }));
+  assert.throws(() => validateGearState({ ...value, offsets: [0, NaN, 0] }));
+});
+
+test('individual gear colors are optional, bounded and preserved in saved state', () => {
+  const state = { angle: 0, rpm: 12, direction: 1, separation: 0, offsets: [0, 0], isolated: null, colors: ['#AABBCC', null] };
+  assert.deepEqual(validateGearState(state).colors, ['#aabbcc', null]);
+  for (const colors of [['#ff0000'], ['red', null], ['#123456', 4], ['#123456', '#000000', null]]) assert.throws(() => validateGearState({ ...state, colors }));
 });

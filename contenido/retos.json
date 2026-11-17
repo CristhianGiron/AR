@@ -157,6 +157,22 @@
       "explicacion": "Están inclinados respecto al eje. Compruébalo con el mecanismo.",
       "pista": "Observa el número de dientes y la orientación de los ejes.",
       "profundiza": "Invierte el sentido y predice qué ocurrirá con la rueda de salida."
+    },
+    {
+      "modelo": "engranajes-transmision",
+      "objetivo": "Explica una transmisión compuesta de tres etapas y reconoce las ruedas solidarias.",
+      "observa": "Selecciona Transmisión. Compara las velocidades de sus cuatro ejes y después sepáralos para localizar las cinco ruedas.",
+      "pregunta": "¿Por qué la salida gira en sentido contrario a la entrada?",
+      "opciones": [
+        "Porque tres contactos externos invierten el giro tres veces",
+        "Porque las cinco ruedas comparten el mismo eje",
+        "Porque una rueda se mueve sin tocar las demás"
+      ],
+      "correcta": 0,
+      "explicacion": "Las etapas son 26→26, 18→13 y 13→18. Cada contacto externo invierte el giro: tres inversiones dejan entrada y salida en sentidos contrarios. Las dos últimas relaciones se compensan y la salida conserva la velocidad de entrada.",
+      "pista": "Sigue los tres contactos y distingue las dos ruedas que comparten un mismo eje.",
+      "profundiza": "Con 26 rpm de entrada, predice las velocidades de los dos ejes intermedios y de la salida antes de consultar las etiquetas.",
+      "resumen": "Cuatro ejes y cinco ruedas: tres etapas, relación total 1:1 y sentido de salida contrario."
     }
   ]
 }

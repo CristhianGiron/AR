@@ -32,3 +32,45 @@
   #header .brand-mark { width: 28px; height: 28px; }
   #header .brand-name { font-size: 23px; }
 }
+
+/* The tight layout preserves every numeric field; it never sends cards to distant corners. */
+.readout-heading b { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.gear-readout[data-wheel='2'] { border-left-color: #8ee9d0; }
+.gear-readout[data-wheel='3'] { border-left-color: #d8adff; }
+.gear-readout[data-density='compact'] { width: 136px; min-height: 0; padding: 5px 7px; }
+[data-density='compact'] .readout-heading { font-size: 8px; line-height: 1.2; letter-spacing: 0; }
+[data-density='compact'] .readout-state { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+[data-density='compact'] .readout-speed { margin-top: 2px; }
+[data-density='compact'] .readout-speed strong { font-size: 20px; }
+[data-density='compact'] .readout-details, [data-density='compact'] .readout-angle, [data-density='compact'] .readout-setting { font-size: 8px; line-height: 1.3; margin-top: 1px; padding-top: 0; border: 0; }
+@media (max-width: 600px) { .gear-readout[data-density='compact'] { width: 128px; padding: 5px 6px; } }
+
+/* Compact callouts stay outside the projected wheels, including on small screens. */
+[data-density='compact'] .readout-speed { margin-top: 1px; }
+[data-density='compact'] .readout-heading { line-height: 1.1; }
+[data-density='compact'] .readout-speed strong { font-size: 19px; }
+[data-density='compact'] .readout-details, [data-density='compact'] .readout-angle, [data-density='compact'] .readout-setting { line-height: 1.1; margin-top: 0; }
+.gear-readout[data-density='compact'] { padding-block: 4px; }
+#gear-telemetry-lines path { stroke-linecap: round; stroke-linejoin: round; }
+#gear-telemetry-lines path[data-wheel='0'] { stroke: #f6bc6d; }
+#gear-telemetry-lines path[data-wheel='1'] { stroke: #ffacc8; }
+#gear-telemetry-lines path[data-wheel='2'] { stroke: #8ee9d0; }
+#gear-telemetry-lines path[data-wheel='3'] { stroke: #d8adff; }
+
+@media (max-width: 600px) {
+  .gear-readout[data-density='compact'] { width: 100px; padding-inline: 5px; }
+  [data-density='compact'] .readout-speed { gap: 3px; }
+  [data-density='compact'] .readout-speed > span { font-size: 9px; }
+}
+/* Leave a callout lane below the model, keeping the quick controls above the footer. */
+@media (max-width: 700px) and (min-height: 621px) {
+  body.classroom-mode.gear-workspace #gear-dock { bottom: 72px; }
+}
+
+/* Bold local-axis arrows: readable without consulting the numeric HUD. */
+#gear-direction-arrows { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: hidden; }
+#gear-direction-arrows .direction-outline { fill: none; stroke: #20183ce6; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+#gear-direction-arrows .direction-arc { fill: none; stroke: var(--direction-color); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+#gear-direction-arrows .direction-head { fill: var(--direction-color); stroke: #20183c; stroke-width: 1.5; stroke-linejoin: round; }
+#gear-direction-arrows[data-running='false'] { opacity: .7; }
+@media (forced-colors: active) { #gear-direction-arrows .direction-arc { stroke: Highlight; } #gear-direction-arrows .direction-head { fill: Highlight; } }

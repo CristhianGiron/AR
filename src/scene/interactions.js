@@ -19,7 +19,7 @@ export function createInteractions(app) {
 
   function pick(x, y) {
     setRay(x, y);
-    const hits = ray.intersectObjects(state.entries.filter((item) => item.anchor.visible).flatMap((item) => [item.mesh, item.tag]), true);
+    const hits = ray.intersectObjects(state.entries.filter((item) => item.anchor.visible).flatMap((item) => item.tag.visible ? [item.mesh, item.tag] : [item.mesh]), true);
     for (const hit of hits) {
       const item = state.entries.find((entry) => {
         let node = hit.object;

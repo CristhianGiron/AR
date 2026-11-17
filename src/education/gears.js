@@ -1,25 +1,31 @@
 import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
-import { GEAR_SYSTEMS, drivenRPM, rotationAngles, validateGearState } from './gear-model.js';
+import { GEAR_SYSTEMS, gearRPM, rotationAngles, validateGearState } from './gear-model.js';
 import { parametricSystem, DEFAULT_GEAR_DESIGN, validateGearDesign } from './gear-design.js';
+import { preparePartColors, applyGearColors } from './gear-colors.js';
 import { uiIcon } from '../ui/icons.js';
 
 export function createGears(app) {
   let target = null, lastTime = null, stateSwitch = false;
-  const initial = () => ({ angle: 0, rpm: 12, direction: 1, separation: 0, offsets: [0, 0], isolated: null, running: false });
+  const initial = (count = 2) => ({ angle: 0, rpm: 12, direction: 1, separation: 0, offsets: Array(count).fill(0), isolated: null, running: false });
   function prepare(gltf, definition) {
     const design = gltf.gearDesign;
     const system = design ? parametricSystem(design) : GEAR_SYSTEMS[definition.mecanismo?.tipo];
     if (!system) return null;
+    const sourceMaterials = new Set();
+    gltf.scene.traverse(node => { for (const material of Array.isArray(node.material) ? node.material : node.material ? [node.material] : []) sourceMaterials.add(material); });
     const parts = system.nodes.map((name, index) => {
       const node = gltf.scene.getObjectByName(name);
       if (!node) throw new Error('Falta la pieza ' + name + ' del mecanismo.');
       const pivot = new THREE.Group(), home = new THREE.Vector3(...system.centers[index]);
       pivot.name = 'Eje ' + (index + 1); pivot.position.copy(home);
       node.parent.add(pivot); pivot.add(node); node.position.sub(home);
-      return { pivot, home, axis: new THREE.Vector3(...system.axes[index]), direction: new THREE.Vector3(...system.separation[index]) };
+      return { pivot, home, originalColors: preparePartColors(node), axis: new THREE.Vector3(...system.axes[index]), direction: new THREE.Vector3(...system.separation[index]) };
     });
-    const mechanism = { system, parts, design, state: initial() }; apply(mechanism); return mechanism;
+    const used = new Set();
+    gltf.scene.traverse(node => { for (const material of Array.isArray(node.material) ? node.material : node.material ? [node.material] : []) used.add(material); });
+    for (const material of sourceMaterials) if (!used.has(material)) material.dispose();
+    const mechanism = { system, parts, design, state: initial(parts.length) }; apply(mechanism); return mechanism;
   }
   function apply(mechanism) {
     const { system, parts, state } = mechanism, angles = rotationAngles(system, state.angle, state.offsets);
@@ -56,6 +62,12 @@ export function createGears(app) {
     $('gear-design-open').hidden = item?.definition.id !== 'engranajes-rectos';
     if (!mechanism) return;
     const state = mechanism.state, teeth = mechanism.system.teeth;
+    const piece = $('gear-piece'), names = mechanism.system.labels || ['Piñón de entrada', 'Rueda de salida'];
+    if (piece.dataset.names !== names.join('|')) {
+      piece.replaceChildren(...names.map((name, index) => { const option = document.createElement('option'); option.value = index; option.textContent = name; return option; }));
+      piece.dataset.names = names.join('|');
+    }
+
     $('gear-title').textContent = item.name;
     $('gear-design-mode').textContent = mechanism.design ? 'Diseño paramétrico · ' + teeth.join(' / ') + ' dientes' : 'Modelo OBJ original · dientes fijos';
     $('gear-description').textContent = mechanism.system.description;
@@ -75,8 +87,8 @@ export function createGears(app) {
     $('gear-separation-value').textContent = Math.round(state.separation * 100) + ' %';
     $('gear-reverse').setAttribute('aria-pressed', String(state.direction === -1));
     $('gear-isolate').setAttribute('aria-pressed', String(state.isolated !== null));
-    $('gear-isolate').textContent = state.isolated === null ? 'Ver solo esta pieza' : 'Ver las dos piezas';
-    $('gear-reading').textContent = 'Entrada: ' + state.rpm + ' rpm · Salida: ' + drivenRPM(teeth, state.rpm).toFixed(1) + ' rpm · ' + teeth[0] + ':' + teeth[1] + ' dientes';
+    $('gear-isolate').textContent = state.isolated === null ? 'Ver solo esta pieza' : mechanism.parts.length > 2 ? 'Ver todas las piezas' : 'Ver las dos piezas';
+    $('gear-reading').textContent = 'Entrada: ' + state.rpm + ' rpm · Salida: ' + gearRPM(mechanism.system, state.rpm).toFixed(1) + ' rpm · ' + (mechanism.system.stages ? mechanism.system.stages.length + ' etapas · ' + mechanism.system.stages.map(stage => stage.teeth.join('→')).join(' / ') + ' dientes' : teeth[0] + ':' + teeth[1] + ' dientes');
     $('gear-status').textContent = state.separation > 0 ? 'Piezas separadas: el motor está desconectado. Usa Girar un paso para examinar la pieza elegida.' : state.isolated !== null ? 'Pieza aislada. Muestra las dos o vuelve a montar para conectar el motor.' : state.running ? 'Mecanismo en marcha. Las ruedas giran alrededor de sus propios ejes.' : 'Mecanismo montado. Listo para girar.';
     app.pagination?.refresh($('gears'));
     app.gearClass?.render();
@@ -93,7 +105,10 @@ export function createGears(app) {
   }
   function reset(item = current()) {
     if (!item?.mechanism) return;
-    Object.assign(item.mechanism.state, initial()); apply(item.mechanism); sync();
+    const colors = item.mechanism.state.colors;
+    Object.assign(item.mechanism.state, initial(item.mechanism.parts.length));
+    if (colors) item.mechanism.state.colors = colors;
+    apply(item.mechanism); sync();
   }
   function updateFrame(now = performance.now()) {
     syncQuickButtons();
@@ -110,7 +125,7 @@ export function createGears(app) {
   }
   function suspend() { lastTime = null; }
   function snapshot(item) { return item.mechanism ? validateGearState({ ...item.mechanism.state, design: item.mechanism.design }) : undefined; }
-  function restore(item, value) { if (item.mechanism && value) { Object.assign(item.mechanism.state, validateGearState(value), { running: false }); apply(item.mechanism); } }
+  function restore(item, value) { if (item.mechanism && value) { const validated = validateGearState(value); if (validated.offsets.length !== item.mechanism.parts.length) throw new Error('El estado no corresponde a las piezas de este mecanismo.'); delete item.mechanism.state.colors; Object.assign(item.mechanism.state, validated, { running: false }); apply(item.mechanism); applyGearColors(item); } }
   function open(trigger = $('open-gears')) {
     if (!current()) {
       const item = app.state.entries.find((entry) => entry.mechanism);
@@ -131,7 +146,7 @@ export function createGears(app) {
     });
     preview();
   }
-  function assemble(state) { Object.assign(state, initial(), { rpm: state.rpm, direction: state.direction }); }
+  function assemble(state) { Object.assign(state, initial(state.offsets.length), { rpm: state.rpm, direction: state.direction }); }
   async function selectModel(id) {
     const state = app.state;
     if (stateSwitch || state.pendingLoads || state.catalogLoading || state.projectLoading) return null;

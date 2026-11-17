@@ -89,7 +89,7 @@ run(async ({ page, artifacts, root, lessons, allModels, frame, ready, snapshot, 
   await click('#undo-remove'); await frame();
   assert.equal(await page.evaluate(() => __app.state.chosen === __uploaded), true);
 
-  // Use real WebGL depth: a rear label must not erase the line; a nearer one must hide it.
+  // Connectors retain 3D depth against scene occluders. Name cards use overlay rendering.
   await close();
   await page.evaluate(async () => {
     const T = __THREE, { createAnnotations } = await import('/src/scene/annotations.js');
@@ -102,7 +102,9 @@ run(async ({ page, artifacts, root, lessons, allModels, frame, ready, snapshot, 
     const annotations = createAnnotations({ state, engine: { camera } });
     const tag = annotations.labelSprite('Origen'); tag.position.y = 1; anchor.add(tag);
     const item = { anchor, mesh, tag }; state.entries.push(item);
-    const blocker = annotations.labelSprite(''); scene.add(blocker);
+    const blocker = annotations.labelSprite('');
+    blocker.material.depthTest = true; blocker.material.depthWrite = true; blocker.material.transparent = false; blocker.renderOrder = 0;
+    scene.add(blocker);
     window.__depthFixture = { scene, camera, anchor, mesh, tag, blocker, annotations, state, item };
     window.__renderDepth = (z, x = 0, y = 0) => {
       blocker.position.set(x, y, z); annotations.updateAll();

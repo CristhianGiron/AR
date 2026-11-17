@@ -343,6 +343,45 @@
           "valor": "2:1"
         }
       ]
+    },
+    {
+      "id": "engranajes-transmision",
+      "nombre": "Transmisión compuesta",
+      "archivo": "transmision.obj",
+      "categoria": "Engranajes",
+      "coleccion": "engranajes",
+      "descripcion": "Conjunto original de cinco ruedas en cuatro ejes: 26→26, 18→13 y 13→18 dientes. Explora las tres etapas, las ruedas solidarias y la inversión final del giro.",
+      "cargarAlInicio": false,
+      "visualizacion": {
+        "tamano": 3,
+        "rotacion": [
+          -25,
+          0,
+          0
+        ],
+        "alturaEtiqueta": 3
+      },
+      "mecanismo": {
+        "tipo": "transmision"
+      },
+      "datos": [
+        {
+          "etiqueta": "Ejes / ruedas",
+          "valor": "4 ejes y 5 ruedas"
+        },
+        {
+          "etiqueta": "Etapas",
+          "valor": "26→26 · 18→13 · 13→18"
+        },
+        {
+          "etiqueta": "Relación total",
+          "valor": "1:1"
+        },
+        {
+          "etiqueta": "Velocidad de salida",
+          "valor": "Igual a la entrada · sentido contrario"
+        }
+      ]
     }
   ],
   "coleccionActiva": "engranajes"

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { applyGearColors } from './gear-colors.js';
 import { $ } from '../ui/dom.js';
 import { DEFAULT_GEAR_DESIGN, validateGearDesign, gearDimensions } from './gear-design.js';
 
@@ -53,8 +54,10 @@ export function createGearDesigner(app) {
       prepared.name = item.name;
       app.editor.rename(prepared, item.name, false);
       prepared.color = item.color;
+      if (item.mechanism.state.colors) prepared.mechanism.state.colors = [...item.mechanism.state.colors];
       const tint = new THREE.Color(item.color);
       prepared.materialColors.forEach((original, material) => material.color.copy(original).multiply(tint));
+      applyGearColors(prepared);
       prepared.size = item.size; prepared.height = item.height; prepared.rot = item.rot.slice();
       prepared.anchor.position.copy(item.anchor.position); prepared.initialPosition.copy(item.initialPosition);
       prepared.mechanism.state.rpm = item.mechanism.state.rpm; prepared.mechanism.state.direction = item.mechanism.state.direction;

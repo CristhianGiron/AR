@@ -1,4 +1,5 @@
 import { $ } from './dom.js';
+import { applyGearColors, partColor } from '../education/gear-colors.js';
 import { uiIcon } from './icons.js';
 
 /** A button workspace with one temporary control card; the canvas stays interactive. */
@@ -37,7 +38,7 @@ export function createGearCenter(app) {
     const node = document.createElement('button'); node.id = 'gear-hub-' + key; node.type = 'button';
     node.className = 'gear-hub-button'; node.innerHTML = uiIcon(icon);
     const caption = document.createElement('span'); caption.textContent = text; node.append(caption);
-    node.onclick = action || (() => show(key, node)); parent.append(node); buttons.set(key, node);
+    node.onclick = action ? () => { dismiss(); action(); } : () => show(key, node); parent.append(node); buttons.set(key, node);
     if (!action) { node.setAttribute('aria-controls', 'gear-context'); node.setAttribute('aria-expanded', 'false'); }
     return node;
   }
@@ -86,6 +87,7 @@ export function createGearCenter(app) {
     if (shown === key) { dismiss(true); return; }
     dismiss(); const record = cards.get(key); if (!record) return;
     if (key === 'design') app.gearDesigner.populate();
+    if (key === 'colors') syncColors();
     if (['ratio', 'speed', 'torque'].includes(key)) $('class-' + key + '-tab').click();
     record.section.hidden = false;
     popup.querySelector('.page-content').append(record.section);
@@ -96,6 +98,66 @@ export function createGearCenter(app) {
     app.pagination.refresh(popup, true); position();
     const field = popup.querySelector('input:not([type="file"]), select');
     (field && !field.closest('[inert], [hidden]') ? field : $('gear-context-title')).focus({ preventScroll: true });
+  }
+  let colorItem = null;
+  function syncColors() {
+    const item = app.state.chosen, mechanism = item?.mechanism, target = $('gear-color-target');
+    if (!target) return;
+    const selected = colorItem === item ? target.value : 'all';
+    if (colorItem !== item) {
+      colorItem = item;
+      const names = mechanism?.system.labels || ['Entrada', 'Salida'];
+      const all = document.createElement('option'); all.value = 'all'; all.textContent = 'Todo el conjunto';
+      target.replaceChildren(all, ...(mechanism?.parts || []).map((_, index) => {
+        const option = document.createElement('option'); option.value = index;
+        option.textContent = (index + 1) + ' · ' + names[index]; return option;
+      }));
+      target.value = selected;
+    }
+    const busy = !mechanism || !!app.state.pendingLoads || app.state.projectLoading;
+    for (const id of ['gear-color-target', 'gear-part-color', 'gear-color-reset']) $(id).disabled = busy;
+    const index = target.value;
+    $('gear-part-color').value = index === 'all' ? item?.color || '#ffffff' : partColor(item, Number(index));
+    $('gear-color-note').textContent = index === 'all'
+      ? 'El color del conjunto tiñe todas las piezas. Al cambiarlo, reemplaza los colores individuales.'
+      : item?.mechanism?.system.partTeeth?.[index]?.length > 1
+        ? 'Estas dos ruedas forman una sola pieza en el OBJ y comparten color.'
+        : 'Cambia solo este engranaje. Las demás piezas conservan su color.';
+  }
+  function createColors() {
+    const section = document.createElement('div'); section.className = 'gear-color-controls';
+    const label = document.createElement('label'); label.htmlFor = 'gear-color-target'; label.textContent = '¿Qué quieres colorear?';
+    const target = document.createElement('select'); target.id = 'gear-color-target';
+    const colorLabel = document.createElement('label'); colorLabel.htmlFor = 'gear-part-color'; colorLabel.textContent = 'Color';
+    const picker = document.createElement('input'); picker.type = 'color'; picker.id = 'gear-part-color';
+    const note = document.createElement('p'); note.id = 'gear-color-note';
+    const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'gear-color-reset'; reset.className = 'study-button'; reset.textContent = 'Recuperar color original';
+    section.append(label, target, colorLabel, picker, note, reset);
+    target.onchange = syncColors;
+    picker.oninput = () => {
+      const item = app.state.chosen, mechanism = item?.mechanism;
+      if (!mechanism || picker.disabled) return;
+      if (target.value === 'all') {
+        app.editor.recolor(item, picker.value, true); $('color').value = $('quick-color').value = item.color;
+      } else {
+        mechanism.state.colors ||= Array(mechanism.parts.length).fill(null);
+        mechanism.state.colors[Number(target.value)] = picker.value; applyGearColors(item);
+      }
+      app.loop.renderFrame();
+    };
+    reset.onclick = () => {
+      const item = app.state.chosen; if (!item?.mechanism) return;
+      if (target.value === 'all') { app.editor.recolor(item, '#ffffff', true); $('color').value = $('quick-color').value = item.color; }
+      else {
+        if (item.mechanism.state.colors) {
+          item.mechanism.state.colors[Number(target.value)] = null;
+          if (item.mechanism.state.colors.every(color => color === null)) delete item.mechanism.state.colors;
+        }
+        applyGearColors(item);
+      }
+      syncColors(); app.loop.renderFrame();
+    };
+    return section;
   }
   function sync() {
     if (!active) return;
@@ -113,7 +175,8 @@ export function createGearCenter(app) {
     buttons.get('reverse').setAttribute('aria-pressed', String(mechanism?.state.direction === -1));
     buttons.get('design').hidden = item?.definition.id !== 'engranajes-rectos';
     buttons.get('design').disabled = busy;
-    if (item !== selectedItem) { selectedItem = item; dismiss(); app.gearDesigner.populate(); }
+    if (item !== selectedItem) { selectedItem = item; if (['rpm', 'separate', 'teeth', 'piece', 'design', 'facts', 'colors'].includes(shown)) dismiss(); app.gearDesigner.populate(); }
+    if (shown === 'colors') syncColors();
     if (app.state.hudSurface !== 'gear-center') { dismiss(); setMore(false); }
   }
   function activate() {
@@ -131,9 +194,11 @@ export function createGearCenter(app) {
     moreButton.setAttribute('aria-controls', 'gear-more-actions'); moreButton.setAttribute('aria-expanded', 'false');
     button('separate', 'Separar', 'separate', extra);
     button('assemble', 'Juntar', 'assemble', extra, () => { dismiss(); $('gear-assemble').click(); });
+    button('direction', 'Ver giro', 'reverse', extra, () => app.gearDirections.toggle()).setAttribute('aria-pressed', String(app.gearDirections.enabled));
     button('reverse', 'Invertir', 'reverse', extra, () => { dismiss(); $('gear-reverse').click(); });
     button('piece', 'Una pieza', 'piece', extra);
     button('design', 'Diseñar', 'settings', extra);
+    button('colors', 'Color', 'palette', extra);
     button('appearance', 'Aspecto', 'palette', extra);
     button('view', 'Vista', 'view', extra);
     button('reset', 'Reiniciar', 'reset', extra, () => { dismiss(); $('gear-reset').click(); });
@@ -141,6 +206,9 @@ export function createGearCenter(app) {
     button('ratio', 'Relación', 'settings', learn); button('speed', 'Giro', 'speed', learn);
     button('torque', 'Torque', 'torque', learn); button('facts', 'Ficha', 'book', learn);
     button('save', 'Guardar / abrir', 'save', scenes); button('models', 'Importar', 'add', scenes); button('objects', 'Objetos', 'piece', scenes);
+    card('colors', 'Color por engranaje', [createColors()]);
+    const perPart = document.createElement('button'); perPart.type = 'button'; perPart.className = 'study-button'; perPart.textContent = 'Color por engranaje'; perPart.onclick = () => show('colors', buttons.get('colors'));
+    $('quick-color').closest('label').after(perPart);
     card('rpm', 'Velocidad de entrada', [document.querySelector('label[for="class-rpm"]'), $('class-rpm'), document.querySelector('label[for="gear-speed"]'), $('gear-speed'), $('gear-reading')]);
     card('separate', 'Separar las ruedas', [document.querySelector('label[for="gear-separation"]'), $('gear-separation'), $('gear-status')]);
     card('teeth', 'Dientes de cada rueda', [$('class-custom'), $('class-fixed'), $('class-error')]);
@@ -160,6 +228,7 @@ export function createGearCenter(app) {
   function openSurface(name, trigger) {
     if (!active || !routes.has(name)) return;
     const [section, key] = routes.get(name); select(section);
+    if (shown === 'colors') syncColors();
     if (app.state.hudSurface !== 'gear-center') app.hud.open('gear-center', trigger);
     if (key) show(key, trigger); else $('center-' + section + '-tab').focus({ preventScroll: true });
   }
@@ -171,10 +240,11 @@ export function createGearCenter(app) {
       if (next >= 0) { event.preventDefault(); select(keys[next], true); }
     };
   }
+  root.addEventListener('pointerdown', event => { if (event.target.closest('[data-gear-select]')) dismiss(); });
   $('gear-context-close').onclick = () => dismiss(true);
   document.addEventListener('pointerdown', event => {
     if (active && app.state.hudSurface === 'gear-center' && !root.contains(event.target)) { dismiss(); setMore(false); }
-    else if (shown && root.contains(event.target) && !popup.contains(event.target) && !event.target.closest('button')) dismiss();
+    else if (shown && root.contains(event.target) && !popup.contains(event.target) && !event.target.closest('button')) { dismiss(); setMore(false); }
   });
   document.addEventListener('keydown', event => {
     if (!active || app.state.hudSurface !== 'gear-center' || event.key !== 'Escape') return;
