@@ -3,13 +3,16 @@ import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
 import { horizontalSurface, createSurfaceTracker } from './surface-pose.js';
 import { createAnchorRecovery } from './anchor-tracking.js';
+import { createARContent } from './ar-content.js';
+import { bindARRotation } from './ar-gestures.js';
+import { uiIcon } from '../ui/icons.js';
 
 /** Temporary WebXR placement; original scene objects and project files stay in lab space. */
 export function createSpatialAR(app) {
   const renderer = app.engine.renderer, overlay = $('surface-overlay');
   let session = null, source = null, reference = null, pending = false, active = false, generation = 0;
   let arScene = null, camera = null, placement = null, content = null, reticle = null;
-  let readyPose = false, placed = false, scale = 1, yaw = 0, savedLoop = false;
+  let readyPose = false, placed = false, savedLoop = false, presentation = null;
   let hidden = [], previousFocus = null, pageHidden = false;
   const pose = new THREE.Matrix4(), targetPose = new THREE.Matrix4();
   const targetPosition = new THREE.Vector3(), targetRotation = new THREE.Quaternion(), unitScale = new THREE.Vector3(1, 1, 1);
@@ -20,7 +23,7 @@ export function createSpatialAR(app) {
     try { anchor?.delete(); } catch {}
     anchor = null;
   }
-  function resetScan() { tracker.reset(); readyPose = false; previousTime = 0; if (reticle) reticle.visible = false; }
+  function resetScan() { tracker.reset(); readyPose = false; previousTime = 0; if (reticle) reticle.visible = false; $('surface-telemetry').hidden = true; }
   function placedMessage() {
     if (anchorPending) return 'Fijando el modelo a la superficie…';
     return anchor ? 'Modelo anclado. Muévete despacio para observarlo desde otros ángulos.' : 'Modelo colocado. No se pudo activar el anclaje espacial; la posición puede variar al moverte.';
@@ -36,8 +39,18 @@ export function createSpatialAR(app) {
     $('surface-cancel').hidden = !pending;
     $('surface-place').disabled = !active || placed || !readyPose || placeRequested;
     $('surface-reposition').disabled = !active || !placed;
-    for (const id of ['surface-smaller','surface-larger','surface-left','surface-right']) $(id).disabled = !placed;
-    $('surface-size').textContent = Math.round(scale * 100) + '% · ' + yaw + '°';
+    $('surface-place').hidden = placed;
+    $('surface-play').hidden = !placed || !presentation?.hasMechanism;
+    $('surface-reposition').hidden = !placed;
+    $('surface-play').disabled = !placed;
+    const running = !!presentation?.running, playLabel = running ? 'Pausar' : 'Poner en marcha';
+    if ($('surface-play').getAttribute('aria-label') !== playLabel) {
+      $('surface-play').innerHTML = uiIcon(running ? 'pause' : 'play') + '<span>' + playLabel + '</span>';
+      $('surface-play').setAttribute('aria-label',playLabel);
+    }
+    $('surface-play').setAttribute('aria-pressed',String(running));
+    $('surface-gesture-help').textContent = placed ? 'Arrastra para girar · Dos dedos para dar vuelta' : 'Escanea y toca una superficie estable para colocar';
+    $('surface-gesture').tabIndex = placed ? 0 : -1;
   }
   function build() {
     const entries = $('surface-scope').value === 'selected' && app.state.chosen ? [app.state.chosen] : app.state.entries.filter((item) => item.anchor.visible);
@@ -47,21 +60,22 @@ export function createSpatialAR(app) {
     const sun = new THREE.DirectionalLight(0xffffff, 2); sun.position.set(2, 4, 2); arScene.add(sun);
     placement = new THREE.Group(); content = new THREE.Group();
     const models = new THREE.Group(); content.add(models); placement.add(content); arScene.add(placement); placement.visible = false;
-    for (const item of entries) {
-      const anchor = new THREE.Group(); anchor.position.copy(item.anchor.position);
-      anchor.add(item.mesh.clone(true)); models.add(anchor);
-    }
-    const bounds = new THREE.Box3().setFromObject(models), size = bounds.getSize(new THREE.Vector3()), center = bounds.getCenter(new THREE.Vector3());
+    presentation = createARContent(app, models, camera, entries);
+    $('surface-title').textContent = entries.length === 1 ? entries[0].name : 'Conjunto en AR';
+    const bounds = new THREE.Box3();
+    for(const entry of presentation.entries) bounds.union(new THREE.Box3().setFromObject(entry.mesh));
+    const size = bounds.getSize(new THREE.Vector3()), center = bounds.getCenter(new THREE.Vector3());
     const largest = Math.max(size.x, size.y, size.z);
     if (!Number.isFinite(largest) || largest <= 0) throw new Error('No se pudo preparar la geometría para AR.');
     models.position.set(-center.x, -bounds.min.y, -center.z);
     content.userData.baseScale = .5 / largest; content.scale.setScalar(content.userData.baseScale);
     reticle = new THREE.Mesh(new THREE.RingGeometry(.055, .075, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x7defff, side: THREE.DoubleSide, depthTest: false, depthWrite: false }));
     reticle.renderOrder = 10; reticle.matrixAutoUpdate = false; reticle.visible = false; arScene.add(reticle);
-    clearAnchor(); resetScan(); placed = readyPose = false; scale = 1; yaw = 0;
+    clearAnchor(); resetScan(); placed = readyPose = false;
   }
   function dispose() {
-    // Mesh clones share source geometry/materials. Only the guide owns resources here.
+    // Models and name sprites share source resources; AR owns its guide and connectors.
+    gestures.cancel(); presentation?.dispose(); presentation = null;
     reticle?.geometry.dispose(); reticle?.material.dispose();
     arScene?.clear(); arScene = camera = placement = content = reticle = null;
   }
@@ -131,7 +145,7 @@ export function createSpatialAR(app) {
       const tracked = viewer && !viewer.emulatedPosition;
       placement.visible = placed && !!tracked && !anchorPending;
       if (!tracked) {
-        recovery.reset(); resetScan(); placeRequested = false;
+        gestures.cancel(); recovery.reset(); resetScan(); placeRequested = false;
         message('Se perdió el seguimiento. Mira una zona iluminada con detalles y mueve el dispositivo despacio para recuperarlo.');
       } else if (!placed) {
         let hit = null, matrix = null;
@@ -171,10 +185,13 @@ export function createSpatialAR(app) {
           message('Recuperando el anclaje. Apunta otra vez al lugar donde colocaste el modelo.');
         }
       } else message(placedMessage());
-      app.gears?.updateFrame();
+      // Update the user camera from the current native XR view before projecting labels.
+      renderer.xr.updateCamera(camera);
+      presentation?.update(Math.min(.1, dt / 1000), placement.visible);
+      if (!placement.visible) gestures.cancel();
       sync(); renderer.render(arScene, camera);
     } catch {
-      recovery.reset(); resetScan(); placeRequested = false; placement.visible = false; sync();
+      gestures.cancel(); recovery.reset(); resetScan(); placeRequested = false; placement.visible = false; sync();
       message('No se pudo actualizar el seguimiento. Sal de AR y vuelve a intentarlo.');
     }
   }
@@ -241,13 +258,17 @@ export function createSpatialAR(app) {
   }
   $('surface-check').onclick = support;
   $('surface-start').onclick = start; $('surface-cancel').onclick = end; $('surface-exit').onclick = end; $('surface-place').onclick = place;
-  $('surface-reposition').onclick = () => { clearAnchor(); resetScan(); placed = false; placement.visible = false; sync(); };
-  const transform = () => { if (!content) return; content.scale.setScalar(content.userData.baseScale * scale); content.rotation.y = THREE.MathUtils.degToRad(yaw); sync(); };
-  $('surface-smaller').onclick = () => { scale = Math.max(.25, Math.round((scale-.1)*100)/100); transform(); };
-  $('surface-larger').onclick = () => { scale = Math.min(2, Math.round((scale+.1)*100)/100); transform(); };
-  $('surface-left').onclick = () => { yaw = (yaw - 15) % 360; transform(); };
-  $('surface-right').onclick = () => { yaw = (yaw + 15) % 360; transform(); };
-  overlay.addEventListener('beforexrselect', event => { if (event.target.closest('.surface-card, .surface-controls')) event.preventDefault(); });
+  $('surface-reposition').onclick = () => { gestures.cancel(); clearAnchor(); resetScan(); placed = false; placement.visible = false; sync(); };
+  $('surface-play').onclick = () => { if (placed) { presentation?.toggleRunning(); sync(); } };
+  const gestures = bindARRotation($('surface-gesture'), {
+    enabled:()=>active && session?.visibilityState === 'visible',
+    canRotate:()=>placed && placement?.visible,
+    rotate:(dx,dy,twist)=>{ content.rotation.x+=dy*.006;content.rotation.y+=dx*.006;content.rotation.z+=twist; },
+    tap:()=>{ if(!placed) place(); }
+  });
+  overlay.addEventListener('beforexrselect', event => {
+    if (event.target.closest('.surface-card, .surface-controls, #surface-gesture')) event.preventDefault();
+  });
   $('surfaces').addEventListener('close', () => { if (pending) end(); });
   window.addEventListener('pagehide', () => { pageHidden = true; end(); });
   window.addEventListener('pageshow', () => { pageHidden = false; });

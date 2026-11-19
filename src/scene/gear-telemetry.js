@@ -7,8 +7,9 @@ import { arrangeGearLabels, boxAt } from './gear-label-layout.js';
 
 const number = (v, digits = 1) => Number(v.toFixed(digits)).toLocaleString('es');
 
-export function createGearTelemetry(app) {
-  const layer = $('gear-telemetry'), svg = $('gear-telemetry-lines');
+export function createGearTelemetry(app, options = {}) {
+  const layer = options.layer || $('gear-telemetry'), svg = options.svg || $('gear-telemetry-lines');
+  const toggleButton = options.toggleButton === null ? null : $('toggle-telemetry');
   const cards = [];
   function addCard(index) {
     const card = document.createElement('div'); card.className = 'gear-readout'; card.dataset.wheel = index;
@@ -52,19 +53,19 @@ export function createGearTelemetry(app) {
   }
   function text(element, value) { if (element.textContent !== value) element.textContent = value; }
   function toggle() {
-    enabled = !enabled; $('toggle-telemetry').setAttribute('aria-pressed', String(enabled)); updateFrame();
+    enabled = !enabled; toggleButton?.setAttribute('aria-pressed', String(enabled)); updateFrame();
   }
-  $('toggle-telemetry').onclick = toggle;
+  if (toggleButton) toggleButton.onclick = toggle;
   function updateFrame() {
     app.gearDirections?.updateFrame();
     const item = app.state.chosen, mechanism = item?.mechanism;
     const show = enabled && mechanism && item.anchor.visible && !app.state.hudHidden && !app.hud.isBlocking() && !app.spatial?.active && !app.spatial?.pending;
-    layer.hidden = !show; $('toggle-telemetry').hidden = !mechanism;
+    layer.hidden = !show; if (toggleButton) toggleButton.hidden = !mechanism;
     if (!show) return;
     while (cards.length < mechanism.parts.length) cards.push(addCard(cards.length));
     const camera = app.engine.camera, canvas = app.engine.canvas.getBoundingClientRect();
-    const viewport = { width: innerWidth, height: innerHeight }, top = $('header').getBoundingClientRect().bottom + 8;
-    const obstacles = ['workspace-panel', 'bar', 'gear-transport', 'gear-model-switcher', 'gear-inline', 'gear-context', 'tools', 'class-return', 'notice'].map($)
+    const viewport = { width: innerWidth, height: innerHeight }, top = options.top?.() ?? $('header').getBoundingClientRect().bottom + 8;
+    const obstacles = options.obstacles?.() || ['workspace-panel', 'bar', 'gear-transport', 'gear-model-switcher', 'gear-inline', 'gear-context', 'tools', 'class-return', 'notice'].map($)
       .filter((node) => node && !node.hidden && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden')
       .map((node) => node.getBoundingClientRect());
     const panel = app.hud.dockedPanel(); if (panel) obstacles.push(panel.getBoundingClientRect());
@@ -142,5 +143,5 @@ export function createGearTelemetry(app) {
       record.dot.setAttribute('cx', p.x.toFixed(1)); record.dot.setAttribute('cy', p.y.toFixed(1));
     }
   }
-  return { updateFrame, toggle, get layout() { return { input: layoutInput, placements }; } };
+  return { updateFrame, toggle, dispose() { for (const record of cards) { record.card.remove(); record.path.remove(); record.dot.remove(); } layer.hidden = true; }, get layout() { return { input: layoutInput, placements }; } };
 }

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { boxAt, boxDistance, overlapArea } from './gear-label-layout.js';
 
 /** Project stable part bounds instead of rotating tooth geometry on every frame. */
-export function createNameLabelLayout(app) {
+export function createNameLabelLayout(app, options = {}) {
   const point = new THREE.Vector3(), home = new THREE.Vector3(), delta = new THREE.Vector3();
   const cameraPoint = new THREE.Vector3(), position = new THREE.Vector3(), scale = new THREE.Vector3();
   const previous = new WeakMap();
@@ -35,8 +35,8 @@ export function createNameLabelLayout(app) {
     if (!app.engine.canvas) return;
     const camera = app.engine.camera, canvas = app.engine.canvas.getBoundingClientRect();
     const header = document.getElementById('header').getBoundingClientRect();
-    const safe = { left: canvas.left + 10, right: canvas.right - 10, top: Math.max(canvas.top + 10, header.bottom + 8), bottom: canvas.bottom - 10 };
-    const obstacles = ['workspace-panel', 'bar', 'gear-center', 'gear-context', 'gear-dock', 'tools', 'class-return', 'notice'].map(id => document.getElementById(id))
+    const safe = options.safeBounds?.(canvas) || { left: canvas.left + 10, right: canvas.right - 10, top: Math.max(canvas.top + 10, header.bottom + 8), bottom: canvas.bottom - 10 };
+    const obstacles = options.obstacles?.() || ['workspace-panel', 'bar', 'gear-center', 'gear-context', 'gear-dock', 'tools', 'class-return', 'notice'].map(id => document.getElementById(id))
       .filter(node => node && !node.hidden && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden' && getComputedStyle(node).display !== 'contents')
       .map(node => node.getBoundingClientRect());
     const entries = app.state.entries.filter(item => item.anchor.visible);

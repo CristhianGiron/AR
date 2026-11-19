@@ -89,7 +89,7 @@
       <div class="dialog-heading"><h2 id="surfaces-title">Superficies reales</h2><button class="round-button" data-close="surfaces" aria-label="Cerrar superficies">×</button></div>
       <p>Coloca tus modelos sobre una mesa o el suelo. Escanea despacio de lado a lado con buena luz. El aro ámbar indica que se está comprobando la superficie; cuando cambie a azul puedes colocar. Busca bordes o detalles: un piso uniforme o una cama sin textura pueden ser difíciles de detectar.</p>
       <label for="surface-scope">Qué quieres colocar</label><select id="surface-scope"><option value="selected">Componente seleccionado</option><option value="visible">Conjunto visible</option></select>
-      <p>El conjunto comienza con unos 50 cm en su dimensión mayor. Puedes ajustar su tamaño y girarlo. Es una representación ampliada, sin escala física del sensor.</p>
+      <p>El conjunto comienza con unos 50 cm en su dimensión mayor. Puedes girarlo con los dedos y poner en marcha los engranajes. Es una representación ampliada, sin escala física del sensor.</p>
       <p id="surface-message" role="status">Comprueba la compatibilidad antes de entrar.</p>
       <div class="project-actions" data-page-group><button id="surface-start" class="study-button" disabled>Entrar en AR</button><button id="surface-cancel" class="study-button" hidden>Cancelar entrada</button></div>
       <button id="surface-check" class="study-button">Comprobar compatibilidad de nuevo</button>
@@ -97,11 +97,12 @@
       <p>Requiere HTTPS y un dispositivo con WebXR AR y detección de superficies. Se usa anclaje espacial cuando el dispositivo lo admite. La precisión depende de la cámara y del seguimiento del entorno. La posición dura esta sesión; el archivo de escena conserva el trabajo del laboratorio, sin mapas del entorno.</p>
     </dialog>
     <div id="surface-overlay" hidden>
-      <div class="surface-card"><p id="surface-live" role="status">Busca una superficie horizontal.</p><button id="surface-exit" class="round-button" aria-label="Salir de AR">×</button></div>
-      <div class="surface-controls" role="group" aria-label="Colocación sobre superficies">
-        <div class="surface-placement"><button id="surface-place" class="study-button" disabled>Colocar aquí</button><button id="surface-reposition" class="study-button" disabled>Otro lugar</button></div>
-        <span id="surface-size">100% · 0°</span>
-        <div class="surface-transform"><button id="surface-smaller" class="round-button" aria-label="Reducir tamaño en AR" disabled>−</button><button id="surface-larger" class="round-button" aria-label="Aumentar tamaño en AR" disabled>+</button><button id="surface-left" class="round-button" aria-label="Girar 15 grados a la izquierda en AR" disabled>↶</button><button id="surface-right" class="round-button" aria-label="Girar 15 grados a la derecha en AR" disabled>↷</button></div>
+      <div id="surface-gesture" role="region" aria-label="Girar el objeto en AR" aria-describedby="surface-gesture-help" tabindex="-1"></div>
+      <div id="surface-telemetry" hidden><svg id="surface-telemetry-lines" aria-hidden="true"></svg></div>
+      <div class="surface-card"><div><strong id="surface-title">Modelo en AR</strong><p id="surface-live" role="status">Busca una superficie horizontal.</p></div><button id="surface-exit" class="round-button" aria-label="Salir de AR">×</button></div>
+      <div class="surface-controls" role="group" aria-label="Controles del objeto en AR">
+        <p id="surface-gesture-help">Escanea y toca una superficie estable para colocar</p>
+        <div class="surface-placement"><button id="surface-place" class="study-button" disabled>Colocar aquí</button><button id="surface-play" class="study-button" aria-label="Poner en marcha" aria-pressed="false" hidden disabled>Poner en marcha</button><button id="surface-reposition" class="study-button" disabled>Otro lugar</button></div>
       </div>
     </div>
     <dialog id="inspector" class="hud-dialog" aria-labelledby="object-title" hidden>

@@ -35,7 +35,7 @@ Registrar por equipo: teléfono/visor, versión de sistema y navegador, URL HTTP
 1. Abrir controles de vista y entrar en AR con un componente seleccionado. Comprobar que el permiso se solicita solo al pulsar Entrar.
 2. Apuntar despacio a mesa y suelo. Verificar guía horizontal; al apuntar a una pared no debe autorizarse colocación.
 3. Colocar por botón y por toque. Observar desde distintos ángulos durante al menos un minuto y registrar deriva, temblores, escala y altura aparente.
-4. Probar giro, tamaño y Otro lugar. Los botones de la superposición no deben recolocar accidentalmente.
+4. Probar giro con uno y dos dedos, marcha/pausa y Otro lugar. Los botones de la superposición no deben recolocar accidentalmente.
 5. Tapar la cámara temporalmente o provocar pérdida de seguimiento. Comprobar recuperación y ausencia de colocación con datos antiguos.
 6. Salir desde × y desde el control del navegador; cancelar un permiso; repetir entrada y salida. Volver a 3D, comprobar modelos/transformaciones/notas y probar la cámara de fondo.
 7. Repetir con el conjunto y un GLB local. Si no hay superposición DOM, comprobar toque de colocación y salida nativa.
@@ -57,3 +57,11 @@ Anotar resultados y evidencias reales. Estos pasos están preparados; no se han 
 3. Separadamente, hacer un movimiento rápido y volver a mirar la referencia. Registrar pérdidas y tiempo de recuperación. El movimiento puede superar la capacidad de seguimiento del dispositivo; no se garantiza recuperación en todos los casos.
 4. El modelo debe permanecer oculto durante pérdidas y lecturas incoherentes; al recuperarse, debe usar la misma ancla, sin recolocación automática. Esperar varias lecturas válidas antes de mostrarlo reduce reapariciones intermitentes, pero no corrige por sí solo la deriva del sistema.
 5. Repetir con distintas luces y texturas; registrar navegador, dispositivo y versión del sitio. Las pruebas automatizadas de poses de cámara no comprueban la cámara/compositor XR ni la precisión física.
+
+### Interacción y funcionamiento en AR — pendiente de dispositivo físico
+
+- Con superposición DOM, probar giro con un dedo y torsión con dos dedos. El punto colocado y la escala deben conservarse; los botones no deben disparar gestos ni recolocar.
+- Probar marcha y pausa en rectos, cónicos, helicoidales y transmisión. Cada rueda debe girar sobre su eje y respetar la relación del laboratorio. Comparar RPM, dientes y sentido con las etiquetas 3D normales.
+- Verificar nombre y tarjetas conectadas en vertical y horizontal. No deben cubrir los controles ni permanecer visibles al perder seguimiento; al recuperarlo deben reaparecer con el modelo.
+- Salir y comprobar que el giro, estado mecánico y datos de la escena original no cambiaron por manipular su copia AR. Repetir entradas y salidas para comprobar la eliminación de etiquetas temporales.
+- Sin superposición DOM, comprobar colocación por toque y salida nativa; los gestos y las tarjetas de pantalla no están disponibles.

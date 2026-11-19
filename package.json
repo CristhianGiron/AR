@@ -42,7 +42,8 @@
     "test:names": "node tests/browser/name-labels.cjs",
     "test:gear-force": "node tests/browser/gear-force.cjs",
     "test:gear-sound": "node tests/browser/gear-sound.cjs",
-    "test:transmission-variants": "node tests/browser/transmission-variants.cjs"
+    "test:transmission-variants": "node tests/browser/transmission-variants.cjs",
+    "test:ar": "node tests/browser/ar-gears.cjs"
   },
   "devDependencies": {
     "axe-core": "4.14.0",

@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { createNameLabelLayout } from './name-label-layout.js';
 
-export function createAnnotations(app) {
+export function createAnnotations(app, options = {}) {
   const state = app.state;
-  const nameLayout = createNameLabelLayout(app);
+  const nameLayout = createNameLabelLayout(app, options);
   function labelSprite(name) {
     const canvas = document.createElement("canvas");
     canvas.width = 768;

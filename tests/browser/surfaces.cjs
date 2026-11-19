@@ -66,7 +66,12 @@ run(async({page,click,close,select,frame,artifacts})=>{
  await page.evaluate(()=>__stableSurface());
  assert.deepEqual(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').position.toArray()),[1,0,-2],'placement uses hit pose');
  assert.equal(await page.evaluate(()=>__app.spatial.placed),true);
- await click('#surface-larger');await click('#surface-right');assert.equal(await page.$eval('#surface-size',e=>e.textContent),'110% · 15°');
+ const anchoredBefore=await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').position.toArray());
+ const beforeRotation=await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').children[0].quaternion.toArray());
+ await page.mouse.move(160,220);await page.mouse.down();await page.mouse.move(230,260,{steps:5});await page.mouse.up();
+ assert.notDeepEqual(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').children[0].quaternion.toArray()),beforeRotation,'drag rotates AR content');
+ assert.deepEqual(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').position.toArray()),anchoredBefore,'drag preserves anchor');
+ assert.equal(await page.$eval('#surface-play',e=>e.hidden),true,'sensor has no motor control');
  await page.evaluate(()=>__surfaceFrame('none',false));assert.ok(await page.$eval('#surface-live',e=>e.textContent.includes('seguimiento')));
  await click('#surface-reposition');await page.evaluate(()=>__surfaceFrame('none'));assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'stale hit cannot place');
  await page.evaluate(()=>__stableSurface());await page.evaluate(()=>{__xrSessions.at(-1).dispatchEvent(new Event('select'));__surfaceFrame('flat');});assert.equal(await page.evaluate(()=>__app.spatial.placed),true,'native select placement without HTML overlay');
@@ -175,9 +180,9 @@ run(async({page,click,close,select,frame,artifacts})=>{
    if(i<count-1)await page.click('#surfaces > .page-navigation > button:last-child');
   }
   await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);await page.evaluate(()=>__stableSurface());await click('#surface-place');
-  const geometry=await page.evaluate(()=>{const header=document.querySelector('.surface-card').getBoundingClientRect(),controls=document.querySelector('.surface-controls').getBoundingClientRect();return {overlap:header.bottom>controls.top,small:[...document.querySelectorAll('#surface-overlay button')].filter(n=>{const r=n.getBoundingClientRect();return r.width<43.9||r.height<43.9||r.left<0||r.right>innerWidth||r.bottom>innerHeight}).map(n=>n.id)};});assert.deepEqual(geometry,{overlap:false,small:[]},JSON.stringify(viewport));
+  const geometry=await page.evaluate(()=>{const header=document.querySelector('.surface-card').getBoundingClientRect(),controls=document.querySelector('.surface-controls').getBoundingClientRect();return {overlap:header.bottom>controls.top,small:[...document.querySelectorAll('#surface-overlay button')].filter(n=>n.getClientRects().length).filter(n=>{const r=n.getBoundingClientRect();return r.width<43.9||r.height<43.9||r.left<0||r.right>innerWidth||r.bottom>innerHeight}).map(n=>n.id)};});assert.deepEqual(geometry,{overlap:false,small:[]},JSON.stringify(viewport));
   await click('#surface-exit');await page.waitForFunction(()=>!__app.spatial.active);
  }
  await page.evaluate(()=>{const r=__app.engine.renderer;r.xr.setSession=__originalXR.setSession;r.xr.getReferenceSpace=__originalXR.getReferenceSpace;r.setAnimationLoop=__originalXR.setAnimationLoop;r.render=__originalXR.render;});await frame();
- console.log('PASS: simulated anchor recovery, upside-down viewer poses, unstable/invalid readings, same-anchor retention, XR lifecycle, required hit-test, horizontal placement, stale/lost tracking, resize/rotation controls, native select, overlay protection, cancellation, permission/source errors and original scene restored. Physical XR device validation pending.');
+ console.log('PASS: simulated anchor recovery, upside-down viewer poses, unstable/invalid readings, same-anchor retention, XR lifecycle, required hit-test, horizontal placement, stale/lost tracking, anchored drag rotation, native select, overlay protection, cancellation, permission/source errors and original scene restored. Physical XR device validation pending.');
 }).catch(error=>{console.error(error);process.exitCode=1});

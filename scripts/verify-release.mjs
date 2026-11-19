@@ -8,7 +8,7 @@ await mkdir(folder, { recursive: true });
 const before = await sourceSnapshot();
 const jobs = [
   ['estructura', ['scripts/check-project.mjs']],
-  ['unitarias', ['--test', 'tests/unit/learning.test.js', 'tests/unit/pagination.test.js', 'tests/unit/projects.test.js', 'tests/unit/missions.test.js', 'tests/unit/echo.test.js', 'tests/unit/surfaces.test.js', 'tests/unit/xr-availability.test.js', 'tests/unit/model-formats.test.js', 'tests/unit/gears.test.js', 'tests/unit/gear-design.test.js', 'tests/unit/gear-class.test.js', 'tests/unit/gear-dynamics.test.js', 'tests/unit/gear-sound.test.js', 'tests/unit/transmission-design.test.js', 'tests/unit/gear-label-layout.test.js']],
+  ['unitarias', ['--test', 'tests/unit/learning.test.js', 'tests/unit/pagination.test.js', 'tests/unit/projects.test.js', 'tests/unit/missions.test.js', 'tests/unit/echo.test.js', 'tests/unit/surfaces.test.js', 'tests/unit/anchor-tracking.test.js', 'tests/unit/xr-availability.test.js', 'tests/unit/model-formats.test.js', 'tests/unit/gears.test.js', 'tests/unit/gear-design.test.js', 'tests/unit/gear-class.test.js', 'tests/unit/gear-dynamics.test.js', 'tests/unit/gear-sound.test.js', 'tests/unit/transmission-design.test.js', 'tests/unit/gear-label-layout.test.js']],
   ['escenas-guardadas', ['tests/browser/projects.cjs']],
   ['formatos-modelos', ['tests/browser/model-formats.cjs']],
   ['taller-engranajes', ['tests/browser/gears.cjs']],
@@ -29,6 +29,7 @@ const jobs = [
   ['laboratorio-eco', ['tests/browser/echo-lab.cjs', '--all-models']],
   ['misiones-guiadas', ['tests/browser/missions.cjs', '--all-models']],
   ['superficies-webxr', ['tests/browser/surfaces.cjs', '--all-models']],
+  ['interaccion-engranajes-ar', ['tests/browser/ar-gears.cjs']],
   ['camara', ['tests/browser/camera.cjs']],
   ['inicio-sin-webgl', ['tests/browser/startup.cjs']],
   ['regresion-completa', ['tests/browser/smoke.cjs', '--all-models']],

@@ -1,8 +1,8 @@
 #gear-telemetry { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
 #gear-telemetry[hidden], .gear-readout[hidden] { display: none; }
-#gear-telemetry-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-#gear-telemetry-lines path { fill: none; stroke: #83edff; stroke-width: 1.4; opacity: .9; }
-#gear-telemetry-lines circle { fill: #e1fcff; stroke: #208ca9; stroke-width: 1; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) path { fill: none; stroke: #83edff; stroke-width: 1.4; opacity: .9; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) circle { fill: #e1fcff; stroke: #208ca9; stroke-width: 1; }
 .gear-readout { position: absolute; left: 0; top: 0; width: 166px; box-sizing: border-box; padding: 9px 11px; background: linear-gradient(135deg, #092438d6, #071b2dcc); color: #ecfcff; border: 1px solid #64dcf3; border-left: 3px solid #f6ac4a; border-radius: 3px 12px 3px 12px; box-shadow: 0 0 16px #43dffa22, inset 0 0 14px #4ce0ff0b; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-variant-numeric: tabular-nums; }
 .gear-readout[data-wheel='1'] { border-left-color: #ff9cba; }
 .gear-readout { min-height: 118px; }
@@ -51,11 +51,11 @@
 [data-density='compact'] .readout-speed strong { font-size: 19px; }
 [data-density='compact'] .readout-details, [data-density='compact'] .readout-angle, [data-density='compact'] .readout-setting { line-height: 1.1; margin-top: 0; }
 .gear-readout[data-density='compact'] { padding-block: 4px; }
-#gear-telemetry-lines path { stroke-linecap: round; stroke-linejoin: round; }
-#gear-telemetry-lines path[data-wheel='0'] { stroke: #f6bc6d; }
-#gear-telemetry-lines path[data-wheel='1'] { stroke: #ffacc8; }
-#gear-telemetry-lines path[data-wheel='2'] { stroke: #8ee9d0; }
-#gear-telemetry-lines path[data-wheel='3'] { stroke: #d8adff; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) path { stroke-linecap: round; stroke-linejoin: round; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) path[data-wheel='0'] { stroke: #f6bc6d; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) path[data-wheel='1'] { stroke: #ffacc8; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) path[data-wheel='2'] { stroke: #8ee9d0; }
+:is(#gear-telemetry-lines, #surface-telemetry-lines) path[data-wheel='3'] { stroke: #d8adff; }
 
 @media (max-width: 600px) {
   .gear-readout[data-density='compact'] { width: 100px; padding-inline: 5px; }

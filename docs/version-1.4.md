@@ -1,18 +1,18 @@
 # ExplorAR 1.4 — colocación sobre superficies reales
 
-Acceso: **Controles de vista → Colocar sobre una superficie · AR**. WebXR Hit Test permite localizar una superficie horizontal y situar una copia del componente seleccionado o del conjunto visible. La guía desaparece si deja de haber un hit válido; la colocación no acepta una pose antigua.
+Acceso: **Controles de vista → Colocar sobre una superficie · AR**. WebXR Hit Test permite localizar una superficie horizontal y situar una copia del componente seleccionado o del conjunto visible. El aro comprueba la estabilidad de la superficie y tolera cortes breves mostrando ámbar; solo permite colocar con un hit actual y estable.
 
-Tras colocar se puede girar en pasos de 15°, ajustar tamaño o buscar otro lugar. Las dimensiones iniciales se normalizan a unos 50 cm en su eje mayor y no representan la escala física de los sensores. La sesión usa el seguimiento del dispositivo; pérdida de pose oculta temporalmente el contenido y un reinicio del origen requiere recolocar.
+Tras colocar se puede girar arrastrando con un dedo o dar vuelta con dos dedos, ver etiquetas y poner en marcha o pausar los engranajes. Se conserva Otro lugar para recolocar; los gestos no trasladan el anclaje ni cambian la escala. Las dimensiones iniciales se normalizan a unos 50 cm en su eje mayor y no representan la escala física de los sensores. La sesión usa el seguimiento del dispositivo; pérdida de pose oculta temporalmente el contenido y se conserva la misma ancla de sesión para recuperarla. Sin ancla se compensa el reinicio del origen si el sistema aporta la transformación; si no, se exige recolocar.
 
 ## Compatibilidad y alcance
 
-Requiere HTTPS o localhost, permiso del usuario y soporte de WebXR `immersive-ar`, `local` y `hit-test`. La superposición DOM es opcional: con ella aparecen controles de colocación, tamaño, giro y salida; sin ella se coloca tocando cuando aparece el aro y se sale con el control nativo del navegador. La cámara como fondo y la exploración 3D permanecen disponibles por separado.
+Requiere HTTPS o localhost, permiso del usuario y soporte de WebXR `immersive-ar`, `local` y `hit-test`. La superposición DOM es opcional: con ella aparecen gestos de giro, etiquetas de las ruedas, marcha/pausa y controles de colocación y salida; sin ella se coloca tocando cuando aparece el aro y se sale con el control nativo del navegador. La cámara como fondo y la exploración 3D permanecen disponibles por separado.
 
 Se detectan intersecciones sobre superficies horizontales; no se reconstruye una malla completa de la habitación, ni se simula oclusión por objetos reales. No se guardan mapas, anclajes persistentes ni poses AR. El trabajo original del laboratorio no cambia: el renderer muestra copias durante la sesión y restaura la interfaz al terminar. Los modelos locales pueden colocarse si ya están cargados.
 
 ## Verificación y pendientes
 
-`test:surfaces` comprueba poses horizontales, solicitud de hit test, colocación, ausencia de hit, pérdida de seguimiento, toque nativo, protección de botones, giro/tamaño, permisos tardíos, cancelación, errores y salida nativa con sesiones simuladas. También revisa paginación y objetivos táctiles en tamaños móviles. `verify:release` incluye estas pruebas y las regresiones del laboratorio.
+`test:surfaces` comprueba poses horizontales, solicitud de hit test, colocación, ausencia de hit, pérdida de seguimiento, toque nativo, protección de botones, giro por arrastre, permisos tardíos, cancelación, errores y salida nativa con sesiones simuladas. También revisa paginación y objetivos táctiles en tamaños móviles. `npm run test:ar` verifica los cuatro mecanismos en AR, marcha/pausa, giro con uno y dos dedos, etiquetas, anclaje sin desplazamientos, conservación de la escena original, recuperación y accesibilidad móvil con sesiones simuladas. `verify:release` incluye estas pruebas y las regresiones del laboratorio.
 
 Las pruebas automáticas sustituyen el puente XR del renderer y no validan sensores, compositor WebXR o el seguimiento del mundo real. Sigue pendiente probar físicamente en un dispositivo compatible desde HTTPS. Registrar disponibilidad, deriva, estabilidad, recuperación y salida en `validacion/dispositivos.md`. No se afirma que se haya realizado esa prueba ni que todos los móviles sean compatibles.
 

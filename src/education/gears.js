@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
-import { GEAR_SYSTEMS, gearRPM, rotationAngles, validateGearState } from './gear-model.js';
+import { GEAR_SYSTEMS, gearRPM, validateGearState } from './gear-model.js';
 import { parametricSystem } from './gear-design.js';
 import { preparePartColors, applyGearColors } from './gear-colors.js';
 import { originalGearPhysical } from '../models/gear-solid.js';
-import { advanceDrive, driveGeometry } from './gear-dynamics.js';
+import { applyGearMechanism, advanceGearMechanism } from './gear-motion.js';
 import { uiIcon } from '../ui/icons.js';
 
 export function createGears(app) {
@@ -31,15 +31,7 @@ export function createGears(app) {
     if (!design && definition.id === 'engranajes-rectos') mechanism.physical = originalGearPhysical(parts, system);
     apply(mechanism); return mechanism;
   }
-  function apply(mechanism) {
-    if (mechanism.state.separation || mechanism.state.isolated !== null) mechanism.motion = { omega: 0 };
-    const { system, parts, state } = mechanism, angles = rotationAngles(system, state.angle, state.offsets);
-    parts.forEach((part, index) => {
-      part.pivot.position.copy(part.home).addScaledVector(part.direction, state.separation * system.travel);
-      part.pivot.quaternion.setFromAxisAngle(part.axis, angles[index]);
-      part.pivot.visible = state.isolated === null || state.isolated === index;
-    });
-  }
+  const apply = applyGearMechanism;
   function current() { return app.state.chosen?.mechanism ? app.state.chosen : null; }
   function syncQuickButtons() {
     document.querySelectorAll('[data-gear-select]').forEach((button) => {
@@ -121,15 +113,7 @@ export function createGears(app) {
     const delta = lastTime === null ? 0 : Math.min(.1, Math.max(0, (now - lastTime) / 1000)); lastTime = now;
     for (const item of app.state.entries) {
       const mechanism = item.mechanism; if (!mechanism) continue;
-      if (mechanism.state.running && item.anchor.visible && mechanism.state.separation === 0 && mechanism.state.isolated === null) {
-        // A continuous phase avoids a discontinuity in the driven wheel at 2π.
-        if (mechanism.state.drive?.enabled && driveGeometry(mechanism)) {
-          const motion = advanceDrive(driveGeometry(mechanism), mechanism.state.drive, mechanism.motion?.omega || 0, delta);
-          mechanism.motion = motion; mechanism.state.angle += motion.angle * mechanism.state.direction;
-        } else mechanism.state.angle += delta * mechanism.state.rpm * Math.PI / 30 * mechanism.state.direction;
-        apply(mechanism);
-        if (item === app.state.chosen) app.selection.buildGlow(item);
-      }
+      if (item.anchor.visible && advanceGearMechanism(mechanism, delta) && item === app.state.chosen) app.selection.buildGlow(item);
     }
     app.gearForce?.updateReading();
   }
