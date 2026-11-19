@@ -107,6 +107,10 @@ export function createAnnotations(app, options = {}) {
 
   function updateAll() {
     nameLayout.update();
+    if(options.connectors && !options.connectors()){
+      for(const item of [...connectors.keys()])remove(item);
+      return;
+    }
     const present = new Set(state.entries);
     for (const item of connectors.keys()) if (!present.has(item)) remove(item);
     for (const item of state.entries) {

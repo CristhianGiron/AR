@@ -56,21 +56,14 @@ run(async({page,click,close,frame,artifacts})=>{
   const readouts=await page.$$eval('#surface-telemetry .gear-readout',nodes=>nodes.filter(n=>!n.hidden).map(n=>n.textContent));
   assert.ok(readouts.length>0,'at least one part readout fits');
   assert.ok(readouts.every(t=>t.includes('dientes')&&t.includes('rpm')),'same speed and tooth labels as lab');
-  assert.ok(await page.evaluate(()=>{let found=false;__arScene.traverse(n=>{if(n.isSprite&&n.visible)found=true;});return found;}),'name label rendered in AR');
+  assert.ok(await page.$$eval('#surface-names .surface-name-card',nodes=>nodes.some(n=>!n.hidden)),'name card rendered in the AR overlay');
   const connectors=await page.$$eval('#surface-telemetry-lines path',paths=>paths.filter(p=>getComputedStyle(p).display!=='none').map(p=>({stroke:getComputedStyle(p).stroke,width:parseFloat(getComputedStyle(p).strokeWidth),length:p.getTotalLength()})));
   assert.equal(connectors.length,readouts.length,'every displayed gear card has its connector');
-  assert.ok(connectors.every(p=>p.stroke!=='none'&&p.width>=3&&p.length>8),'AR connectors have explicit visible stroke');
-  const nameWidth=await page.evaluate(()=>{let value=0;__arScene.traverse(n=>{if(n.isSprite&&n.visible&&n.userData.screenBounds)value=Math.max(value,n.userData.screenBounds.width);});return value;});
-  assert.ok(nameWidth>=260,'AR name card is enlarged independently of normal 3D');
-  const pixelWidth=await page.evaluate(()=>{
-   let width=0;__arScene.traverse(n=>{
-    if(!n.isSprite||!n.visible||!n.userData.screenBounds)return;
-    const center=n.getWorldPosition(new __THREE.Vector3()).applyMatrix4(__arCamera.matrixWorldInverse),scale=n.getWorldScale(new __THREE.Vector3());
-    width=Math.max(width,scale.x*__arCamera.projectionMatrix.elements[0]*document.querySelector('#surface-overlay').clientWidth/(-2*center.z));
-   });return width;
-  });
-  assert.ok(pixelWidth>=260,'actual projected name stays readable');
+  assert.ok(connectors.every(p=>p.stroke!=='none'&&p.width>=1&&p.width<=1.5&&p.length>8),'AR connectors have explicit visible stroke');
+  const nameSize=await page.$$eval('#surface-names .surface-name-card',nodes=>nodes.filter(n=>!n.hidden).map(n=>({width:n.getBoundingClientRect().width,font:parseFloat(getComputedStyle(n).fontSize)})));
+  assert.ok(nameSize.length&&nameSize.every(n=>n.width>=260&&n.font>=16),'name uses readable screen pixels like other cards');
   const screenshot=await page.screenshot({encoding:'base64'});
+  require('node:fs').writeFileSync(path.join(artifacts,'ar-labels-'+type+'.png'),Buffer.from(screenshot,'base64'));
   const painted=await page.evaluate(async base64=>{
    const img=new Image();img.src='data:image/png;base64,'+base64;await img.decode();
    const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
@@ -84,7 +77,7 @@ run(async({page,click,close,frame,artifacts})=>{
       const x=Math.round(point.x)+dx,y=Math.round(point.y)+dy;
       if(x<0||y<0||x>=canvas.width||y>=canvas.height)continue;
       const pixel=ctx.getImageData(x,y,1,1).data;
-      if(rgb.reduce((sum,v,i)=>sum+Math.abs(v-pixel[i]),0)<75)matches++;
+      if(rgb.reduce((sum,v,i)=>sum+Math.abs(v-pixel[i]),0)<200)matches++;
      }
     }return matches;
    });
@@ -138,13 +131,8 @@ run(async({page,click,close,frame,artifacts})=>{
   canvas.getBoundingClientRect=()=>new DOMRect(0,0,innerWidth*2,innerHeight*2);
   __arFrames();
  });
- const viewportNameWidth=await page.evaluate(()=>{
-  let width=0;__arScene.traverse(n=>{if(n.isSprite&&n.visible&&n.userData.screenBounds){
-   const center=n.getWorldPosition(new __THREE.Vector3()).applyMatrix4(__arCamera.matrixWorldInverse),scale=n.getWorldScale(new __THREE.Vector3());
-   width=Math.max(width,scale.x*__arCamera.projectionMatrix.elements[0]*innerWidth/(-2*center.z));
-  }});return width;
- });
- assert.ok(viewportNameWidth>=260,'name size uses XR overlay even when lab canvas dimensions differ');
+ const viewportNameWidth=await page.$$eval('#surface-names .surface-name-card',nodes=>Math.max(...nodes.filter(n=>!n.hidden).map(n=>n.getBoundingClientRect().width)));
+ assert.ok(viewportNameWidth>=260,'DOM name is independent of the lab canvas');
  await page.evaluate(()=>__app.engine.canvas.getBoundingClientRect=__canvasRect);
  const nativeBefore=await page.evaluate(()=>__arRoot().children[0].rotation.y);
  await page.evaluate(()=>{

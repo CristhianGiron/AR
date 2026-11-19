@@ -80,3 +80,10 @@ Anotar resultados y evidencias reales. Estos pasos están preparados; no se han 
 - Girar el objeto con los dedos y poner en marcha los engranajes. El plano receptor debe permanecer alineado con el ancla mientras la silueta de la sombra se actualiza.
 - Perder seguimiento y recuperarlo: el rastro se borra y la sombra se oculta junto al modelo hasta recuperar el ancla. Otro lugar debe iniciar un rastro nuevo.
 - Repetir entradas/salidas y comprobar fluidez, temperatura y consumo, especialmente en teléfonos modestos. La prueba automatizada comprueba píxeles de sombra en Chrome con GPU por software, sin certificar rendimiento ni alineación de sensores físicos.
+
+### Arranque y mapa básico opcional — pendiente de dispositivo físico
+
+- Abrir 3D en un navegador sin WebXR y con consultas de AR rechazadas: los modelos y gestos normales deben funcionar. Si falla una descarga del módulo AR, el mensaje debe referirse solo a AR.
+- Comprobar nombre como tarjeta de pantalla de tamaño constante, conectores finos y su ocultación/recuperación junto a las tarjetas de las ruedas. Probar distancia y orientación.
+- En un equipo con plane-detection, mover el teléfono de lado a lado y comprobar la malla sobre planos reportados antes de apuntar el centro a una superficie que genere el aro. Un dispositivo sin esa función puede mostrar únicamente el rastro tras recibir hits.
+- Registrar planos observados y condiciones reales; la visualización de un mapa básico no certifica mejora de precisión ni reconstrucción completa de la habitación.

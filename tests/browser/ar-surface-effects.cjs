@@ -20,12 +20,13 @@ run(async({page,click,close,frame,artifacts})=>{
    return session;
   };
   Object.defineProperty(navigator,'xr',{configurable:true,value:xr});
+  window.__nativePlanes=new Set();
   window.__effectsTime=0;window.__anchorMatrix=new __THREE.Matrix4().makeTranslation(0,0,-1).toArray();
   window.__effectsFrame=(matrix=null,tracked=true,step=80)=>{
    __effectsTime+=step;
-   __effectsLoop(__effectsTime,{getViewerPose:()=>tracked?{}:null,
+   __effectsLoop(__effectsTime,{detectedPlanes:__nativePlanes,getViewerPose:()=>tracked?{}:null,
     getHitTestResults:()=>matrix?[{getPose:()=>({transform:{matrix}}),createAnchor:()=>Promise.resolve({anchorSpace:{},delete(){}})}]:[],
-    getPose:()=>({transform:{matrix:__anchorMatrix}})});
+    getPose:space=>({transform:{matrix:space.plane?__floor(0,0,-1):__anchorMatrix}})});
   };
   window.__floor=(x=0,y=0,z=-1)=>new __THREE.Matrix4().makeTranslation(x,y,z).toArray();
   window.__trail=()=>__effectsScene.getObjectByName('Rastro de escaneo AR');
@@ -35,6 +36,17 @@ run(async({page,click,close,frame,artifacts})=>{
  await page.evaluate(async()=>{__app.hud.open('surfaces');await __app.spatial.support();});await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);
  await page.evaluate(()=>__effectsFrame());
  assert.equal(await page.evaluate(()=>__trail().visible),false,'no synthetic scan mesh before a measured hit');
+ await page.evaluate(()=>{
+  window.__nativePlane={planeSpace:{plane:true},lastChangedTime:1,polygon:[{x:-.6,y:0,z:-.6},{x:.6,y:0,z:-.6},{x:.6,y:0,z:.6},{x:-.6,y:0,z:.6}]};
+  __nativePlanes.add(__nativePlane);__effectsFrame();
+ });
+ assert.equal(await page.evaluate(()=>__effectsScene.getObjectByName('Mapa de planos AR').children.length),1,'native surface mesh appears during scan before any hit');
+ assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'plane map does not authorize placement without hit');
+ assert.equal(await page.evaluate(()=>__effectsScene.children.find(n=>n.isMesh&&!n.receiveShadow)?.visible||false),false,'no reticle required for native map');
+ await page.screenshot({path:path.join(artifacts,'ar-mapa-antes-del-aro.png')});
+ await page.evaluate(()=>{__nativePlanes.clear();__effectsFrame();});
+ assert.equal(await page.evaluate(()=>__effectsScene.getObjectByName('Mapa de planos AR').children.length),0,'removed native polygons are disposed');
+
  await page.evaluate(()=>__effectsFrame(new __THREE.Matrix4().makeRotationX(Math.PI/2).toArray()));
  assert.equal(await page.evaluate(()=>__trail().userData.samples||0),0,'walls rejected');
  await page.evaluate(()=>{__effectsFrame(__floor(-.2));__effectsFrame(__floor(.2));__effectsFrame(__floor(0,.45));});

@@ -1,12 +1,24 @@
 import * as THREE from "three";
 import { $ } from "../ui/dom.js";
 
+function createRenderer() {
+  let cause;
+  // Retry on a new canvas without multisampling if the preferred context is unavailable.
+  for (const antialias of [true,false]) {
+    try { return new THREE.WebGLRenderer({alpha:true,antialias,powerPreference:'default'}); }
+    catch(error) { cause=error; }
+  }
+  const error=new Error('No se pudo crear un contexto de gráficos 3D.');
+  error.name='SceneGraphicsError';error.cause=cause;
+  throw error;
+}
+
 export function createEngine(app) {
   const scene = new THREE.Scene(),
     camera = new THREE.PerspectiveCamera(46, 1, 0.1, 100),
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer = createRenderer();
 
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, renderer.getContext().getContextAttributes().antialias ? 2 : 1));
 
   $("stage").appendChild(renderer.domElement);
 

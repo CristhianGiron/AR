@@ -27,5 +27,11 @@ body.surface-active #surface-overlay { visibility: visible; }
 
 /* Keep AR callouts legible over both bright camera images and dark backgrounds. */
 #surface-telemetry-lines { z-index: 0; pointer-events: none; }
-#surface-telemetry-lines path { filter: drop-shadow(0 1px 1px #09152f) drop-shadow(0 -1px 1px #09152f); }
+#surface-telemetry-lines path { filter: drop-shadow(0 1px .4px #09152f); }
 #surface-telemetry .gear-readout { z-index: 1; }
+
+#surface-names { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+#surface-names[hidden], .surface-name-card[hidden] { display:none; }
+#surface-names > svg { position:absolute; inset:0; width:100%; height:100%; }
+#surface-names path { fill:none; stroke:#9cefff; stroke-width:1.4; }
+.surface-name-card { position:absolute; box-sizing:border-box; display:flex; align-items:center; justify-content:center; padding:6px 12px; border:1px solid #79eaff; border-radius:14px; background:linear-gradient(135deg,#4f4a8cf2,#232356f2); color:#fff; font-size:clamp(16px,4vw,20px); font-weight:700; line-height:1.15; text-align:center; overflow:hidden; }

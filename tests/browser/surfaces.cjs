@@ -56,7 +56,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
   };
  });
  await page.evaluate(async()=>{__app.loop.start();await __app.spatial.support();});await close();await click('#quick-ar');await page.waitForFunction(()=>__app.spatial.active);
- assert.deepEqual(await page.evaluate(()=>__xrOptions.at(-1)),{mode:'immersive-ar',required:['local','hit-test'],optional:['dom-overlay','anchors'],overlay:'surface-overlay'});
+ assert.deepEqual(await page.evaluate(()=>__xrOptions.at(-1)),{mode:'immersive-ar',required:['local','hit-test'],optional:['dom-overlay','anchors','plane-detection'],overlay:'surface-overlay'});
  assert.equal(await page.$eval('#surface-place',e=>e.disabled),true);
  await page.evaluate(()=>__surfaceFrame('wall'));assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'wall rejected');
  await page.evaluate(()=>__surfaceFrame('flat'));

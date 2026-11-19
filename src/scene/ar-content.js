@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createARNameCards } from './ar-name-cards.js';
 import { createAnnotations } from './annotations.js';
 import { createGearTelemetry } from './gear-telemetry.js';
 import { advanceGearMechanism, applyGearMechanism } from '../education/gear-motion.js';
@@ -23,8 +24,10 @@ export function createARContent(app, models, camera, originals) {
   const context = {state,engine,hud:{isBlocking:()=>false,dockedPanel:()=>null}};
   const obstacles = () => ['surface-card','surface-controls'].map(cls=>document.querySelector('.'+cls).getBoundingClientRect());
   const top = () => obstacles()[0].bottom + 8;
-  const annotations = createAnnotations(context,{labelWidth:width=>width<=600?280:320,obstacles,safeBounds:canvas=>({left:canvas.left+10,right:canvas.right-10,top:top(),bottom:obstacles()[1].top-8})});
-  const telemetry = createGearTelemetry(context,{layer:document.getElementById('surface-telemetry'),svg:document.getElementById('surface-telemetry-lines'),toggleButton:null,connectorWidth:3,viewport:()=>overlay.getBoundingClientRect(),obstacles,top});
+  let overlayNames=true;
+  const annotations = createAnnotations(context,{connectors:()=>!overlayNames,labelWidth:width=>width<=600?280:320,obstacles,safeBounds:canvas=>({left:canvas.left+10,right:canvas.right-10,top:top(),bottom:obstacles()[1].top-8})});
+  const telemetry = createGearTelemetry(context,{layer:document.getElementById('surface-telemetry'),svg:document.getElementById('surface-telemetry-lines'),toggleButton:null,connectorWidth:1.4,viewport:()=>overlay.getBoundingClientRect(),obstacles,top});
+  const names=createARNameCards(entries,camera,overlay);
   const mechanisms = entries.filter(e=>e.mechanism).map(e=>e.mechanism);
   const connected = m=>!m.state.separation && m.state.isolated===null;
   return {
@@ -38,12 +41,12 @@ export function createARContent(app, models, camera, originals) {
         m.state.running=run; applyGearMechanism(m);
       }
     },
-    update(seconds, visible) {
-      state.hudHidden=!visible;
+    update(seconds, visible, domOverlay = true) {
+      overlayNames=domOverlay; state.hudHidden=!visible;
       if(visible) for(const m of mechanisms) advanceGearMechanism(m,seconds);
       models.updateWorldMatrix(true,true);
-      annotations.updateAll(); telemetry.updateFrame();
+      annotations.updateAll(); telemetry.updateFrame(); names.update(visible,domOverlay);
     },
-    dispose() { for(const entry of entries) annotations.remove(entry); telemetry.dispose(); }
+    dispose() { names.dispose(); for(const entry of entries) annotations.remove(entry); telemetry.dispose(); }
   };
 }

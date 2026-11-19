@@ -1,4 +1,4 @@
-import { createSpatialAR } from "./scene/spatial-ar.js";
+import { createSpatialEntry } from "./scene/spatial-entry.js";
 import { createMissions } from "./education/missions.js";
 import { createParts } from "./education/parts.js";
 import { createExperiments } from "./education/experiments.js";
@@ -61,7 +61,7 @@ app.pagination.initialize();
 app.hud = createHud(app);
 app.hud.initialize();
 app.effects = createEffects(app);
-app.spatial = createSpatialAR(app);
+app.spatial = createSpatialEntry(app);
 app.gears = createGears(app);
 app.gearDesigner = createGearDesigner(app);
 app.gearClass = createGearClass(app);
