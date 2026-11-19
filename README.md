@@ -52,7 +52,7 @@ Abre **Controles de vista (pie) → Colocar sobre una superficie · AR**. Elige 
 
 Requiere HTTPS (o localhost de desarrollo), un dispositivo y un navegador con WebXR `immersive-ar` y `hit-test`. Se comprueba disponibilidad y se explica cómo continuar en 3D si no se admite. La cámara de fondo conserva su funcionamiento independiente. La colocación dura la sesión: no se guardan mapas del entorno ni posiciones AR en los archivos de escena. La dimensión mayor inicial es aproximadamente 50 cm; no representa el tamaño físico del sensor.
 
-Es detección por intersección con superficies horizontales, sin reconstrucción completa de la habitación, oclusión real ni anclajes persistentes. La integración está comprobada con sesiones simuladas; la calidad y estabilidad del seguimiento requieren validar un teléfono real. Consulta [AR de superficies 1.4](docs/version-1.4.md) y el [protocolo físico](docs/validacion/dispositivos.md).
+El aro ámbar comprueba lecturas estables y el azul permite colocar. Se usan anclas espaciales de sesión cuando están disponibles; si no se puede activar el anclaje, se avisa de la posible deriva. Es detección por intersección con superficies horizontales, sin reconstrucción completa de la habitación, oclusión real ni anclajes persistentes. La integración está comprobada con sesiones simuladas; la calidad y estabilidad del seguimiento requieren validar un teléfono real. Consulta [AR de superficies 1.4](docs/version-1.4.md) y el [protocolo físico](docs/validacion/dispositivos.md).
 
 ## Código y pruebas
 

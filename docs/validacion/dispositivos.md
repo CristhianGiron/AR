@@ -30,7 +30,7 @@ Criterio de salida: corregir cualquier incidencia que impida una tarea principal
 
 ## AR de superficies — pendiente de prueba física (1.4)
 
-Registrar por equipo: teléfono/visor, versión de sistema y navegador, URL HTTPS, soporte immersive-ar/hit-test y superposición DOM, permiso aceptado/denegado, y condiciones de iluminación/textura.
+Registrar por equipo: teléfono/visor, versión de sistema y navegador, URL HTTPS, soporte immersive-ar/hit-test, anchors y superposición DOM, permiso aceptado/denegado, y condiciones de iluminación/textura.
 
 1. Abrir controles de vista y entrar en AR con un componente seleccionado. Comprobar que el permiso se solicita solo al pulsar Entrar.
 2. Apuntar despacio a mesa y suelo. Verificar guía horizontal; al apuntar a una pared no debe autorizarse colocación.
@@ -41,3 +41,11 @@ Registrar por equipo: teléfono/visor, versión de sistema y navegador, URL HTTP
 7. Repetir con el conjunto y un GLB local. Si no hay superposición DOM, comprobar toque de colocación y salida nativa.
 
 Anotar resultados y evidencias reales. Estos pasos están preparados; no se han ejecutado en hardware físico durante la implementación.
+
+### Estabilidad del escaneo y anclaje — pendiente
+
+- Repetir en piso con textura, piso uniforme, mesa y cama, con buena luz y con poca luz. Registrar cuánto tarda en aparecer el aro y cuándo cambia de ámbar a azul; una cama deformable puede no ofrecer un plano estable.
+- Medir con una referencia física el desplazamiento aparente a los 30 y 60 segundos, al caminar alrededor y al alejarse y regresar. Registrar centímetros observados, distancia de la cámara y si el mensaje indica anclaje activo o colocación sin ancla.
+- Provocar una interrupción breve: el aro puede permanecer ámbar hasta 250 ms, pero no debe permitir colocar sin una lectura actual. Tras un salto de altura debe volver a comprobar la superficie.
+- Perder y recuperar seguimiento: el modelo se oculta durante poses emuladas o anclas sin seguimiento y reaparece al recuperar el ancla. Comprobar Otro lugar y salida mientras se está fijando el modelo.
+- Comparar un equipo con anchors y otro sin esta capacidad. No atribuir precisión centimétrica a las pruebas simuladas.

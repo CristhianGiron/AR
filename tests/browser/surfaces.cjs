@@ -18,7 +18,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
   window.__xrSessions=[];window.__xrOptions=[];window.__xrMode='ok';
   const xr=new EventTarget();xr.isSessionSupported=async()=>true;
   xr.requestSession=async(mode,options)=>{
-   __xrOptions.push({mode,required:options.requiredFeatures,overlay:options.domOverlay.root.id});
+   __xrOptions.push({mode,required:options.requiredFeatures,optional:options.optionalFeatures,overlay:options.domOverlay.root.id});
    if(__xrMode==='no-runtime')throw new DOMException('Could not create a session because: No runtimes supported the requested configuration','NotSupportedError');
    if(__xrMode==='denied')throw new DOMException('Denied','NotAllowedError');
    if(__xrMode==='late')await new Promise(resolve=>window.__resolveXR=resolve);
@@ -30,29 +30,49 @@ run(async({page,click,close,select,frame,artifacts})=>{
    __xrSessions.push(session);return session;
   };
   Object.defineProperty(navigator,'xr',{configurable:true,value:xr});
+  window.__xrTime=0;
   window.__surfaceFrame=(kind='flat',tracked=true)=>{
    const matrix=new __THREE.Matrix4();matrix.setPosition(1,0,-2);if(kind==='wall')matrix.makeRotationX(Math.PI/2);
    const session=__xrSessions.at(-1);
-   __arCallback?.(performance.now(),{getViewerPose:()=>tracked?{}:null,getHitTestResults:()=>kind==='none'?[]:[{getPose:()=>({transform:{matrix:matrix.toArray()}})}]});
+   __xrTime+=80;
+   __arCallback?.(__xrTime,{getViewerPose:()=>tracked?(tracked==='emulated'?{emulatedPosition:true}:{}):null,
+    trackedAnchors:window.__anchorTracked===false?new Set():undefined,
+    getPose:()=>window.__anchorPose===null?null:{transform:{matrix:(window.__anchorPose||matrix).toArray()}},
+    getHitTestResults:()=>kind==='none'?[]:[{
+     getPose:()=>({transform:{matrix:matrix.toArray()}}),
+     ...(window.__anchorMode?{createAnchor:()=>{
+      if(__anchorMode==='reject')return Promise.reject(Error('Unavailable'));
+      const anchor={anchorSpace:{},deleted:0,delete(){this.deleted++;}};window.__lastAnchor=anchor;
+      if(__anchorMode==='late')return new Promise(resolve=>window.__resolveAnchor=()=>resolve(anchor));
+      return Promise.resolve(anchor);
+     }}:{})
+    }]});
+  };
+  window.__stableSurface=()=>{__surfaceFrame('flat');__surfaceFrame('flat');__surfaceFrame('flat');
   };
  });
  await page.evaluate(async()=>{__app.loop.start();await __app.spatial.support();});await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);
- assert.deepEqual(await page.evaluate(()=>__xrOptions.at(-1)),{mode:'immersive-ar',required:['local','hit-test'],overlay:'surface-overlay'});
+ assert.deepEqual(await page.evaluate(()=>__xrOptions.at(-1)),{mode:'immersive-ar',required:['local','hit-test'],optional:['dom-overlay','anchors'],overlay:'surface-overlay'});
  assert.equal(await page.$eval('#surface-place',e=>e.disabled),true);
  await page.evaluate(()=>__surfaceFrame('wall'));assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'wall rejected');
- await page.evaluate(()=>__surfaceFrame('flat'));assert.equal(await page.$eval('#surface-place',e=>e.disabled),false);
- await click('#surface-place');
  await page.evaluate(()=>__surfaceFrame('flat'));
+ assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'single hit is not stable');
+ await page.evaluate(()=>__surfaceFrame('none'));
+ assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Mesh').visible),true,'short gap retains amber guide');
+ assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'missing measurement cannot place');
+ await page.evaluate(()=>__stableSurface());assert.equal(await page.$eval('#surface-place',e=>e.disabled),false);
+ await click('#surface-place');
+ await page.evaluate(()=>__stableSurface());
  assert.deepEqual(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').position.toArray()),[1,0,-2],'placement uses hit pose');
  assert.equal(await page.evaluate(()=>__app.spatial.placed),true);
  await click('#surface-larger');await click('#surface-right');assert.equal(await page.$eval('#surface-size',e=>e.textContent),'110% · 15°');
  await page.evaluate(()=>__surfaceFrame('none',false));assert.ok(await page.$eval('#surface-live',e=>e.textContent.includes('seguimiento')));
  await click('#surface-reposition');await page.evaluate(()=>__surfaceFrame('none'));assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'stale hit cannot place');
- await page.evaluate(()=>__surfaceFrame('flat'));await page.evaluate(()=>__xrSessions.at(-1).dispatchEvent(new Event('select')));assert.equal(await page.evaluate(()=>__app.spatial.placed),true,'native select placement without HTML overlay');
+ await page.evaluate(()=>__stableSurface());await page.evaluate(()=>{__xrSessions.at(-1).dispatchEvent(new Event('select'));__surfaceFrame('flat');});assert.equal(await page.evaluate(()=>__app.spatial.placed),true,'native select placement without HTML overlay');
  await page.evaluate(()=>__localSpace.dispatchEvent(new Event('reset')));assert.equal(await page.evaluate(()=>__app.spatial.placed),false,'reference reset requires new placement');
- await page.evaluate(()=>{__surfaceFrame('flat');__xrSessions.at(-1).dispatchEvent(new Event('select'));__surfaceFrame('flat');});
+ await page.evaluate(()=>{__stableSurface();__xrSessions.at(-1).dispatchEvent(new Event('select'));__stableSurface();});
  const beforeSelect=await page.evaluate(()=>{const event=new Event('beforexrselect',{cancelable:true,bubbles:true});document.querySelector('#surface-place').dispatchEvent(event);return event.defaultPrevented;});assert.equal(beforeSelect,true,'overlay does not place accidentally');
- await page.evaluate(()=>__surfaceFrame('flat'));
+ await page.evaluate(()=>__stableSurface());
  await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  const audit=await page.evaluate(async()=>{const r=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return r.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}));});assert.deepEqual(audit,[]);
  await page.screenshot({path:path.join(artifacts,'surface-controls-simulated.png')});
@@ -85,10 +105,44 @@ run(async({page,click,close,select,frame,artifacts})=>{
  assert.equal(await page.evaluate(()=>__app.spatial.pending),true,'old source completion cannot cancel the new request');
  await page.evaluate(()=>__resolveXR());await page.waitForFunction(()=>__app.spatial.active);await click('#surface-exit');await page.waitForFunction(()=>!__app.spatial.active);
  await page.evaluate(()=>{__xrMode='no-overlay';__app.hud.open('surfaces');document.querySelector('#surface-scope').value='visible';});await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);
- await page.evaluate(()=>__surfaceFrame('flat'));assert.ok(await page.$eval('#surface-live',e=>e.textContent.includes('Toca la pantalla')));
- await page.evaluate(()=>{__xrSessions.at(-1).dispatchEvent(new Event('select'));__surfaceFrame('flat');});
+ await page.evaluate(()=>__stableSurface());assert.ok(await page.$eval('#surface-live',e=>e.textContent.includes('Toca la pantalla')));
+ await page.evaluate(()=>{__xrSessions.at(-1).dispatchEvent(new Event('select'));__stableSurface();});
  assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').children[0].children[0].children.length),6,'visible collection cloned for AR');
  await page.evaluate(()=>__xrSessions.at(-1).end());await page.waitForFunction(()=>!__app.spatial.active);await page.evaluate(()=>__xrMode='ok');
+ // Native anchors update from anchorSpace, survive resets and are freed on reposition/end.
+ for (const mode of ['ok','reject','late']) {
+  await page.evaluate(mode=>{__anchorMode=mode;__app.hud.open('surfaces');},mode);
+  await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);
+  await page.evaluate(()=>__stableSurface());await click('#surface-place');
+  await page.evaluate(()=>__surfaceFrame('flat'));
+  if(mode==='late'){
+   await click('#surface-reposition');await page.evaluate(async()=>{__resolveAnchor();await Promise.resolve();});
+   assert.equal(await page.evaluate(()=>__lastAnchor.deleted),1,'late anchor disposed after reposition');
+   assert.equal(await page.evaluate(()=>__app.spatial.placed),false);
+  } else if(mode==='ok') {
+   await page.evaluate(()=>{__anchorPose=new __THREE.Matrix4().makeTranslation(1.02,.01,-2);__surfaceFrame('flat');});
+   assert.deepEqual(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').position.toArray()),[1.02,.01,-2],'placement follows tracked anchor corrections');
+   await page.evaluate(()=>{__localSpace.dispatchEvent(new Event('reset'));__surfaceFrame('none');});
+   assert.equal(await page.evaluate(()=>__app.spatial.placed),true,'anchor survives reference reset');
+   await page.evaluate(()=>{__anchorTracked=false;__surfaceFrame('none');});
+   assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),false,'untracked anchor hidden');
+   await page.evaluate(()=>{__anchorTracked=true;__surfaceFrame('none','emulated');});
+   assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),false,'emulated viewer cannot render an anchored model');
+   await page.evaluate(()=>__surfaceFrame('none'));
+   assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),true,'anchor recovers without new placement');
+  } else {
+   await page.evaluate(()=>__surfaceFrame('flat'));
+   assert.ok(await page.$eval('#surface-live',e=>e.textContent.includes('puede variar')),'anchor rejection falls back honestly');
+   await page.evaluate(()=>{
+    const event=new Event('reset');event.transform={matrix:new __THREE.Matrix4().makeTranslation(.5,0,0).toArray()};
+    __localSpace.dispatchEvent(event);__surfaceFrame('none');
+   });
+   assert.deepEqual(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').position.toArray()),[.5,0,-2],'fallback compensates origin changes');
+  }
+  await click('#surface-exit');await page.waitForFunction(()=>!__app.spatial.active);
+  if(mode==='ok')assert.equal(await page.evaluate(()=>__lastAnchor.deleted),1,'session end releases anchor');
+  await page.evaluate(()=>{__anchorMode=null;__anchorPose=undefined;__anchorTracked=true;});
+ }
  for (const viewport of [{width:320,height:568},{width:390,height:844},{width:844,height:390}]) {
   await page.setViewport({...viewport,isMobile:true,hasTouch:true,deviceScaleFactor:1});await frame();
   await page.evaluate(()=>{if(__app.state.hudSurface!=='surfaces')__app.hud.open('surfaces');});
@@ -97,7 +151,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
    const clipped=await page.$eval('#surfaces',e=>{const clip=e.querySelector('.page-clip').getBoundingClientRect();return [...e.querySelectorAll('.page-content button,.page-content select')].filter(n=>!n.closest('[inert],[hidden]')&&n.getClientRects().length).filter(n=>{const r=n.getBoundingClientRect();return r.top<clip.top-1||r.bottom>clip.bottom+1}).map(n=>n.id);});assert.deepEqual(clipped,[],JSON.stringify({viewport,i}));
    if(i<count-1)await page.click('#surfaces > .page-navigation > button:last-child');
   }
-  await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);await page.evaluate(()=>__surfaceFrame('flat'));await click('#surface-place');
+  await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);await page.evaluate(()=>__stableSurface());await click('#surface-place');
   const geometry=await page.evaluate(()=>{const header=document.querySelector('.surface-card').getBoundingClientRect(),controls=document.querySelector('.surface-controls').getBoundingClientRect();return {overlap:header.bottom>controls.top,small:[...document.querySelectorAll('#surface-overlay button')].filter(n=>{const r=n.getBoundingClientRect();return r.width<43.9||r.height<43.9||r.left<0||r.right>innerWidth||r.bottom>innerHeight}).map(n=>n.id)};});assert.deepEqual(geometry,{overlap:false,small:[]},JSON.stringify(viewport));
   await click('#surface-exit');await page.waitForFunction(()=>!__app.spatial.active);
  }

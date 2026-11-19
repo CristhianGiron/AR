@@ -1,16 +1,29 @@
 import { XR_UNAVAILABLE, xrFailure, spatialPolicyAllowed } from './xr-availability.js';
 import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
-import { horizontalSurface } from './surface-pose.js';
+import { horizontalSurface, createSurfaceTracker } from './surface-pose.js';
 
 /** Temporary WebXR placement; original scene objects and project files stay in lab space. */
 export function createSpatialAR(app) {
   const renderer = app.engine.renderer, overlay = $('surface-overlay');
   let session = null, source = null, reference = null, pending = false, active = false, generation = 0;
   let arScene = null, camera = null, placement = null, content = null, reticle = null;
-  let readyPose = false, placed = false, lastPoseAt = 0, scale = 1, yaw = 0, savedLoop = false;
+  let readyPose = false, placed = false, scale = 1, yaw = 0, savedLoop = false;
   let hidden = [], previousFocus = null, pageHidden = false;
-  const pose = new THREE.Matrix4();
+  const pose = new THREE.Matrix4(), targetPose = new THREE.Matrix4();
+  const targetPosition = new THREE.Vector3(), targetRotation = new THREE.Quaternion(), unitScale = new THREE.Vector3(1, 1, 1);
+  const tracker = createSurfaceTracker();
+  let anchor = null, anchorPending = false, anchorRun = 0, placeRequested = false, previousTime = 0;
+  function clearAnchor() {
+    anchorRun++; anchorPending = false; placeRequested = false;
+    try { anchor?.delete(); } catch {}
+    anchor = null;
+  }
+  function resetScan() { tracker.reset(); readyPose = false; previousTime = 0; if (reticle) reticle.visible = false; }
+  function placedMessage() {
+    if (anchorPending) return 'Fijando el modelo a la superficie…';
+    return anchor ? 'Modelo anclado. Muévete despacio para observarlo desde otros ángulos.' : 'Modelo colocado. No se pudo activar el anclaje espacial; la posición puede variar al moverte.';
+  }
   let availability = "unknown", supportRun = 0;
   function message(text) {
     for (const id of ['surface-message', 'surface-live']) if ($(id).textContent !== text) $(id).textContent = text;
@@ -20,7 +33,7 @@ export function createSpatialAR(app) {
     $('surface-start').disabled = pending || active || availability !== 'available';
     $('surface-check').disabled = pending || active || availability === 'checking';
     $('surface-cancel').hidden = !pending;
-    $('surface-place').disabled = !active || !readyPose;
+    $('surface-place').disabled = !active || placed || !readyPose || placeRequested;
     $('surface-reposition').disabled = !active || !placed;
     for (const id of ['surface-smaller','surface-larger','surface-left','surface-right']) $(id).disabled = !placed;
     $('surface-size').textContent = Math.round(scale * 100) + '% · ' + yaw + '°';
@@ -42,9 +55,9 @@ export function createSpatialAR(app) {
     if (!Number.isFinite(largest) || largest <= 0) throw new Error('No se pudo preparar la geometría para AR.');
     models.position.set(-center.x, -bounds.min.y, -center.z);
     content.userData.baseScale = .5 / largest; content.scale.setScalar(content.userData.baseScale);
-    reticle = new THREE.Mesh(new THREE.RingGeometry(.055, .075, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x7defff, side: THREE.DoubleSide, depthTest: true }));
-    reticle.matrixAutoUpdate = false; reticle.visible = false; arScene.add(reticle);
-    placed = readyPose = false; scale = 1; yaw = 0;
+    reticle = new THREE.Mesh(new THREE.RingGeometry(.055, .075, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x7defff, side: THREE.DoubleSide, depthTest: false, depthWrite: false }));
+    reticle.renderOrder = 10; reticle.matrixAutoUpdate = false; reticle.visible = false; arScene.add(reticle);
+    clearAnchor(); resetScan(); placed = readyPose = false; scale = 1; yaw = 0;
   }
   function dispose() {
     // Mesh clones share source geometry/materials. Only the guide owns resources here.
@@ -58,10 +71,22 @@ export function createSpatialAR(app) {
     document.body.classList.add('surface-active'); overlay.hidden = false;
     $('surface-exit').focus({preventScroll:true});
   }
-  function referenceReset() { placed = readyPose = false; if (placement) placement.visible = false; sync(); message('El seguimiento cambió de origen. Busca de nuevo una superficie.'); }
+  function referenceReset(event) {
+    resetScan(); placeRequested = false;
+    if (placed && !anchor && !anchorPending && event.transform) {
+      // reset.transform maps the new reference origin into the old coordinates.
+      placement.updateMatrix();
+      targetPose.fromArray(event.transform.matrix).invert().multiply(placement.matrix);
+      targetPose.decompose(placement.position, placement.quaternion, placement.scale);
+    } else if (!anchor) {
+      clearAnchor(); placed = false;
+    }
+    if (placement) placement.visible = false;
+    sync(); message(placed ? 'Recuperando la posición del modelo…' : 'El seguimiento cambió. Busca de nuevo una superficie.');
+  }
   function cleanup(ownSession) {
     if (ownSession && session !== ownSession) return;
-    generation++; try { source?.cancel(); } catch {} source = null;
+    generation++; clearAnchor(); resetScan(); try { source?.cancel(); } catch {} source = null;
     reference?.removeEventListener?.('reset', referenceReset); session?.removeEventListener('select', place);
     reference = null; session = null;
     renderer.setAnimationLoop(null); renderer.xr.enabled = false;
@@ -75,30 +100,80 @@ export function createSpatialAR(app) {
     previousFocus = null;
   }
   function place() {
-    if (!active || session?.visibilityState === 'hidden' || !readyPose || performance.now() - lastPoseAt > 500) return;
-    pose.decompose(placement.position, placement.quaternion, placement.scale);
-    placement.visible = true; placed = true; readyPose = false; reticle.visible = false;
-    message('Colocado. Muévete para observarlo. Puedes girar, cambiar tamaño o buscar otro lugar.'); sync();
+    if (!active || placed || session?.visibilityState !== 'visible' || !readyPose) return;
+    // Consume the request inside the next XR frame: hit results cannot create anchors later.
+    placeRequested = true; sync();
+  }
+  function commit(hit) {
+    clearAnchor();
+    const operation = anchorRun;
+    // Use the current measured hit for both placement and anchor, never a stale guide pose.
+    targetPose.decompose(placement.position, placement.quaternion, placement.scale);
+    placement.visible = true; placed = true; resetScan();
+    if (typeof hit.createAnchor === 'function' && (!session.enabledFeatures || session.enabledFeatures.includes('anchors'))) {
+      anchorPending = true; placement.visible = false;
+      try {
+        Promise.resolve(hit.createAnchor()).then(created => {
+          if (!active || operation !== anchorRun || !placed) { created.delete(); return; }
+          anchor = created; anchorPending = false;
+        }).catch(() => { if (operation === anchorRun) anchorPending = false; });
+      } catch { anchorPending = false; }
+    }
+    message(placedMessage()); sync();
   }
   function frame(time, xrFrame) {
     if (!active || !xrFrame || !session) return;
+    const dt = previousTime ? Math.max(0, time - previousTime) : 16; previousTime = time;
     readyPose = false; reticle.visible = false;
     try {
-      const tracked = session.visibilityState !== 'hidden' && !!xrFrame.getViewerPose(reference);
-      placement.visible = placed && tracked;
-      if (!tracked) message('Se perdió el seguimiento. Mueve el dispositivo despacio para recuperarlo.');
-      else if (!placed) {
-        const hit = xrFrame.getHitTestResults(source).find((result) => horizontalSurface(result.getPose(reference)?.transform.matrix));
-        const matrix = hit?.getPose(reference)?.transform.matrix;
+      const viewer = session.visibilityState === 'visible' && xrFrame.getViewerPose(reference);
+      const tracked = viewer && !viewer.emulatedPosition;
+      placement.visible = placed && !!tracked && !anchorPending;
+      if (!tracked) {
+        resetScan(); placeRequested = false;
+        message('Se perdió el seguimiento. Mira una zona iluminada con detalles y mueve el dispositivo despacio para recuperarlo.');
+      } else if (!placed) {
+        let hit = null, matrix = null;
+        for (const result of xrFrame.getHitTestResults(source)) {
+          const candidate = result.getPose(reference);
+          if (candidate && !candidate.emulatedPosition && horizontalSurface(candidate.transform.matrix)) {
+            hit = result; matrix = candidate.transform.matrix; break;
+          }
+        }
+        const scan = tracker.update(matrix, time);
         if (matrix) {
-          pose.fromArray(matrix); reticle.matrix.copy(pose); reticle.visible = readyPose = true; lastPoseAt = performance.now();
-          message(session.domOverlayState ? 'Superficie horizontal encontrada. Pulsa Colocar o toca la pantalla.' : 'Superficie horizontal encontrada. Toca la pantalla para colocar.');
-        } else message('Mueve el dispositivo despacio y apunta a una mesa o al suelo.');
-      } else message('Colocado. Muévete para observarlo. Puedes girar, cambiar tamaño o buscar otro lugar.');
+          targetPose.fromArray(matrix);
+          targetPose.decompose(targetPosition, targetRotation, unitScale);
+          if (scan.restarted) pose.copy(targetPose);
+          else {
+            pose.decompose(reticle.position, reticle.quaternion, reticle.scale);
+            const alpha = 1 - Math.exp(-dt / 65);
+            reticle.position.lerp(targetPosition, alpha); reticle.quaternion.slerp(targetRotation, alpha);
+            pose.compose(reticle.position, reticle.quaternion, unitScale);
+          }
+        }
+        reticle.matrix.copy(pose); reticle.visible = scan.visible; readyPose = scan.ready;
+        reticle.material.color.setHex(readyPose ? 0x7defff : 0xffcf70);
+        if (placeRequested) { placeRequested = false; if (readyPose && hit) commit(hit); }
+        if (!placed) message(readyPose
+          ? (session.domOverlayState ? 'Superficie estable. Pulsa Colocar aquí o toca la pantalla.' : 'Superficie estable. Toca la pantalla para colocar.')
+          : scan.visible ? 'Comprobando la superficie… Mantén el dispositivo estable.'
+          : 'Escanea despacio de lado a lado. Busca bordes o detalles con buena luz; las superficies lisas o blandas pueden no detectarse.');
+      } else if (anchor) {
+        const located = (!xrFrame.trackedAnchors || xrFrame.trackedAnchors.has(anchor)) && xrFrame.getPose(anchor.anchorSpace, reference);
+        if (located && !located.emulatedPosition) {
+          pose.fromArray(located.transform.matrix);
+          pose.decompose(placement.position, placement.quaternion, placement.scale);
+          placement.visible = true; message(placedMessage());
+        } else {
+          placement.visible = false;
+          message('Recuperando el anclaje. Apunta otra vez al lugar donde colocaste el modelo.');
+        }
+      } else message(placedMessage());
       app.gears?.updateFrame();
       sync(); renderer.render(arScene, camera);
     } catch {
-      readyPose = false; placement.visible = reticle.visible = false; sync();
+      resetScan(); placeRequested = false; placement.visible = false; sync();
       message('No se pudo actualizar el seguimiento. Sal de AR y vuelve a intentarlo.');
     }
   }
@@ -114,7 +189,7 @@ export function createSpatialAR(app) {
       build(); preparedScene = arScene; app.camera.stop(); app.interactions.cancelGesture(); app.parts.stop(); app.experiment.stop();
       message('Solicitando AR al dispositivo…');
       // Keep the actual session request in the user activation event.
-      candidate = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local','hit-test'], optionalFeatures: ['dom-overlay'], domOverlay: {root: overlay} });
+      candidate = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local','hit-test'], optionalFeatures: ['dom-overlay', 'anchors'], domOverlay: {root: overlay} });
       check(); session = candidate;
       candidate.addEventListener('end', () => queueMicrotask(() => cleanup(candidate)), {once:true});
       renderer.xr.enabled = true; renderer.xr.setReferenceSpaceType('local');
@@ -165,7 +240,7 @@ export function createSpatialAR(app) {
   }
   $('surface-check').onclick = support;
   $('surface-start').onclick = start; $('surface-cancel').onclick = end; $('surface-exit').onclick = end; $('surface-place').onclick = place;
-  $('surface-reposition').onclick = () => { placed = false; readyPose = false; placement.visible = false; sync(); };
+  $('surface-reposition').onclick = () => { clearAnchor(); resetScan(); placed = false; placement.visible = false; sync(); };
   const transform = () => { if (!content) return; content.scale.setScalar(content.userData.baseScale * scale); content.rotation.y = THREE.MathUtils.degToRad(yaw); sync(); };
   $('surface-smaller').onclick = () => { scale = Math.max(.25, Math.round((scale-.1)*100)/100); transform(); };
   $('surface-larger').onclick = () => { scale = Math.min(2, Math.round((scale+.1)*100)/100); transform(); };
