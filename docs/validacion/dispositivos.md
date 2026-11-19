@@ -49,3 +49,11 @@ Anotar resultados y evidencias reales. Estos pasos están preparados; no se han 
 - Provocar una interrupción breve: el aro puede permanecer ámbar hasta 250 ms, pero no debe permitir colocar sin una lectura actual. Tras un salto de altura debe volver a comprobar la superficie.
 - Perder y recuperar seguimiento: el modelo se oculta durante poses emuladas o anclas sin seguimiento y reaparece al recuperar el ancla. Comprobar Otro lugar y salida mientras se está fijando el modelo.
 - Comparar un equipo con anchors y otro sin esta capacidad. No atribuir precisión centimétrica a las pruebas simuladas.
+
+### Recuperación tras giros y movimiento brusco — pendiente
+
+1. Colocar junto a una referencia rígida y visible. Registrar si el anclaje está activo; la colocación de compatibilidad sin ancla no ofrece la misma recuperación.
+2. Girar el teléfono 90°, 180° y 360° alrededor de su eje óptico; alternar vertical/horizontal sin mover la referencia. Medir deriva aparente en centímetros.
+3. Separadamente, hacer un movimiento rápido y volver a mirar la referencia. Registrar pérdidas y tiempo de recuperación. El movimiento puede superar la capacidad de seguimiento del dispositivo; no se garantiza recuperación en todos los casos.
+4. El modelo debe permanecer oculto durante pérdidas y lecturas incoherentes; al recuperarse, debe usar la misma ancla, sin recolocación automática. Esperar varias lecturas válidas antes de mostrarlo reduce reapariciones intermitentes, pero no corrige por sí solo la deriva del sistema.
+5. Repetir con distintas luces y texturas; registrar navegador, dispositivo y versión del sitio. Las pruebas automatizadas de poses de cámara no comprueban la cámara/compositor XR ni la precisión física.

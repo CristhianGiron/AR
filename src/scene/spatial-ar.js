@@ -2,6 +2,7 @@ import { XR_UNAVAILABLE, xrFailure, spatialPolicyAllowed } from './xr-availabili
 import * as THREE from 'three';
 import { $ } from '../ui/dom.js';
 import { horizontalSurface, createSurfaceTracker } from './surface-pose.js';
+import { createAnchorRecovery } from './anchor-tracking.js';
 
 /** Temporary WebXR placement; original scene objects and project files stay in lab space. */
 export function createSpatialAR(app) {
@@ -12,10 +13,10 @@ export function createSpatialAR(app) {
   let hidden = [], previousFocus = null, pageHidden = false;
   const pose = new THREE.Matrix4(), targetPose = new THREE.Matrix4();
   const targetPosition = new THREE.Vector3(), targetRotation = new THREE.Quaternion(), unitScale = new THREE.Vector3(1, 1, 1);
-  const tracker = createSurfaceTracker();
+  const tracker = createSurfaceTracker(), recovery = createAnchorRecovery();
   let anchor = null, anchorPending = false, anchorRun = 0, placeRequested = false, previousTime = 0;
   function clearAnchor() {
-    anchorRun++; anchorPending = false; placeRequested = false;
+    anchorRun++; recovery.reset(); anchorPending = false; placeRequested = false;
     try { anchor?.delete(); } catch {}
     anchor = null;
   }
@@ -72,7 +73,7 @@ export function createSpatialAR(app) {
     $('surface-exit').focus({preventScroll:true});
   }
   function referenceReset(event) {
-    resetScan(); placeRequested = false;
+    recovery.reset(); resetScan(); placeRequested = false;
     if (placed && !anchor && !anchorPending && event.transform) {
       // reset.transform maps the new reference origin into the old coordinates.
       placement.updateMatrix();
@@ -130,7 +131,7 @@ export function createSpatialAR(app) {
       const tracked = viewer && !viewer.emulatedPosition;
       placement.visible = placed && !!tracked && !anchorPending;
       if (!tracked) {
-        resetScan(); placeRequested = false;
+        recovery.reset(); resetScan(); placeRequested = false;
         message('Se perdió el seguimiento. Mira una zona iluminada con detalles y mueve el dispositivo despacio para recuperarlo.');
       } else if (!placed) {
         let hit = null, matrix = null;
@@ -161,7 +162,7 @@ export function createSpatialAR(app) {
           : 'Escanea despacio de lado a lado. Busca bordes o detalles con buena luz; las superficies lisas o blandas pueden no detectarse.');
       } else if (anchor) {
         const located = (!xrFrame.trackedAnchors || xrFrame.trackedAnchors.has(anchor)) && xrFrame.getPose(anchor.anchorSpace, reference);
-        if (located && !located.emulatedPosition) {
+        if (recovery.update(located && !located.emulatedPosition ? located.transform.matrix : null, time)) {
           pose.fromArray(located.transform.matrix);
           pose.decompose(placement.position, placement.quaternion, placement.scale);
           placement.visible = true; message(placedMessage());
@@ -173,7 +174,7 @@ export function createSpatialAR(app) {
       app.gears?.updateFrame();
       sync(); renderer.render(arScene, camera);
     } catch {
-      resetScan(); placeRequested = false; placement.visible = false; sync();
+      recovery.reset(); resetScan(); placeRequested = false; placement.visible = false; sync();
       message('No se pudo actualizar el seguimiento. Sal de AR y vuelve a intentarlo.');
     }
   }

@@ -35,19 +35,20 @@ run(async({page,click,close,select,frame,artifacts})=>{
    const matrix=new __THREE.Matrix4();matrix.setPosition(1,0,-2);if(kind==='wall')matrix.makeRotationX(Math.PI/2);
    const session=__xrSessions.at(-1);
    __xrTime+=80;
-   __arCallback?.(__xrTime,{getViewerPose:()=>tracked?(tracked==='emulated'?{emulatedPosition:true}:{}):null,
+   __arCallback?.(__xrTime,{getViewerPose:()=>tracked?(tracked==='emulated'?{emulatedPosition:true}:{transform:{matrix:(window.__viewerMatrix||new __THREE.Matrix4()).toArray()}}):null,
     trackedAnchors:window.__anchorTracked===false?new Set():undefined,
     getPose:()=>window.__anchorPose===null?null:{transform:{matrix:(window.__anchorPose||matrix).toArray()}},
     getHitTestResults:()=>kind==='none'?[]:[{
      getPose:()=>({transform:{matrix:matrix.toArray()}}),
      ...(window.__anchorMode?{createAnchor:()=>{
       if(__anchorMode==='reject')return Promise.reject(Error('Unavailable'));
-      const anchor={anchorSpace:{},deleted:0,delete(){this.deleted++;}};window.__lastAnchor=anchor;
+      const anchor={anchorSpace:{},deleted:0,delete(){this.deleted++;}};window.__lastAnchor=anchor;window.__anchorCreations=(window.__anchorCreations||0)+1;
       if(__anchorMode==='late')return new Promise(resolve=>window.__resolveAnchor=()=>resolve(anchor));
       return Promise.resolve(anchor);
      }}:{})
     }]});
   };
+  window.__recoverAnchor=()=>{for(let i=0;i<4;i++)__surfaceFrame('none');};
   window.__stableSurface=()=>{__surfaceFrame('flat');__surfaceFrame('flat');__surfaceFrame('flat');
   };
  });
@@ -120,7 +121,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
    assert.equal(await page.evaluate(()=>__lastAnchor.deleted),1,'late anchor disposed after reposition');
    assert.equal(await page.evaluate(()=>__app.spatial.placed),false);
   } else if(mode==='ok') {
-   await page.evaluate(()=>{__anchorPose=new __THREE.Matrix4().makeTranslation(1.02,.01,-2);__surfaceFrame('flat');});
+   await page.evaluate(()=>{__anchorPose=new __THREE.Matrix4().makeTranslation(1.02,.01,-2);__recoverAnchor();});
    assert.deepEqual(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').position.toArray()),[1.02,.01,-2],'placement follows tracked anchor corrections');
    await page.evaluate(()=>{__localSpace.dispatchEvent(new Event('reset'));__surfaceFrame('none');});
    assert.equal(await page.evaluate(()=>__app.spatial.placed),true,'anchor survives reference reset');
@@ -129,7 +130,29 @@ run(async({page,click,close,select,frame,artifacts})=>{
    await page.evaluate(()=>{__anchorTracked=true;__surfaceFrame('none','emulated');});
    assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),false,'emulated viewer cannot render an anchored model');
    await page.evaluate(()=>__surfaceFrame('none'));
+   assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),false,'single reacquired pose is insufficient');
+   await page.evaluate(()=>__recoverAnchor());
    assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),true,'anchor recovers without new placement');
+   const beforeMotion=await page.evaluate(()=>({anchorCreations:__anchorCreations,position:__arScene.children.find(n=>n.type==='Group').position.toArray(),rotation:__arScene.children.find(n=>n.type==='Group').quaternion.toArray()}));
+   await page.evaluate(()=>{
+    for(const a of [Math.PI/2,Math.PI,-Math.PI/2,0]){
+     __viewerMatrix=new __THREE.Matrix4().makeRotationZ(a);__viewerMatrix.setPosition(4,2,-3);
+     __surfaceFrame('none');
+    }
+   });
+   assert.deepEqual(await page.evaluate(()=>({anchorCreations:__anchorCreations,position:__arScene.children.find(n=>n.type==='Group').position.toArray(),rotation:__arScene.children.find(n=>n.type==='Group').quaternion.toArray()})),beforeMotion,'camera rotation including upside down and translation does not alter world anchor');
+   await page.evaluate(()=>{__anchorPose=null;__surfaceFrame('none');});
+   for(let i=0;i<6;i++){
+    await page.evaluate(i=>{__anchorPose=new __THREE.Matrix4().makeTranslation(i%2,.01,-2);__surfaceFrame('none');},i);
+    assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),false,'incoherent recovery stays hidden');
+   }
+   await page.evaluate(()=>{__anchorPose=new __THREE.Matrix4().makeTranslation(1.02,.01,-2);__recoverAnchor();});
+   assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),true,'same anchor recovers after unstable readings');
+   assert.equal(await page.evaluate(()=>__anchorCreations),beforeMotion.anchorCreations,'no replacement anchor created after motion');
+   await page.evaluate(()=>{__anchorPose.elements[12]=NaN;__surfaceFrame('none');});
+   assert.equal(await page.evaluate(()=>__arScene.children.find(n=>n.type==='Group').visible),false,'invalid native pose hidden');
+   await page.evaluate(()=>__viewerMatrix=null);
+
   } else {
    await page.evaluate(()=>__surfaceFrame('flat'));
    assert.ok(await page.$eval('#surface-live',e=>e.textContent.includes('puede variar')),'anchor rejection falls back honestly');
@@ -156,5 +179,5 @@ run(async({page,click,close,select,frame,artifacts})=>{
   await click('#surface-exit');await page.waitForFunction(()=>!__app.spatial.active);
  }
  await page.evaluate(()=>{const r=__app.engine.renderer;r.xr.setSession=__originalXR.setSession;r.xr.getReferenceSpace=__originalXR.getReferenceSpace;r.setAnimationLoop=__originalXR.setAnimationLoop;r.render=__originalXR.render;});await frame();
- console.log('PASS: simulated XR lifecycle, required hit-test, horizontal placement, stale/lost tracking, resize/rotation controls, native select, overlay protection, cancellation, permission/source errors and original scene restored. Physical XR device validation pending.');
+ console.log('PASS: simulated anchor recovery, upside-down viewer poses, unstable/invalid readings, same-anchor retention, XR lifecycle, required hit-test, horizontal placement, stale/lost tracking, resize/rotation controls, native select, overlay protection, cancellation, permission/source errors and original scene restored. Physical XR device validation pending.');
 }).catch(error=>{console.error(error);process.exitCode=1});
