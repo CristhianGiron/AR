@@ -400,11 +400,11 @@ body.hud-hidden .brand, body.hud-hidden .mode-badge {
   pointer-events: none !important;
 }
 
-#quick-camera {
+#quick-ar {
   display: none;
 }
 
-.hud-hidden #quick-camera {
+.hud-hidden #quick-ar {
   display: grid;
 }
 

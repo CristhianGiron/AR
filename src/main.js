@@ -83,6 +83,7 @@ app.ready = Promise.all([app.models.loadCatalogAndScene(), app.learning.load(), 
     document.body.classList.add('classroom-mode');
     app.hud.setNavigation(false);
   }
+  app.spatial.support();
   return results;
 });
 

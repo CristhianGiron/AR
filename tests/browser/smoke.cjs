@@ -185,7 +185,7 @@ run(async ({ page, artifacts, root, lessons, allModels, frame, ready, snapshot, 
   await touch('touchMove', [[0, 165, 410], [1, 235, 425]]); await touch('touchEnd', []); await frame();
   assert.ok(await page.evaluate(() => __app.state.viewState.zoom > 1)); assert.deepEqual(await snapshot(), touchBefore);
   await page.evaluate(() => { Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: { getUserMedia: async () => { throw new DOMException('Denied', 'NotAllowedError'); } } }); });
-  await click('#quick-camera'); await page.waitForFunction(() => document.getElementById('notice').textContent.includes('No se pudo activar'));
+  await page.evaluate(()=>{__app.camera.toggle();}); await page.waitForFunction(() => document.getElementById('notice').textContent.includes('No se pudo activar'));
 
   await load('?no-lessons=1'); await select('sensor-luz-ldr'); await advanced(); await click('#mobile-inspect');
   assert.equal(await page.$$eval('#learning-choices button', (buttons) => buttons.length), 0);

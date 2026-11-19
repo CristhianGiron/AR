@@ -2,7 +2,10 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {run}=require('./harness.cjs');
 run(async({page,click,close,select,frame,artifacts})=>{
- await select('sensor-temperatura');await close();await click('#view-controls-toggle');await click('#open-surfaces');
+ await select('sensor-temperatura');await close();
+ assert.equal(await page.$eval('#quick-ar',e=>e.getAttribute('aria-label')),'Entrar en AR');
+ assert.equal(await page.$('#quick-camera'),null,'old camera entry was replaced');
+ await click('#quick-ar');
  await page.waitForFunction(()=>!document.querySelector('#surface-message').textContent.includes('Comprobando'));
  assert.ok(await page.$eval('#surface-message',e=>e.textContent.length>10));
  assert.equal(await page.$eval('#surface-start',e=>e.disabled),true,'unsupported runtime cannot request an immersive session');
@@ -52,7 +55,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
   window.__stableSurface=()=>{__surfaceFrame('flat');__surfaceFrame('flat');__surfaceFrame('flat');
   };
  });
- await page.evaluate(async()=>{__app.loop.start();await __app.spatial.support();});await click('#surface-start');await page.waitForFunction(()=>__app.spatial.active);
+ await page.evaluate(async()=>{__app.loop.start();await __app.spatial.support();});await close();await click('#quick-ar');await page.waitForFunction(()=>__app.spatial.active);
  assert.deepEqual(await page.evaluate(()=>__xrOptions.at(-1)),{mode:'immersive-ar',required:['local','hit-test'],optional:['dom-overlay','anchors'],overlay:'surface-overlay'});
  assert.equal(await page.$eval('#surface-place',e=>e.disabled),true);
  await page.evaluate(()=>__surfaceFrame('wall'));assert.equal(await page.$eval('#surface-place',e=>e.disabled),true,'wall rejected');
@@ -83,7 +86,7 @@ run(async({page,click,close,select,frame,artifacts})=>{
  const audit=await page.evaluate(async()=>{const r=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return r.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}));});assert.deepEqual(audit,[]);
  await page.screenshot({path:path.join(artifacts,'surface-controls-simulated.png')});
  await click('#surface-exit');await page.waitForFunction(()=>!__app.spatial.active);
- assert.equal(await page.evaluate(()=>__xrSessions[0].source.cancelled),1);assert.equal(await page.$eval('#surface-overlay',e=>e.hidden),true);assert.equal(await page.evaluate(()=>document.activeElement.id),'view-controls-toggle','focus returns to visible control');
+ assert.equal(await page.evaluate(()=>__xrSessions[0].source.cancelled),1);assert.equal(await page.$eval('#surface-overlay',e=>e.hidden),true);assert.equal(await page.evaluate(()=>document.activeElement.id),'quick-ar','focus returns to visible control');
  assert.equal(await page.evaluate(()=>__app.loop.running),true,'normal loop resumes after XR');await page.evaluate(()=>__app.loop.stop());
  assert.deepEqual(await page.evaluate(()=>__app.projects.capture()),originals,'AR does not change saved transforms or learning');
  await page.evaluate(async()=>{navigator.xr.isSessionSupported=async()=>false;await __app.spatial.support();});

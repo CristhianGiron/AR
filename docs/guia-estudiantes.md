@@ -10,7 +10,7 @@ Los tres puntos abren los ajustes: puedes escribir posición, tamaño y ángulos
 
 Para acercar o girar todos los componentes, abre el botón de controles del pie. **Restablecer vista** recupera el encuadre. Si quitas un componente, **Deshacer** lo recupera.
 
-La cámara es opcional: el icono del pie solicita permiso para mostrarla como fondo. Vuelve a pulsarlo o usa el cubo para apagarla. Puedes hacer las actividades sin cámara. Ese botón solo usa la cámara como fondo. Para colocarlos sobre una superficie usa el modo AR de los controles de vista, si tu dispositivo lo admite.
+El botón **AR** del pie permite entrar para colocar el objeto sobre una superficie real. Si el dispositivo no es compatible, se muestra una explicación. Puedes realizar todas las actividades en la vista 3D.
 
 **Cargar modelo** abre un GLB, glTF, OBJ, FBX, STL o PLY desde tu equipo. Si el modelo tiene materiales, texturas o un archivo BIN, selecciónalos en **Materiales y texturas**. El máximo total es de 64 MB. El archivo se lee en tu navegador. Antes de recargar, usa **Mi escena → Guardar o recuperar escenas**. Guarda en este navegador o exporta un archivo para llevarlo a otro equipo. Al volver, abre la escena guardada o importa el archivo: los modelos y sus recursos quedan incluidos. El guardado es manual; no escribas datos personales. Pide al docente los modelos de la actividad.
 
@@ -26,6 +26,6 @@ Con el sensor ultrasónico, **Experimentar** abre el laboratorio del eco. Pulsa 
 
 Anota un caso cercano, otro lejano y otro sin obstáculo. **Sin eco** significa que no hay señal de regreso en esta simulación; no equivale a cero centímetros. Los centímetros y milisegundos son valores calculados de la actividad, no lecturas reales. El dibujo tiene escala ilustrativa. La misión **Un robot que evita obstáculos** te guía para proponer una regla y guardar tu explicación.
 
-Para probar superficies reales, selecciona un sensor y abre **Controles de vista → Colocar sobre una superficie · AR**. Elige qué colocar y entra en AR. Busca una mesa o el suelo; el aro indica una superficie horizontal disponible. Confirma la colocación. Puedes girar o cambiar tamaño con los botones, o elegir otro lugar. La × permite salir; si tu navegador no muestra los botones, toca cuando aparezca el aro y utiliza la salida AR del navegador.
+Para probar superficies reales, selecciona un modelo y pulsa **AR** en el pie. También puedes abrir **Controles de vista → Colocar sobre una superficie · AR** para elegir qué colocar. Elige qué colocar y entra en AR. Busca una mesa o el suelo; el aro indica una superficie horizontal disponible. Confirma la colocación. Puedes girarlo con los dedos, poner en marcha los engranajes o elegir otro lugar. La × permite salir; si tu navegador no muestra los botones, toca cuando aparezca el aro y utiliza la salida AR del navegador.
 
 Al salir recuperas el trabajo del laboratorio. La colocación dura esta sesión; guardar una escena no guarda la mesa ni la habitación. Puedes realizar todas las actividades en 3D si tu dispositivo no admite esta opción.

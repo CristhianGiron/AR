@@ -21,7 +21,7 @@
 #bar button, #hud-toggle { width: 44px; height: 44px; min-height: 44px; padding: 10px; border-radius: 50%; }
 #view { display: grid; place-items: center; }
 #view span, #hud-toggle span { display: none; }
-#quick-camera { display: grid; }
+#quick-ar { display: grid; }
 #hud-toggle { left: 20px; bottom: 20px; }
 #scene-count { font-size: 12px; color: #ddd8ef; }
 #scene-guide { bottom: 80px; width: max-content; max-width: calc(100vw - 32px); padding: 8px 14px; border-radius: 12px; background: #23243f; box-shadow: none; }

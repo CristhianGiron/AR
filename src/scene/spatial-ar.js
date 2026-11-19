@@ -37,6 +37,8 @@ export function createSpatialAR(app) {
   }
   function sync() {
     app.gearTelemetry?.updateFrame();
+    $('quick-ar').disabled = pending || active;
+    $('quick-ar').setAttribute('aria-busy',String(pending || availability === 'checking'));
     $('surface-start').disabled = pending || active || availability !== 'available';
     $('surface-check').disabled = pending || active || availability === 'checking';
     $('surface-cancel').hidden = !pending;
@@ -117,7 +119,7 @@ export function createSpatialAR(app) {
     sync();
     if (savedLoop && !document.hidden && !pageHidden) app.loop.start(); savedLoop = false;
     if (previousFocus?.isConnected && !previousFocus.closest('[hidden], [inert]')) previousFocus.focus({preventScroll:true});
-    else $($('surfaces').open ? 'surface-start' : 'view-controls-toggle').focus({preventScroll:true});
+    else $($('surfaces').open ? 'surface-start' : 'quick-ar').focus({preventScroll:true});
     previousFocus = null;
   }
   function place() {
@@ -274,6 +276,15 @@ export function createSpatialAR(app) {
       message(supported ? 'El navegador admite sesiones AR. Al entrar se comprobará también la detección de superficies; mueve el dispositivo despacio.' : XR_UNAVAILABLE);
     } catch (error) { if (check !== supportRun) return; availability = 'unavailable'; sync(); message(xrFailure(error)); }
   }
+  $('quick-ar').onclick = () => {
+    if(pending || active)return;
+    if(availability === 'available'){
+      $('surface-scope').value = app.state.chosen ? 'selected' : 'visible';
+      start();
+    } else {
+      app.hud.open('surfaces',$('quick-ar')); support();
+    }
+  };
   $('surface-check').onclick = support;
   $('surface-start').onclick = start; $('surface-cancel').onclick = end; $('surface-exit').onclick = end; $('surface-place').onclick = place;
   $('surface-reposition').onclick = () => { scanTrail?.clear(); gestures.cancel(); clearAnchor(); resetScan(); placed = false; placement.visible = false; sync(); };

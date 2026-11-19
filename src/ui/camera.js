@@ -3,14 +3,10 @@ import { $ } from "./dom.js";
 /** One request at a time; late permissions never reactivate a camera the user stopped. */
 export function createCamera(app) {
   let stream = null, requested = false, generation = 0;
-  const video = $("video"), button = $("quick-camera");
+  const video = $("video");
   const stopTracks = (value) => value?.getTracks().forEach((track) => track.stop());
 
   function sync(active, pending = false) {
-    button.setAttribute("aria-label", pending ? "Cancelar activación de cámara" : active ? "Desactivar cámara" : "Activar cámara");
-    button.title = button.getAttribute("aria-label");
-    button.setAttribute("aria-pressed", String(active));
-    button.setAttribute("aria-busy", String(pending));
     $("mode-title").textContent = active ? "Realidad Aumentada" : "Exploración 3D";
   }
 
@@ -59,9 +55,8 @@ export function createCamera(app) {
     }
   }
 
-  button.onclick = toggle;
   $("view").onclick = () => stop(true);
   window.addEventListener("pagehide", () => stop());
   sync(false);
-  return { stop };
+  return { stop, toggle };
 }
