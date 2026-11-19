@@ -49,7 +49,7 @@ export function createAnnotations(app, options = {}) {
   const connectors = new Map();
   const bounds = new THREE.Box3();
   const raycaster = new THREE.Raycaster();
-  const labelBottom = new THREE.Vector3();
+  const labelBottom = new THREE.Vector3(), labelScale = new THREE.Vector3();
   const center = new THREE.Vector3();
   const direction = new THREE.Vector3();
   const cameraRight = new THREE.Vector3(), cameraUp = new THREE.Vector3(), towardModel = new THREE.Vector3();
@@ -121,12 +121,12 @@ export function createAnnotations(app, options = {}) {
           !record.cameraQuaternion.equals(app.engine.camera.quaternion)) {
         if (item.localBounds) item.mesh.localToWorld(item.localBounds.getCenter(center));
         else bounds.setFromObject(item.mesh).getCenter(center);
-        item.tag.getWorldPosition(labelBottom);
+        item.tag.getWorldPosition(labelBottom); item.tag.getWorldScale(labelScale);
         cameraRight.set(1, 0, 0).applyQuaternion(app.engine.camera.quaternion);
         cameraUp.set(0, 1, 0).applyQuaternion(app.engine.camera.quaternion);
         towardModel.subVectors(center, labelBottom);
         const dx = towardModel.dot(cameraRight), dy = towardModel.dot(cameraUp);
-        const fraction = Math.min(Math.abs(dx) > 1e-8 ? item.tag.scale.x / 2 / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-8 ? item.tag.scale.y / 2 / Math.abs(dy) : Infinity);
+        const fraction = Math.min(Math.abs(dx) > 1e-8 ? labelScale.x / 2 / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-8 ? labelScale.y / 2 / Math.abs(dy) : Infinity);
         if (Number.isFinite(fraction)) labelBottom.addScaledVector(cameraRight, dx * fraction).addScaledVector(cameraUp, dy * fraction);
         direction.subVectors(center, labelBottom).normalize();
         raycaster.set(labelBottom, direction);

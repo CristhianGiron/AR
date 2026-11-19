@@ -49,7 +49,7 @@ export function createNameLabelLayout(app, options = {}) {
       if (!boxes.length || app.state.hudHidden) continue;
       const bounds = { left: Math.min(...boxes.map(b => b.left)), top: Math.min(...boxes.map(b => b.top)), right: Math.max(...boxes.map(b => b.right)), bottom: Math.max(...boxes.map(b => b.bottom)) };
       if (bounds.right < safe.left || bounds.left > safe.right || bounds.bottom < safe.top || bounds.top > safe.bottom) continue;
-      const width = Math.min(canvas.width <= 600 ? 184 : 224, safe.right - safe.left), height = width * 150 / 768;
+      const width = Math.min(options.labelWidth?.(canvas.width) ?? (canvas.width <= 600 ? 184 : 224), safe.right - safe.left), height = width * 150 / 768;
       const centerX = (bounds.left + bounds.right) / 2, centerY = (bounds.top + bounds.bottom) / 2;
       point.set(0, item.height, 0).applyMatrix4(item.anchor.matrixWorld).project(camera);
       const preferred = { x: canvas.left + (point.x + 1) * canvas.width / 2 - width / 2, y: canvas.top + (1 - point.y) * canvas.height / 2 - height / 2 };
@@ -78,8 +78,9 @@ export function createNameLabelLayout(app, options = {}) {
       position.set(((best.x + width / 2 - canvas.left) / canvas.width) * 2 - 1, 1 - ((best.y + height / 2 - canvas.top) / canvas.height) * 2, ndc).unproject(camera);
       item.anchor.worldToLocal(position); tag.position.copy(position);
       item.anchor.getWorldScale(scale);
-      const units = 2 * depth * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) / canvas.height;
-      tag.scale.set(width * units / scale.x, height * units / scale.y, 1);
+      const unitsX = 2 * depth / Math.abs(camera.projectionMatrix.elements[0]) / canvas.width;
+      const unitsY = 2 * depth / Math.abs(camera.projectionMatrix.elements[5]) / canvas.height;
+      tag.scale.set(width * unitsX / scale.x, height * unitsY / scale.y, 1);
       tag.quaternion.copy(camera.quaternion); tag.visible = true; tag.updateWorldMatrix(false, false);
       tag.userData.screenBounds = best.box;
       tag.userData.protectedBounds = allBounds;

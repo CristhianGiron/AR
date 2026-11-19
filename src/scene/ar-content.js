@@ -18,12 +18,13 @@ export function createARContent(app, models, camera, originals) {
     return entry;
   });
   const state = {entries,chosen:entries.find((_,i)=>originals[i]===app.state.chosen)||entries.find(e=>e.mechanism)||entries[0],hudHidden:true};
-  const engine = {camera,canvas:app.engine.canvas};
+  const overlay = document.getElementById('surface-overlay');
+  const engine = {camera,canvas:{getBoundingClientRect:()=>overlay.getBoundingClientRect()}};
   const context = {state,engine,hud:{isBlocking:()=>false,dockedPanel:()=>null}};
   const obstacles = () => ['surface-card','surface-controls'].map(cls=>document.querySelector('.'+cls).getBoundingClientRect());
   const top = () => obstacles()[0].bottom + 8;
-  const annotations = createAnnotations(context,{obstacles,safeBounds:canvas=>({left:canvas.left+10,right:canvas.right-10,top:top(),bottom:obstacles()[1].top-8})});
-  const telemetry = createGearTelemetry(context,{layer:document.getElementById('surface-telemetry'),svg:document.getElementById('surface-telemetry-lines'),toggleButton:null,obstacles,top});
+  const annotations = createAnnotations(context,{labelWidth:width=>width<=600?280:320,obstacles,safeBounds:canvas=>({left:canvas.left+10,right:canvas.right-10,top:top(),bottom:obstacles()[1].top-8})});
+  const telemetry = createGearTelemetry(context,{layer:document.getElementById('surface-telemetry'),svg:document.getElementById('surface-telemetry-lines'),toggleButton:null,connectorWidth:3,viewport:()=>overlay.getBoundingClientRect(),obstacles,top});
   const mechanisms = entries.filter(e=>e.mechanism).map(e=>e.mechanism);
   const connected = m=>!m.state.separation && m.state.isolated===null;
   return {

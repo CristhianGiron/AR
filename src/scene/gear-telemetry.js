@@ -16,7 +16,14 @@ export function createGearTelemetry(app, options = {}) {
     card.innerHTML = '<div class="readout-heading"><span class="readout-dot"></span><b>' + (index ? '02 · SALIDA' : '01 · ENTRADA') + '</b><span class="readout-state"></span></div><div class="readout-speed"><strong>0</strong><span>rpm</span></div><div class="readout-details"></div><div class="readout-angle"></div><div class="readout-setting"></div><div class="readout-force" hidden></div><div class="readout-torque" hidden></div>';
     layer.append(card);
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'), dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    path.dataset.wheel = dot.dataset.wheel = index; dot.setAttribute('r', '3'); svg.append(path, dot);
+    path.dataset.wheel = dot.dataset.wheel = index; dot.setAttribute('r', '3');
+    if (options.connectorWidth) {
+      const colors = ['#f6bc6d','#ffacc8','#8ee9d0','#d8adff'];
+      path.setAttribute('fill','none'); path.setAttribute('stroke',colors[index % colors.length]);
+      path.style.stroke = colors[index % colors.length]; path.style.strokeWidth = options.connectorWidth;
+      path.setAttribute('vector-effect','non-scaling-stroke');
+    }
+    svg.append(path, dot);
     return { card, path, dot, heading: card.querySelector('b'), speed: card.querySelector('strong'), state: card.querySelector('.readout-state'), details: card.querySelector('.readout-details'), angle: card.querySelector('.readout-angle'), setting: card.querySelector('.readout-setting'), force: card.querySelector('.readout-force'), torque: card.querySelector('.readout-torque') };
   }
   for (let index = 0; index < 2; index++) cards.push(addCard(index));
@@ -33,6 +40,7 @@ export function createGearTelemetry(app, options = {}) {
     }
     return record.sizes;
   }
+  const nameCenter = new THREE.Vector3(), nameScale = new THREE.Vector3(), cameraRight = new THREE.Vector3(), cameraUp = new THREE.Vector3();
   const point = new THREE.Vector3(), axisWorld = new THREE.Vector3(), homeWorld = new THREE.Vector3(), displacement = new THREE.Vector3();
   function projectPart(item, part, index, camera, canvas) {
     const bounds = item.partBounds.get(item.mechanism.system.nodes[index]);
@@ -64,7 +72,7 @@ export function createGearTelemetry(app, options = {}) {
     if (!show) return;
     while (cards.length < mechanism.parts.length) cards.push(addCard(cards.length));
     const camera = app.engine.camera, canvas = app.engine.canvas.getBoundingClientRect();
-    const viewport = { width: innerWidth, height: innerHeight }, top = options.top?.() ?? $('header').getBoundingClientRect().bottom + 8;
+    const viewport = options.viewport?.() || { width: innerWidth, height: innerHeight }, top = options.top?.() ?? $('header').getBoundingClientRect().bottom + 8;
     const obstacles = options.obstacles?.() || ['workspace-panel', 'bar', 'gear-transport', 'gear-model-switcher', 'gear-inline', 'gear-context', 'tools', 'class-return', 'notice'].map($)
       .filter((node) => node && !node.hidden && getComputedStyle(node).display !== 'none' && getComputedStyle(node).visibility !== 'hidden')
       .map((node) => node.getBoundingClientRect());
@@ -72,8 +80,12 @@ export function createGearTelemetry(app, options = {}) {
     // The existing name label remains readable, especially on narrow screens.
     item.tag.updateWorldMatrix(true, false);
     const nameBounds = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+    item.tag.getWorldPosition(nameCenter); item.tag.getWorldScale(nameScale);
+    cameraRight.setFromMatrixColumn(camera.matrixWorld,0); cameraUp.setFromMatrixColumn(camera.matrixWorld,1);
     for (let corner = 0; corner < 4; corner++) {
-      point.set((corner & 1) - .5, (corner >> 1) - .5, 0).applyMatrix4(item.tag.matrixWorld).project(camera);
+      // Sprite cards face the camera even when their parent rotates in AR.
+      point.copy(nameCenter).addScaledVector(cameraRight,((corner & 1)-.5)*nameScale.x)
+        .addScaledVector(cameraUp,((corner >> 1)-.5)*nameScale.y).project(camera);
       const x = canvas.left + (point.x + 1) * canvas.width / 2, y = canvas.top + (1 - point.y) * canvas.height / 2;
       nameBounds.left = Math.min(nameBounds.left, x - 4); nameBounds.right = Math.max(nameBounds.right, x + 4);
       nameBounds.top = Math.min(nameBounds.top, y - 4); nameBounds.bottom = Math.max(nameBounds.bottom, y + 4);
@@ -85,6 +97,7 @@ export function createGearTelemetry(app, options = {}) {
     const factors = speedFactors(mechanism.system), angles = rotationAngles(mechanism.system, mechanism.state.angle, mechanism.state.offsets);
     const running = mechanism.state.running && !mechanism.state.separation && mechanism.state.isolated === null;
     const labels = [], physics = forceReadings(mechanism);
+    svg.setAttribute('width',viewport.width); svg.setAttribute('height',viewport.height);
     svg.setAttribute('viewBox', '0 0 ' + viewport.width + ' ' + viewport.height); layer.dataset.running = String(running);
     cards.forEach((record, index) => {
       const p = projected[index];
@@ -122,9 +135,9 @@ export function createGearTelemetry(app, options = {}) {
     const modelBounds = projected.filter((point, index) => mechanism.parts[index].pivot.visible && point.z >= -1 && point.z <= 1).map(point => point.footprint);
     const safe = boxAt(8, top, viewport.width - 16, Math.max(0, viewport.height - top - 12));
     // Values and motor angle do not change the layout; solve only when geometry/UI moves.
-    const key = [innerWidth, innerHeight, !!physics, ...labels.flatMap(label => [label.index, Math.round(label.anchor.x * 2), Math.round(label.anchor.y * 2), ...[label.footprint.left, label.footprint.top, label.footprint.right, label.footprint.bottom].map(Math.round)]), ...[...obstacles, ...modelBounds].flatMap(box => [box.left, box.top, box.right, box.bottom].map(Math.round))].join('|');
+    const key = [viewport.width, viewport.height, !!physics, ...labels.flatMap(label => [label.index, Math.round(label.anchor.x * 2), Math.round(label.anchor.y * 2), ...[label.footprint.left, label.footprint.top, label.footprint.right, label.footprint.bottom].map(Math.round)]), ...[...obstacles, ...modelBounds].flatMap(box => [box.left, box.top, box.right, box.bottom].map(Math.round))].join('|');
     if (key !== signature) {
-      layoutInput = { labels, obstacles, modelBounds, viewport: safe, previous, maxDistance: innerWidth <= 600 ? 112 : 128 };
+      layoutInput = { labels, obstacles, modelBounds, viewport: safe, previous, maxDistance: viewport.width <= 600 ? 112 : 128 };
       placements = arrangeGearLabels(layoutInput);
       previous = []; for (const placement of placements) previous[placement.index] = placement;
       signature = key;

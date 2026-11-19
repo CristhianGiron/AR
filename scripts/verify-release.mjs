@@ -30,6 +30,7 @@ const jobs = [
   ['misiones-guiadas', ['tests/browser/missions.cjs', '--all-models']],
   ['superficies-webxr', ['tests/browser/surfaces.cjs', '--all-models']],
   ['interaccion-engranajes-ar', ['tests/browser/ar-gears.cjs']],
+  ['malla-y-sombra-ar', ['tests/browser/ar-surface-effects.cjs']],
   ['camara', ['tests/browser/camera.cjs']],
   ['inicio-sin-webgl', ['tests/browser/startup.cjs']],
   ['regresion-completa', ['tests/browser/smoke.cjs', '--all-models']],

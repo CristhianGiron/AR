@@ -65,3 +65,18 @@ Anotar resultados y evidencias reales. Estos pasos están preparados; no se han 
 - Verificar nombre y tarjetas conectadas en vertical y horizontal. No deben cubrir los controles ni permanecer visibles al perder seguimiento; al recuperarlo deben reaparecer con el modelo.
 - Salir y comprobar que el giro, estado mecánico y datos de la escena original no cambiaron por manipular su copia AR. Repetir entradas y salidas para comprobar la eliminación de etiquetas temporales.
 - Sin superposición DOM, comprobar colocación por toque y salida nativa; los gestos y las tarjetas de pantalla no están disponibles.
+
+### Corrección de gestos y legibilidad AR — pendiente de prueba física
+
+- Repetir arrastre sobre la zona central y sobre las etiquetas, manteniendo inmóvil el teléfono. Comparar Pointer Events, eventos táctiles y entrada XR de pantalla cuando esté disponible; los botones deben seguir respondiendo sin girar el objeto.
+- Probar gestos prolongados y torsión con dos dedos; comprobar que ni el desplazamiento de la mano ni los giros cambian la posición del ancla.
+- Comprobar nombre ampliado y conectores de color sobre fondos claros y oscuros. Tras pasar a horizontal o volver a vertical, los conectores deben llegar a sus ruedas y tarjetas sin atravesar el nombre.
+- Registrar navegador, modelo y URL/versión probada. Las pruebas de Chrome simulan las rutas de entrada y aislamiento del overlay, pero no certifican el despacho de eventos de todos los compositores WebXR.
+
+### Rastro de malla y sombra sobre el plano — pendiente de prueba física
+
+- Escanear lentamente piso y mesa o cama a distinta altura. El rastro debe aparecer solo alrededor de hits detectados, mantener separados los niveles y desvanecerse si no se vuelven a observar.
+- Colocar: la malla debe ocultarse y debe aparecer la sombra sobre el plano detectado, conservando transparencia fuera de la sombra.
+- Girar el objeto con los dedos y poner en marcha los engranajes. El plano receptor debe permanecer alineado con el ancla mientras la silueta de la sombra se actualiza.
+- Perder seguimiento y recuperarlo: el rastro se borra y la sombra se oculta junto al modelo hasta recuperar el ancla. Otro lugar debe iniciar un rastro nuevo.
+- Repetir entradas/salidas y comprobar fluidez, temperatura y consumo, especialmente en teléfonos modestos. La prueba automatizada comprueba píxeles de sombra en Chrome con GPU por software, sin certificar rendimiento ni alineación de sensores físicos.
